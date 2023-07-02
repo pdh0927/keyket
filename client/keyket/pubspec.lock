@@ -123,6 +123,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.3"
+  remixicon:
+    dependency: "direct main"
+    description:
+      name: remixicon
+      sha256: "9bef40aeea97e61ba78eadbaecdc629af7e8d30a77e536d37317aa78d491eaee"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -186,3 +194,4 @@ packages:
     version: "2.1.4"
 sdks:
   dart: ">=3.0.5 <4.0.0"
+  flutter: ">=1.20.0"
