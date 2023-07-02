@@ -14,6 +14,6 @@ class _App extends StatelessWidget {
     return MaterialApp(
         theme: ThemeData(fontFamily: 'NotoSans'),
         debugShowCheckedModeBanner: false,
-        home: SplashScreen());
+        home: const SplashScreen());
   }
 }
