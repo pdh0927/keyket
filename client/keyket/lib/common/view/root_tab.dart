@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/my/view/my_screen.dart';
+import 'package:keyket/recommend/view/recommend_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
 class RootTab extends StatefulWidget {
@@ -66,7 +67,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
           controller: controller,
           children: const [
             Center(child: Text('HOME')),
-            Center(child: Text('RECOMMEND')),
+            RecommendScreen(),
             Center(child: Text('BUCKET')),
             MyScreen()
           ]),
