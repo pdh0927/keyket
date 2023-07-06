@@ -6,10 +6,12 @@ class DefaultLayout extends StatelessWidget {
   final Color? backgroundColor;
   final String? title;
   final BottomNavigationBar? bottomNavigationBar;
+  final List<Widget>? actions;
 
   const DefaultLayout(
       {required this.child,
       this.backgroundColor,
+      this.actions,
       this.bottomNavigationBar,
       this.title,
       super.key});
@@ -33,7 +35,10 @@ class DefaultLayout extends StatelessWidget {
           elevation: 0,
           title: Text(title!,
               style:
-                  const TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500)),
+                  const TextStyle(fontSize: 24.0, fontWeight: FontWeight.w500)),
+          centerTitle: false,
+          titleSpacing: 25,
+          actions: actions ?? [],
           foregroundColor: Colors.black);
     }
   }
