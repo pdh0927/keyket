@@ -91,6 +91,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
               ),
               const SizedBox(height: 16),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Row(
                     children: [
@@ -98,6 +99,23 @@ class _RecommendScreenState extends State<RecommendScreen> {
                       Text('추천 목록 List', style: dropdownTextStyle)
                     ],
                   ),
+                  // List 선택 버튼
+                  TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          selectFlag = true;
+                        });
+                      },
+                      style: ButtonStyle(
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                            EdgeInsets.zero),
+                      ),
+                      icon: const Icon(
+                        Remix.checkbox_line,
+                        size: 25,
+                        color: BLACK_COLOR,
+                      ),
+                      label: Text('List 선택하기', style: dropdownTextStyle))
                 ],
               )
             ],
