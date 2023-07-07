@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/recommend/component/filter_list.dart';
-import 'package:keyket/recommend/component/hash_tag_item.dart';
+import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/const/text_style.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:sizer/sizer.dart';
 
 class RecommendScreen extends StatefulWidget {
   const RecommendScreen({super.key});
@@ -15,29 +15,18 @@ class RecommendScreen extends StatefulWidget {
 }
 
 class _RecommendScreenState extends State<RecommendScreen> {
-  List<String> selectedRegionList = [];
-  List<String> selectedWhoList = [];
-  List<String> selectedThemeList = [];
-  Set<HashTagItem> hashTagItemSet = Set<HashTagItem>();
+  Set<Map<String, String>> selectedSet = Set<Map<String, String>>();
 
-  void onRegionSelected(String value) {
+  void onSelected(String type, String value) {
     setState(() {
-      selectedRegionList.add(value);
-      hashTagItemSet.add(HashTagItem(content: value));
+      selectedSet.add({'type': type, 'value': value});
     });
   }
 
-  void onWhoSelected(String value) {
+  void deleteHashTag(String type, String value) {
     setState(() {
-      selectedWhoList.add(value);
-      hashTagItemSet.add(HashTagItem(content: value));
-    });
-  }
-
-  void onThemeSelected(String value) {
-    setState(() {
-      selectedThemeList.add(value);
-      hashTagItemSet.add(HashTagItem(content: value));
+      selectedSet.removeWhere(
+          (element) => element['type'] == type && element['value'] == value);
     });
   }
 
@@ -58,42 +47,47 @@ class _RecommendScreenState extends State<RecommendScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(
             children: [
+              // Flitering
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // Region Filter
                   FilterList(featureList: const [
                     'Region',
                     'Daegu',
                     'Busan',
                     'Seoul',
                     'Hapchun'
-                  ], onSelected: onRegionSelected),
+                  ], onSelected: onSelected),
+                  // Who Filter
                   FilterList(featureList: const [
                     'Who',
                     'Family',
                     'Couple',
                     'Friends',
                     'Solo'
-                  ], onSelected: onWhoSelected),
+                  ], onSelected: onSelected),
+                  // Who Theme
                   FilterList(featureList: const [
                     'Theme',
                     'Activity',
                     'Healing',
                     'Food',
                     'History'
-                  ], onSelected: onThemeSelected)
+                  ], onSelected: onSelected)
                 ],
               ),
-              const SizedBox(height: 8),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(children: [
-                  for (int i = 0; i < hashTagItemSet.toList().length; i++)
-                    Container(
-                      margin: const EdgeInsets.only(right: 8),
-                      child: hashTagItemSet.toList()[i],
-                    ),
-                ]),
+              SizedBox(height: selectedSet.isNotEmpty ? 8 : 0),
+              // HashTag
+              SizedBox(
+                width: 100.w - 32,
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: HashTagItemList(
+                    selectedList: selectedSet.toList(),
+                    deleteHashTag: deleteHashTag,
+                  ),
+                ),
               ),
               const SizedBox(height: 16),
               Row(
@@ -103,7 +97,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                       const Icon(Remix.check_line, size: 25),
                       Text('추천 목록 List', style: dropdownTextStyle)
                     ],
-                  )
+                  ),
                 ],
               )
             ],

@@ -3,9 +3,15 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
 class HashTagItem extends StatelessWidget {
-  final String content;
+  final String value;
+  final String type;
+  final Function deleteHashTag;
 
-  const HashTagItem({super.key, required this.content});
+  const HashTagItem(
+      {super.key,
+      required this.type,
+      required this.value,
+      required this.deleteHashTag});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +28,7 @@ class HashTagItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '# $content',
+              '# $value',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             IconButton(
@@ -33,7 +39,9 @@ class HashTagItem extends StatelessWidget {
                 minWidth: 20,
                 minHeight: 20,
               ),
-              onPressed: () {},
+              onPressed: () {
+                deleteHashTag(type, value);
+              },
             )
           ],
         ));
