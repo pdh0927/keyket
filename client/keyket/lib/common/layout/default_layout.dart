@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sizer/sizer.dart';
 
 // 나중에 모든 screen widget들에 api를 불러와야하거나 다른 작업을 해야할 때 이 위젯 안에 감싸서 넣으면 모든 screen에 한번에 적용 가능
 class DefaultLayout extends StatelessWidget {
@@ -18,12 +19,14 @@ class DefaultLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: renderAppBar(),
-      backgroundColor: backgroundColor ?? Colors.white,
-      body: child,
-      bottomNavigationBar: bottomNavigationBar,
-    );
+    return Sizer(builder: (context, orientation, deviceType) {
+      return Scaffold(
+        appBar: renderAppBar(),
+        backgroundColor: backgroundColor ?? Colors.white,
+        body: child,
+        bottomNavigationBar: bottomNavigationBar,
+      );
+    });
   }
 
   AppBar? renderAppBar() {
