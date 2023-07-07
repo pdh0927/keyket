@@ -5,10 +5,8 @@ class HashTagItemList extends StatelessWidget {
   final List<Map<String, String>> selectedList;
   final void Function(String, String) deleteHashTag;
 
-  const HashTagItemList({
-    required this.selectedList,
-    required this.deleteHashTag,
-  });
+  const HashTagItemList(
+      {super.key, required this.selectedList, required this.deleteHashTag});
 
   @override
   Widget build(BuildContext context) {
