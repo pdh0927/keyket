@@ -52,6 +52,13 @@ class _RecommendScreenState extends State<RecommendScreen> {
   }
 
   bool selectFlag = false;
+  List<int> selectedIndexList = [];
+
+  @override
+  void initState() {
+    selectedIndexList = [];
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,59 +117,101 @@ class _RecommendScreenState extends State<RecommendScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(Remix.check_line, size: 25),
-                    Text('추천 목록 List', style: dropdownTextStyle)
-                  ],
-                ),
-                // List 선택 버튼
-                TextButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        selectFlag = true;
-                      });
-                    },
-                    style: ButtonStyle(
-                      padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          const EdgeInsets.only(right: 3)),
-                    ),
-                    icon: const Icon(
-                      Remix.checkbox_line,
-                      size: 25,
-                      color: BLACK_COLOR,
-                    ),
-                    label: Text('List 선택하기', style: dropdownTextStyle)),
-              ],
-            ),
+            selectFlag == false
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Remix.check_line, size: 25),
+                          Text('추천 목록 List', style: dropdownTextStyle)
+                        ],
+                      ),
+                      // List 선택 버튼
+                      _ListSelectButton(onTap: () {
+                        setState(() {
+                          selectFlag = !selectFlag;
+                        });
+                      }),
+                    ],
+                  )
+                : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                    // 선택 해제 버튼
+                    _CustonUnderlineButton(
+                        onPressed: () {
+                          setState(() {
+                            selectFlag = !selectFlag;
+                            selectedIndexList = [];
+                          });
+                        },
+                        icon: Remix.close_line,
+                        text: '선택 해제'),
+
+                    const SizedBox(width: 20),
+                    // 버킷 저장 버튼
+                    _CustonUnderlineButton(
+                        onPressed: () {
+                          setState(() {
+                            selectFlag = !selectFlag;
+                            selectedIndexList = [];
+                          });
+                        },
+                        icon: Remix.add_line,
+                        text: '버킷 저장'),
+                  ]),
+            const SizedBox(height: 30),
             Expanded(
               child: ListView.builder(
+                // 추천 리스트
                 itemCount: recommendedItems.length,
                 itemBuilder: (context, index) {
+                  bool isContain = selectedIndexList.contains(index);
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      getDottedLine(index, true),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        height: 55,
-                        padding: const EdgeInsets.only(left: 10),
-                        child: Text(
-                          recommendedItems[index]['content'],
-                          style: dropdownTextStyle,
-                          textAlign: TextAlign.start,
-                        ),
+                      getDottedLine(index, true), // 구분 점선
+                      Row(
+                        children: [
+                          selectFlag == true
+                              ? IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      if (isContain) {
+                                        selectedIndexList.remove(index);
+                                      } else {
+                                        selectedIndexList.add(index);
+                                      }
+                                    });
+                                  },
+                                  padding: EdgeInsets.zero,
+                                  splashRadius: 15,
+                                  icon: isContain
+                                      ? const Icon(Icons.check_box_rounded,
+                                          color: PRIMARY_COLOR)
+                                      : const Icon(
+                                          Icons.check_box_outline_blank_rounded,
+                                          color: PRIMARY_COLOR))
+                              : const SizedBox(height: 0),
+                          Container(
+                            alignment: Alignment.centerLeft,
+                            height: 55,
+                            padding: EdgeInsets.only(
+                                left: selectFlag == true ? 0 : 10),
+                            child: Text(
+                              recommendedItems[index]['content'],
+                              style: dropdownTextStyle,
+                              textAlign: TextAlign.start,
+                            ),
+                          ),
+                        ],
                       ),
                       const Divider(
                         color: Color(0xFF616161),
                         thickness: 1,
                         height: 0,
                       ),
-                      getDottedLine(index, false)
+                      getDottedLine(index, false) // 구분 점선
                     ],
                   );
                 },
@@ -170,5 +219,63 @@ class _RecommendScreenState extends State<RecommendScreen> {
             ),
           ]),
         ));
+  }
+}
+
+class _ListSelectButton extends StatelessWidget {
+  const _ListSelectButton({super.key, required this.onTap});
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        children: [
+          const Icon(
+            Remix.checkbox_line,
+            size: 25,
+            color: BLACK_COLOR,
+          ),
+          const SizedBox(width: 5),
+          Text('List 선택하기', style: dropdownTextStyle),
+        ],
+      ),
+    );
+  }
+}
+
+class _CustonUnderlineButton extends StatelessWidget {
+  const _CustonUnderlineButton(
+      {super.key,
+      required this.onPressed,
+      required this.icon,
+      required this.text});
+
+  final IconData icon;
+  final Function() onPressed;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onPressed,
+      child: Container(
+        decoration: const BoxDecoration(border: Border(bottom: BorderSide())),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              size: 25,
+              color: BLACK_COLOR,
+            ),
+            const SizedBox(
+              width: 5,
+            ),
+            Text(text, style: dropdownTextStyle)
+          ],
+        ),
+      ),
+    );
   }
 }
