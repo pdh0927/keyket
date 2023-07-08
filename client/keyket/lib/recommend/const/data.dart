@@ -66,3 +66,16 @@ List<Map<String, dynamic>> recommendedItems = [
     'content': '바닷가에서 코딩하기'
   }
 ];
+
+List<Map<String, dynamic>> bucketList = [
+  {'name': '맛집탐방 파티'},
+  {'name': '경주왕밤빵'},
+  {'name': '자전거 탐험대'},
+  {'name': 'lol'},
+  {'name': 'Before Die'},
+  {'name': 'In 20대'},
+  {'name': '대구의 모든 것'},
+  {'name': 'All of You'},
+  {'name': '출근팸'},
+  {'name': '밥묵자'}
+];
