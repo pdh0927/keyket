@@ -139,7 +139,8 @@ class _RecommendScreenState extends State<RecommendScreen> {
                                       ClipRRect(
                                           borderRadius:
                                               BorderRadius.circular(12.0),
-                                          child: bucketList[index]['image'] ??
+                                          child: bucketList[index - 1]
+                                                  ['image'] ??
                                               Image.asset(
                                                   'asset/img/default_bucket.png',
                                                   width: 60)),
@@ -148,7 +149,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                                         alignment: Alignment.centerLeft,
                                         height: 100,
                                         child: Text(
-                                          bucketList[index]['name'],
+                                          bucketList[index - 1]['name'],
                                           style: bucketTextStyle,
                                           textAlign: TextAlign.start,
                                         ),
