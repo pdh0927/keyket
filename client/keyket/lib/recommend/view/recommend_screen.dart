@@ -51,6 +51,132 @@ class _RecommendScreenState extends State<RecommendScreen> {
     }
   }
 
+  void showBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 80.h,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 15),
+              Container(
+                  width: 40.w,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: const Color(0xFF616161))),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ListView.builder(
+                    itemCount: bucketList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // 처음 요소를 새로운 버킷 만들기로
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: () {},
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    border: Border(bottom: BorderSide())),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          child: const Icon(
+                                            Icons.add_box,
+                                            size: 66,
+                                            color: Color(0xFFd9d9d9),
+                                          )),
+                                      const SizedBox(width: 24),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        height: 100,
+                                        child: Text(
+                                          '새로운 버킷 만들기',
+                                          style: bucketTextStyle,
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Divider(
+                              color: Color(0xFFd9d9d9),
+                              thickness: 1,
+                              height: 0,
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            InkWell(
+                              onTap: () {},
+                              child: Container(
+                                decoration: const BoxDecoration(
+                                    border: Border(bottom: BorderSide())),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10),
+                                  child: Row(
+                                    children: [
+                                      ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12.0),
+                                          child: bucketList[index]['image'] ??
+                                              Image.asset(
+                                                  'asset/img/default_bucket.png',
+                                                  width: 60)),
+                                      const SizedBox(width: 24),
+                                      Container(
+                                        alignment: Alignment.centerLeft,
+                                        height: 100,
+                                        child: Text(
+                                          bucketList[index]['name'],
+                                          style: bucketTextStyle,
+                                          textAlign: TextAlign.start,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const Divider(
+                              color: Color(0xFFd9d9d9),
+                              thickness: 1,
+                              height: 0,
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   bool selectFlag = false;
   List<int> selectedIndexList = [];
 
@@ -152,8 +278,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     _CustonUnderlineButton(
                         onPressed: () {
                           setState(() {
-                            selectFlag = !selectFlag;
-                            selectedIndexList = [];
+                            showBottomSheet();
                           });
                         },
                         icon: Remix.add_line,
