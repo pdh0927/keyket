@@ -1,23 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:flutter/services.dart';
+import 'package:remixicon/remixicon.dart';
 
 class MyScreen extends StatelessWidget {
   const MyScreen({super.key});
+
 
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
       title: '내 정보',
-      actions: const [
-        Icon(
-          Icons.notifications_outlined,
-          size: 24,
-          color: Colors.black,
-        ),
-        SizedBox(width: 25)
-      ],
-      child: Column(
+      actions: getActions(),
+      child: const Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           _Top(),
@@ -27,7 +22,19 @@ class MyScreen extends StatelessWidget {
       ),
     );
   }
+
+  List<Widget> getActions() {
+    return const [
+      Icon(
+        Remix.notification_4_line,
+        size: 24,
+        color: Colors.black,
+      ),
+      SizedBox(width: 25)
+    ];
+  }
 }
+
 
 class Hi extends StatelessWidget {
   const Hi({super.key});
@@ -62,7 +69,7 @@ class _Top extends StatelessWidget {
                 ),
                 IconButton(
                   onPressed: () {},
-                  icon: Icon(Icons.drive_file_rename_outline),
+                  icon: Icon(Remix.edit_line),
                   iconSize: 25, // 아이콘 사이즈 수정
                 ),
               ],
@@ -97,7 +104,7 @@ class _Top extends StatelessWidget {
                       Clipboard.setData(
                           ClipboardData(text: '123456')); // 클립보드 복사
                     },
-                    icon: Icon(Icons.copy),
+                    icon: Icon(Remix.file_copy_line),
                     iconSize: 16,
                   ),
                 ],
@@ -116,9 +123,11 @@ class _Middle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 16, bottom: 16),
+          padding: const EdgeInsets.only(left: 30, bottom: 16),
           child: Row(
             children: [
               Text(
@@ -126,7 +135,7 @@ class _Middle extends StatelessWidget {
                 style: TextStyle(fontSize: 16),
               ),
               Icon(
-                Icons.shopping_cart,
+                Remix.shopping_cart_line,
                 size: 18,
               ), // 아이콘 바꾸기
             ],
@@ -184,45 +193,50 @@ class _Bottom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(Icons.headset_mic),
-          title: Text('고객센터'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Hi(),
-              ),
-            );
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.redeem),
-          title: Text('이벤트'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Hi(),
-              ),
-            );
-          },
-        ),
-        ListTile(
-          leading: Icon(Icons.square_foot), // 아이콘 변경
-          title: Text('여행 유형테스트'),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => Hi(),
-              ),
-            );
-          },
-        ),
-      ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Column(
+        children: [
+          ListTile(
+            leading: Icon(Remix.customer_service_2_line),
+            title: Text('고객센터'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Hi(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(Remix.gift_line),
+            title: Text('이벤트'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Hi(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Remix.footprint_line,
+            ), // 아이콘 변경
+            title: Text('여행 유형테스트'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Hi(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
