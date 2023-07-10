@@ -18,82 +18,6 @@ class RecommendScreen extends StatefulWidget {
 
 class _RecommendScreenState extends State<RecommendScreen> {
   Set<Map<String, String>> selectedSet = Set<Map<String, String>>();
-
-  void onSelected(String type, String value) {
-    setState(() {
-      selectedSet.add({'type': type, 'value': value});
-    });
-  }
-
-  void deleteHashTag(String type, String value) {
-    setState(() {
-      selectedSet.removeWhere(
-          (element) => element['type'] == type && element['value'] == value);
-    });
-  }
-
-  dynamic getDottedLine(int index, bool isFirst) {
-    if ((index == 0 && isFirst) ||
-        (index == recommendedItems.length - 1) && !isFirst) {
-      return Column(
-        children: [
-          SizedBox(height: !isFirst ? 24 : 0),
-          const DottedLine(
-            dashLength: 5,
-            dashGapLength: 2,
-            lineThickness: 1,
-            dashColor: PRIMARY_COLOR,
-          ),
-        ],
-      );
-    } else {
-      return const SizedBox(height: 0);
-    }
-  }
-
-  void showBottomSheet() {
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return SizedBox(
-          height: 80.h,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              const SizedBox(height: 15),
-              Container(
-                  width: 40.w,
-                  height: 8,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      color: const Color(0xFF616161))),
-              const SizedBox(height: 20),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: ListView.builder(
-                    itemCount: bucketList.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        // 처음 요소를 새로운 버킷 만들기로
-                        return const _AddNewBucketItem();
-                      } else {
-                        return _OrdinaryBucketItem(
-                            bucketName: bucketList[index - 1]['name'],
-                            bucketImage: bucketList[index - 1]['image']);
-                      }
-                    },
-                  ),
-                ),
-              )
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   bool selectFlag = false;
   List<int> selectedIndexList = [];
 
@@ -214,6 +138,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     children: [
                       getDottedLine(index, true), // 구분 점선
                       _RecommendItem(
+                          // 추천 아이템
                           selectFlag: selectFlag,
                           isContain: isContain,
                           onPressed: () {
@@ -227,6 +152,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                           },
                           content: recommendedItems[index]['content']),
                       const Divider(
+                        // 구분선
                         color: Color(0xFF616161),
                         thickness: 1,
                         height: 0,
@@ -239,6 +165,81 @@ class _RecommendScreenState extends State<RecommendScreen> {
             ),
           ]),
         ));
+  }
+
+  void onSelected(String type, String value) {
+    setState(() {
+      selectedSet.add({'type': type, 'value': value});
+    });
+  }
+
+  void deleteHashTag(String type, String value) {
+    setState(() {
+      selectedSet.removeWhere(
+          (element) => element['type'] == type && element['value'] == value);
+    });
+  }
+
+  dynamic getDottedLine(int index, bool isFirst) {
+    if ((index == 0 && isFirst) ||
+        (index == recommendedItems.length - 1) && !isFirst) {
+      return Column(
+        children: [
+          SizedBox(height: !isFirst ? 24 : 0),
+          const DottedLine(
+            dashLength: 5,
+            dashGapLength: 2,
+            lineThickness: 1,
+            dashColor: PRIMARY_COLOR,
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox(height: 0);
+    }
+  }
+
+  void showBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 80.h,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 15),
+              Container(
+                  width: 40.w,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: const Color(0xFF616161))),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ListView.builder(
+                    itemCount: bucketList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // 처음 요소를 새로운 버킷 만들기로
+                        return const _AddNewBucketItem();
+                      } else {
+                        return _OrdinaryBucketItem(
+                            bucketName: bucketList[index - 1]['name'],
+                            bucketImage: bucketList[index - 1]['image']);
+                      }
+                    },
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
