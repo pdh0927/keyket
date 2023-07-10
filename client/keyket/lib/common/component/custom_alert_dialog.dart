@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 
-showCustomDialog(BuildContext context, String content) {
+showCustomAlertDialog(BuildContext context, String content) {
   showDialog<void>(
     context: context,
     barrierDismissible: true, // 배경 터치로 Dialog 닫기 가능
