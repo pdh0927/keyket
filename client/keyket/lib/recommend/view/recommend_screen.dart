@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:keyket/common/component/custom_alert_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/recommend/component/filter_list.dart';
@@ -168,15 +169,19 @@ class _RecommendScreenState extends State<RecommendScreen> {
   }
 
   void onSelected(String type, String value) {
-    bool isDuplicate = selectedList // 항목이 중복으로 들어있는지 체크
-        .any((item) => item['type'] == type && item['value'] == value);
+    if (selectedList.length >= 6) {
+      showCustomDialog(context, '해쉬태그는 최대\n6개까지만 가능합니다.');
+    } else {
+      bool isDuplicate = selectedList // 항목이 중복으로 들어있는지 체크
+          .any((item) => item['type'] == type && item['value'] == value);
 
-    if (!isDuplicate) {
-      setState(() {
-        if (!selectedList.contains({'type': type, 'value': value})) {
-          selectedList.add({'type': type, 'value': value});
-        }
-      });
+      if (!isDuplicate) {
+        setState(() {
+          if (!selectedList.contains({'type': type, 'value': value})) {
+            selectedList.add({'type': type, 'value': value});
+          }
+        });
+      }
     }
   }
 
