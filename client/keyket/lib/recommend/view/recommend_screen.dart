@@ -97,9 +97,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                       ),
                       // List 선택 버튼
                       _ListSelectButton(onTap: () {
-                        setState(() {
-                          selectFlag = !selectFlag;
-                        });
+                        showBottomSheet();
                       }),
                     ],
                   )
@@ -241,7 +239,13 @@ class _RecommendScreenState extends State<RecommendScreen> {
                       } else {
                         return _OrdinaryBucketItem(
                             bucketName: bucketList[index - 1]['name'],
-                            bucketImage: bucketList[index - 1]['image']);
+                            bucketImage: bucketList[index - 1]['image'],
+                            onTap: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                selectFlag = !selectFlag;
+                              });
+                            });
                       }
                     },
                   ),
@@ -365,10 +369,14 @@ class _AddNewBucketItem extends StatelessWidget {
 
 class _OrdinaryBucketItem extends StatelessWidget {
   const _OrdinaryBucketItem(
-      {super.key, required this.bucketName, required this.bucketImage});
+      {super.key,
+      required this.bucketName,
+      required this.bucketImage,
+      required this.onTap});
 
   final String bucketName;
   final String? bucketImage;
+  final Function() onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -377,7 +385,7 @@ class _OrdinaryBucketItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () {},
+          onTap: onTap,
           child: Container(
             decoration:
                 const BoxDecoration(border: Border(bottom: BorderSide())),
