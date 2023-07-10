@@ -22,7 +22,9 @@ class FilterList extends StatelessWidget {
         color: BLACK_COLOR,
       ),
       onChanged: (String? value) {
-        onSelected(featureList[0], value);
+        if (value != featureList[0]) {
+          onSelected(featureList[0], value);
+        }
       },
       items: featureList.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
