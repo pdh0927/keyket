@@ -17,7 +17,7 @@ class RecommendScreen extends StatefulWidget {
 }
 
 class _RecommendScreenState extends State<RecommendScreen> {
-  Set<Map<String, String>> selectedSet = Set<Map<String, String>>();
+  List<Map<String, dynamic>> selectedList = [];
   bool selectFlag = false;
   List<int> selectedIndexList = [];
 
@@ -71,14 +71,14 @@ class _RecommendScreenState extends State<RecommendScreen> {
                 ], onSelected: onSelected)
               ],
             ),
-            SizedBox(height: selectedSet.isNotEmpty ? 8 : 0),
+            SizedBox(height: selectedList.isNotEmpty ? 8 : 0),
             // HashTag
             SizedBox(
               width: 100.w - 32,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: HashTagItemList(
-                  selectedList: selectedSet.toList(),
+                  selectedList: selectedList,
                   deleteHashTag: deleteHashTag,
                 ),
               ),
@@ -168,14 +168,21 @@ class _RecommendScreenState extends State<RecommendScreen> {
   }
 
   void onSelected(String type, String value) {
-    setState(() {
-      selectedSet.add({'type': type, 'value': value});
-    });
+    bool isDuplicate = selectedList // 항목이 중복으로 들어있는지 체크
+        .any((item) => item['type'] == type && item['value'] == value);
+
+    if (!isDuplicate) {
+      setState(() {
+        if (!selectedList.contains({'type': type, 'value': value})) {
+          selectedList.add({'type': type, 'value': value});
+        }
+      });
+    }
   }
 
   void deleteHashTag(String type, String value) {
     setState(() {
-      selectedSet.removeWhere(
+      selectedList.removeWhere(
           (element) => element['type'] == type && element['value'] == value);
     });
   }
