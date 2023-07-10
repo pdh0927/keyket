@@ -213,41 +213,19 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       getDottedLine(index, true), // 구분 점선
-                      Row(
-                        children: [
-                          selectFlag == true
-                              ? IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (isContain) {
-                                        selectedIndexList.remove(index);
-                                      } else {
-                                        selectedIndexList.add(index);
-                                      }
-                                    });
-                                  },
-                                  padding: EdgeInsets.zero,
-                                  splashRadius: 15,
-                                  icon: isContain
-                                      ? const Icon(Icons.check_box_rounded,
-                                          color: PRIMARY_COLOR)
-                                      : const Icon(
-                                          Icons.check_box_outline_blank_rounded,
-                                          color: PRIMARY_COLOR))
-                              : const SizedBox(height: 0),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            height: 55,
-                            padding: EdgeInsets.only(
-                                left: selectFlag == true ? 0 : 10),
-                            child: Text(
-                              recommendedItems[index]['content'],
-                              style: dropdownTextStyle,
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _RecommendItem(
+                          selectFlag: selectFlag,
+                          isContain: isContain,
+                          onPressed: () {
+                            setState(() {
+                              if (isContain) {
+                                selectedIndexList.remove(index);
+                              } else {
+                                selectedIndexList.add(index);
+                              }
+                            });
+                          },
+                          content: recommendedItems[index]['content']),
                       const Divider(
                         color: Color(0xFF616161),
                         thickness: 1,
@@ -419,6 +397,47 @@ class _OrdinaryBucketItem extends StatelessWidget {
           color: Color(0xFFd9d9d9),
           thickness: 1,
           height: 0,
+        ),
+      ],
+    );
+  }
+}
+
+class _RecommendItem extends StatelessWidget {
+  const _RecommendItem(
+      {super.key,
+      required this.selectFlag,
+      required this.isContain,
+      required this.onPressed,
+      required this.content});
+  final bool selectFlag;
+  final bool isContain;
+  final Function() onPressed;
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        selectFlag == true
+            ? IconButton(
+                onPressed: onPressed,
+                padding: EdgeInsets.zero,
+                splashRadius: 15,
+                icon: isContain
+                    ? const Icon(Icons.check_box_rounded, color: PRIMARY_COLOR)
+                    : const Icon(Icons.check_box_outline_blank_rounded,
+                        color: PRIMARY_COLOR))
+            : const SizedBox(height: 0),
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 55,
+          padding: EdgeInsets.only(left: selectFlag == true ? 0 : 10),
+          child: Text(
+            content,
+            style: dropdownTextStyle,
+            textAlign: TextAlign.start,
+          ),
         ),
       ],
     );
