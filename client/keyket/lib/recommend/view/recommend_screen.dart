@@ -77,95 +77,11 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         // 처음 요소를 새로운 버킷 만들기로
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    border: Border(bottom: BorderSide())),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Row(
-                                    children: [
-                                      ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                          child: const Icon(
-                                            Icons.add_box,
-                                            size: 66,
-                                            color: Color(0xFFd9d9d9),
-                                          )),
-                                      const SizedBox(width: 24),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        height: 100,
-                                        child: Text(
-                                          '새로운 버킷 만들기',
-                                          style: bucketTextStyle,
-                                          textAlign: TextAlign.start,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Divider(
-                              color: Color(0xFFd9d9d9),
-                              thickness: 1,
-                              height: 0,
-                            ),
-                          ],
-                        );
+                        return const _AddNewBucketItem();
                       } else {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            InkWell(
-                              onTap: () {},
-                              child: Container(
-                                decoration: const BoxDecoration(
-                                    border: Border(bottom: BorderSide())),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  child: Row(
-                                    children: [
-                                      ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(12.0),
-                                          child: bucketList[index - 1]
-                                                  ['image'] ??
-                                              Image.asset(
-                                                  'asset/img/default_bucket.png',
-                                                  width: 60)),
-                                      const SizedBox(width: 24),
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        height: 100,
-                                        child: Text(
-                                          bucketList[index - 1]['name'],
-                                          style: bucketTextStyle,
-                                          textAlign: TextAlign.start,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const Divider(
-                              color: Color(0xFFd9d9d9),
-                              thickness: 1,
-                              height: 0,
-                            ),
-                          ],
-                        );
+                        return _OrdinaryBucketItem(
+                            bucketName: bucketList[index - 1]['name'],
+                            bucketImage: bucketList[index - 1]['image']);
                       }
                     },
                   ),
@@ -402,6 +318,109 @@ class _CustonUnderlineButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AddNewBucketItem extends StatelessWidget {
+  const _AddNewBucketItem({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () {},
+          child: Container(
+            decoration:
+                const BoxDecoration(border: Border(bottom: BorderSide())),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: const Icon(
+                        Icons.add_box,
+                        size: 66,
+                        color: Color(0xFFd9d9d9),
+                      )),
+                  const SizedBox(width: 24),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 100,
+                    child: Text(
+                      '새로운 버킷 만들기',
+                      style: bucketTextStyle,
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const Divider(
+          color: Color(0xFFd9d9d9),
+          thickness: 1,
+          height: 0,
+        ),
+      ],
+    );
+  }
+}
+
+class _OrdinaryBucketItem extends StatelessWidget {
+  const _OrdinaryBucketItem(
+      {super.key, required this.bucketName, required this.bucketImage});
+
+  final String bucketName;
+  final String? bucketImage;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () {},
+          child: Container(
+            decoration:
+                const BoxDecoration(border: Border(bottom: BorderSide())),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: bucketImage != null
+                          ? Image.asset(bucketImage!, width: 60)
+                          : Image.asset('asset/img/default_bucket.png',
+                              width: 60)),
+                  const SizedBox(width: 24),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 100,
+                    child: Text(
+                      bucketName,
+                      style: bucketTextStyle,
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const Divider(
+          color: Color(0xFFd9d9d9),
+          thickness: 1,
+          height: 0,
+        ),
+      ],
     );
   }
 }
