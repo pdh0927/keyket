@@ -231,7 +231,13 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         // 처음 요소를 새로운 버킷 만들기로
-                        return const _AddNewBucketItem();
+                        return _AddNewBucketItem(onTap: () async {
+                          Navigator.pop(context);
+                          await showCustomInputDialog(context, '새로운 버킷 만들기');
+                          setState(() {
+                            selectFlag = !selectFlag;
+                          });
+                        });
                       } else {
                         return _OrdinaryBucketItem(
                             bucketName: bucketList[index - 1]['name'],
@@ -314,7 +320,8 @@ class _CustonUnderlineButton extends StatelessWidget {
 }
 
 class _AddNewBucketItem extends StatelessWidget {
-  const _AddNewBucketItem({super.key});
+  const _AddNewBucketItem({super.key, required this.onTap});
+  final Function() onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -323,10 +330,7 @@ class _AddNewBucketItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
-          onTap: () {
-            Navigator.pop(context);
-            showCustomInputDialog(context);
-          },
+          onTap: onTap,
           child: Container(
             decoration:
                 const BoxDecoration(border: Border(bottom: BorderSide())),

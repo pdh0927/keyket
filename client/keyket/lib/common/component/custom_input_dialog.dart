@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 
-showCustomInputDialog(BuildContext context) {
+showCustomInputDialog(BuildContext context, String title) async {
   TextEditingController nameController = TextEditingController();
 
-  showDialog<void>(
+  await showDialog<void>(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
@@ -24,7 +24,7 @@ showCustomInputDialog(BuildContext context) {
                   // 제목
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text('새로운 버킷 만들기',
+                    child: Text(title,
                         style: bucketTextStyle, textAlign: TextAlign.left),
                   ),
                   const SizedBox(height: 16),
