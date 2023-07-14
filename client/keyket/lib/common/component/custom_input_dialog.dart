@@ -48,7 +48,7 @@ showCustomInputDialog(BuildContext context, String title) async {
                             padding: EdgeInsets.zero,
                             icon: const Icon(
                               Icons.clear,
-                              color: BLACK_COLOR,
+                              color: PRIMARY_COLOR,
                             ),
                             onPressed: () {
                               nameController.clear();
