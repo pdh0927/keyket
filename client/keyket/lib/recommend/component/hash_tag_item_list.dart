@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:keyket/recommend/component/hash_tag_item.dart';
 
 class HashTagItemList extends StatelessWidget {
-  final List<Map<String, String>> selectedList;
+  final List<Map<String, dynamic>> selectedList;
   final void Function(String, String) deleteHashTag;
 
   const HashTagItemList(
