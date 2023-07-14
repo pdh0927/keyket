@@ -34,12 +34,15 @@ class _RecommendScreenState extends State<RecommendScreen> {
   Widget build(BuildContext context) {
     return DefaultLayout(
         title: '추천',
-        actions: const [
-          Icon(
-            Remix.search_line,
-            color: BLACK_COLOR,
+        actions: [
+          InkWell(
+            onTap: () {},
+            child: const SizedBox(
+              height: 10,
+              child: Icon(Remix.search_line, color: BLACK_COLOR, size: 25),
+            ),
           ),
-          SizedBox(width: 25)
+          const SizedBox(width: 25)
         ],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
