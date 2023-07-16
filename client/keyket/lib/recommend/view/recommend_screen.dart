@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:keyket/common/component/custom_alert_dialog.dart';
+import 'package:keyket/common/component/custom_input_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/recommend/component/filter_list.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
@@ -17,40 +20,7 @@ class RecommendScreen extends StatefulWidget {
 }
 
 class _RecommendScreenState extends State<RecommendScreen> {
-  Set<Map<String, String>> selectedSet = Set<Map<String, String>>();
-
-  void onSelected(String type, String value) {
-    setState(() {
-      selectedSet.add({'type': type, 'value': value});
-    });
-  }
-
-  void deleteHashTag(String type, String value) {
-    setState(() {
-      selectedSet.removeWhere(
-          (element) => element['type'] == type && element['value'] == value);
-    });
-  }
-
-  dynamic getDottedLine(int index, bool isFirst) {
-    if ((index == 0 && isFirst) ||
-        (index == recommendedItems.length - 1) && !isFirst) {
-      return Column(
-        children: [
-          SizedBox(height: !isFirst ? 24 : 0),
-          const DottedLine(
-            dashLength: 5,
-            dashGapLength: 2,
-            lineThickness: 1,
-            dashColor: PRIMARY_COLOR,
-          ),
-        ],
-      );
-    } else {
-      return const SizedBox(height: 0);
-    }
-  }
-
+  List<Map<String, dynamic>> selectedList = [];
   bool selectFlag = false;
   List<int> selectedIndexList = [];
 
@@ -64,12 +34,15 @@ class _RecommendScreenState extends State<RecommendScreen> {
   Widget build(BuildContext context) {
     return DefaultLayout(
         title: '추천',
-        actions: const [
-          Icon(
-            Remix.search_line,
-            color: BLACK_COLOR,
+        actions: [
+          InkWell(
+            onTap: () {},
+            child: const SizedBox(
+              height: 10,
+              child: Icon(Remix.search_line, color: BLACK_COLOR, size: 25),
+            ),
           ),
-          SizedBox(width: 25)
+          const SizedBox(width: 25)
         ],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -104,14 +77,14 @@ class _RecommendScreenState extends State<RecommendScreen> {
                 ], onSelected: onSelected)
               ],
             ),
-            SizedBox(height: selectedSet.isNotEmpty ? 8 : 0),
+            SizedBox(height: selectedList.isNotEmpty ? 8 : 0),
             // HashTag
             SizedBox(
               width: 100.w - 32,
               child: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: HashTagItemList(
-                  selectedList: selectedSet.toList(),
+                  selectedList: selectedList,
                   deleteHashTag: deleteHashTag,
                 ),
               ),
@@ -129,9 +102,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                       ),
                       // List 선택 버튼
                       _ListSelectButton(onTap: () {
-                        setState(() {
-                          selectFlag = !selectFlag;
-                        });
+                        showBottomSheet();
                       }),
                     ],
                   )
@@ -150,14 +121,7 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     const SizedBox(width: 20),
                     // 버킷 저장 버튼
                     _CustonUnderlineButton(
-                        onPressed: () {
-                          setState(() {
-                            selectFlag = !selectFlag;
-                            selectedIndexList = [];
-                          });
-                        },
-                        icon: Remix.add_line,
-                        text: '버킷 저장'),
+                        onPressed: () {}, icon: Remix.add_line, text: '버킷 저장'),
                   ]),
             const SizedBox(height: 30),
             Expanded(
@@ -171,42 +135,22 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       getDottedLine(index, true), // 구분 점선
-                      Row(
-                        children: [
-                          selectFlag == true
-                              ? IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      if (isContain) {
-                                        selectedIndexList.remove(index);
-                                      } else {
-                                        selectedIndexList.add(index);
-                                      }
-                                    });
-                                  },
-                                  padding: EdgeInsets.zero,
-                                  splashRadius: 15,
-                                  icon: isContain
-                                      ? const Icon(Icons.check_box_rounded,
-                                          color: PRIMARY_COLOR)
-                                      : const Icon(
-                                          Icons.check_box_outline_blank_rounded,
-                                          color: PRIMARY_COLOR))
-                              : const SizedBox(height: 0),
-                          Container(
-                            alignment: Alignment.centerLeft,
-                            height: 55,
-                            padding: EdgeInsets.only(
-                                left: selectFlag == true ? 0 : 10),
-                            child: Text(
-                              recommendedItems[index]['content'],
-                              style: dropdownTextStyle,
-                              textAlign: TextAlign.start,
-                            ),
-                          ),
-                        ],
-                      ),
+                      _RecommendItem(
+                          // 추천 아이템
+                          selectFlag: selectFlag,
+                          isContain: isContain,
+                          onPressed: () {
+                            setState(() {
+                              if (isContain) {
+                                selectedIndexList.remove(index);
+                              } else {
+                                selectedIndexList.add(index);
+                              }
+                            });
+                          },
+                          content: recommendedItems[index]['content']),
                       const Divider(
+                        // 구분선
                         color: Color(0xFF616161),
                         thickness: 1,
                         height: 0,
@@ -219,6 +163,104 @@ class _RecommendScreenState extends State<RecommendScreen> {
             ),
           ]),
         ));
+  }
+
+  void onSelected(String type, String value) {
+    if (selectedList.length >= 6) {
+      showCustomAlertDialog(context, '해쉬태그는 최대\n6개까지만 가능합니다.');
+    } else {
+      bool isDuplicate = selectedList // 항목이 중복으로 들어있는지 체크
+          .any((item) => item['type'] == type && item['value'] == value);
+
+      if (!isDuplicate) {
+        setState(() {
+          if (!selectedList.contains({'type': type, 'value': value})) {
+            selectedList.add({'type': type, 'value': value});
+          }
+        });
+      }
+    }
+  }
+
+  void deleteHashTag(String type, String value) {
+    setState(() {
+      selectedList.removeWhere(
+          (element) => element['type'] == type && element['value'] == value);
+    });
+  }
+
+  dynamic getDottedLine(int index, bool isFirst) {
+    if ((index == 0 && isFirst) ||
+        (index == recommendedItems.length - 1) && !isFirst) {
+      return Column(
+        children: [
+          SizedBox(height: !isFirst ? 24 : 0),
+          const DottedLine(
+            dashLength: 5,
+            dashGapLength: 2,
+            lineThickness: 1,
+            dashColor: PRIMARY_COLOR,
+          ),
+        ],
+      );
+    } else {
+      return const SizedBox(height: 0);
+    }
+  }
+
+  void showBottomSheet() {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return SizedBox(
+          height: 80.h,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              const SizedBox(height: 15),
+              Container(
+                  width: 40.w,
+                  height: 8,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: const Color(0xFF616161))),
+              const SizedBox(height: 20),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: ListView.builder(
+                    itemCount: bucketList.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        // 처음 요소를 새로운 버킷 만들기로
+                        return _AddNewBucketItem(onTap: () async {
+                          Navigator.pop(context);
+                          await showCustomInputDialog(context, '새로운 버킷 만들기');
+                          setState(() {
+                            selectFlag = !selectFlag;
+                          });
+                        });
+                      } else {
+                        return _OrdinaryBucketItem(
+                            bucketName: bucketList[index - 1]['name'],
+                            bucketImage: bucketList[index - 1]['image'],
+                            onTap: () {
+                              Navigator.pop(context);
+                              setState(() {
+                                selectFlag = !selectFlag;
+                              });
+                            });
+                      }
+                    },
+                  ),
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -276,6 +318,155 @@ class _CustonUnderlineButton extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class _AddNewBucketItem extends StatelessWidget {
+  const _AddNewBucketItem({super.key, required this.onTap});
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            decoration:
+                const BoxDecoration(border: Border(bottom: BorderSide())),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: const Icon(
+                        Icons.add_box,
+                        size: 66,
+                        color: Color(0xFFd9d9d9),
+                      )),
+                  const SizedBox(width: 24),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 100,
+                    child: Text(
+                      '새로운 버킷 만들기',
+                      style: bucketTextStyle,
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const Divider(
+          color: Color(0xFFd9d9d9),
+          thickness: 1,
+          height: 0,
+        ),
+      ],
+    );
+  }
+}
+
+class _OrdinaryBucketItem extends StatelessWidget {
+  const _OrdinaryBucketItem(
+      {super.key,
+      required this.bucketName,
+      required this.bucketImage,
+      required this.onTap});
+
+  final String bucketName;
+  final String? bucketImage;
+  final Function() onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: onTap,
+          child: Container(
+            decoration:
+                const BoxDecoration(border: Border(bottom: BorderSide())),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                children: [
+                  ClipRRect(
+                      borderRadius: BorderRadius.circular(12.0),
+                      child: bucketImage != null
+                          ? Image.asset(bucketImage!, width: 60)
+                          : Image.asset('asset/img/default_bucket.png',
+                              width: 60)),
+                  const SizedBox(width: 24),
+                  Container(
+                    alignment: Alignment.centerLeft,
+                    height: 100,
+                    child: Text(
+                      bucketName,
+                      style: bucketTextStyle,
+                      textAlign: TextAlign.start,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+        const Divider(
+          color: Color(0xFFd9d9d9),
+          thickness: 1,
+          height: 0,
+        ),
+      ],
+    );
+  }
+}
+
+class _RecommendItem extends StatelessWidget {
+  const _RecommendItem(
+      {super.key,
+      required this.selectFlag,
+      required this.isContain,
+      required this.onPressed,
+      required this.content});
+  final bool selectFlag;
+  final bool isContain;
+  final Function() onPressed;
+  final String content;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        selectFlag == true
+            ? IconButton(
+                onPressed: onPressed,
+                padding: EdgeInsets.zero,
+                splashRadius: 15,
+                icon: isContain
+                    ? const Icon(Icons.check_box_rounded, color: PRIMARY_COLOR)
+                    : const Icon(Icons.check_box_outline_blank_rounded,
+                        color: PRIMARY_COLOR))
+            : const SizedBox(height: 0),
+        Container(
+          alignment: Alignment.centerLeft,
+          height: 55,
+          padding: EdgeInsets.only(left: selectFlag == true ? 0 : 10),
+          child: Text(
+            content,
+            style: dropdownTextStyle,
+            textAlign: TextAlign.start,
+          ),
+        ),
+      ],
     );
   }
 }
