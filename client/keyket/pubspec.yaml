@@ -38,6 +38,7 @@ dependencies:
   remixicon: ^1.0.0
   sizer: ^2.0.15
   dotted_line: ^3.2.2
+  dots_indicator: ^3.0.0
 
 dev_dependencies:
   flutter_test:
