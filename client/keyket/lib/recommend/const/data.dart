@@ -79,3 +79,29 @@ List<Map<String, dynamic>> bucketList = [
   {'name': '출근팸'},
   {'name': '밥묵자'}
 ];
+
+final List<String> locationList = [
+  '서울',
+  '경기',
+  '인천',
+  '강원',
+  '충남',
+  '충북',
+  '대전',
+  '세종',
+  '부산',
+  '울산',
+  '대구',
+  '경북',
+  '경남',
+  '전남',
+  '제주'
+];
+
+final List<String> themeList = [
+  '힐링',
+  '엑티비티',
+  '축제',
+  '데이트',
+  '역사/문화',
+];
