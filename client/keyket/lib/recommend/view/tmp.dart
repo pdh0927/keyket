@@ -67,7 +67,7 @@ class _TmpState extends State<Tmp> {
 
   @override
   void initState() {
-    getRecommendData();
+    // getRecommendData();
     // saveData();
     super.initState();
   }
