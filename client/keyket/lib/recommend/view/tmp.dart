@@ -48,14 +48,14 @@ class _TmpState extends State<Tmp> {
     // }
   }
 
-  saveData() async {
-    for (var item in recommendedItems) {
-      // await firestore.collection('recommend').add(item);
-      // print(item);
-    }
+  // saveData() async {
+  //   for (var item in recommendedItems) {
+  // await firestore.collection('recommend').add(item);
+  // print(item);
+  // }
 
-    // print(result);
-  }
+  // print(result);
+  // }
 
   // updateData() async {
   //   var result = await firestore.collection('recommend').doc({id}).update({});
