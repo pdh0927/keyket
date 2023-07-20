@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/component/custom_alert_dialog.dart';
 import 'package:keyket/common/component/custom_input_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
@@ -7,19 +8,20 @@ import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/const/data.dart';
 import 'package:keyket/recommend/const/text_style.dart';
+import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 
-class RecommendScreen extends StatefulWidget {
+class RecommendScreen extends ConsumerStatefulWidget {
   const RecommendScreen({super.key});
 
   @override
-  State<RecommendScreen> createState() => _RecommendScreenState();
+  ConsumerState<RecommendScreen> createState() => _RecommendScreenState();
 }
 
-class _RecommendScreenState extends State<RecommendScreen> {
+class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   List<Map<String, dynamic>> selectedList = [];
   bool selectFlag = false;
   List<int> selectedIndexList = [];
@@ -32,6 +34,8 @@ class _RecommendScreenState extends State<RecommendScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final recommendedItems = ref.watch(recommendItemListProvider);
+
     return DefaultLayout(
         title: '추천',
         actions: [
@@ -111,7 +115,8 @@ class _RecommendScreenState extends State<RecommendScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      getDottedLine(index, true), // 구분 점선
+                      getDottedLine(
+                          index, true, recommendedItems.length), // 구분 점선
                       _RecommendItem(
                           // 추천 아이템
                           selectFlag: selectFlag,
@@ -125,14 +130,15 @@ class _RecommendScreenState extends State<RecommendScreen> {
                               }
                             });
                           },
-                          content: recommendedItems[index]['content']),
+                          content: recommendedItems[index].content),
                       const Divider(
                         // 구분선
                         color: Color(0xFF616161),
                         thickness: 1,
                         height: 0,
                       ),
-                      getDottedLine(index, false) // 구분 점선
+                      getDottedLine(
+                          index, false, recommendedItems.length) // 구분 점선
                     ],
                   );
                 },
@@ -166,9 +172,8 @@ class _RecommendScreenState extends State<RecommendScreen> {
     });
   }
 
-  dynamic getDottedLine(int index, bool isFirst) {
-    if ((index == 0 && isFirst) ||
-        (index == recommendedItems.length - 1) && !isFirst) {
+  dynamic getDottedLine(int index, bool isFirst, int totalLength) {
+    if ((index == 0 && isFirst) || (index == totalLength - 1) && !isFirst) {
       return Column(
         children: [
           SizedBox(height: !isFirst ? 24 : 0),
