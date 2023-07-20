@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/view/splash_screen.dart';
 import 'package:keyket/firebase_options.dart';
 
@@ -9,7 +10,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(_App());
+  runApp(const ProviderScope(child: _App()));
 }
 
 class _App extends StatelessWidget {
