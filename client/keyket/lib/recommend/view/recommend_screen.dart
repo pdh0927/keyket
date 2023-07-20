@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyket/common/component/custom_alert_dialog.dart';
 import 'package:keyket/common/component/custom_input_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
@@ -9,6 +8,7 @@ import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/const/data.dart';
 import 'package:keyket/recommend/const/text_style.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
+import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
 import 'package:dotted_line/dotted_line.dart';
@@ -22,19 +22,19 @@ class RecommendScreen extends ConsumerStatefulWidget {
 }
 
 class _RecommendScreenState extends ConsumerState<RecommendScreen> {
-  List<Map<String, dynamic>> selectedList = [];
   bool selectFlag = false;
-  List<int> selectedIndexList = [];
+  List<int> selectedRecommendIndexList = [];
 
   @override
   void initState() {
-    selectedIndexList = [];
+    selectedRecommendIndexList = [];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
+    final selectedFilterList = ref.watch(selectedFilterListProvider);
 
     return DefaultLayout(
         title: '추천',
@@ -52,22 +52,17 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
             // Flitering
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: _SelectBox(
-                onSelected: onSelected,
-              ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24),
+              child: _SelectBox(),
             ),
-            SizedBox(height: selectedList.isNotEmpty ? 8 : 0),
+            SizedBox(height: selectedFilterList.isNotEmpty ? 8 : 0),
             // HashTag
             SizedBox(
               width: 100.w - 32,
-              child: SingleChildScrollView(
+              child: const SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
-                child: HashTagItemList(
-                  selectedList: selectedList,
-                  deleteHashTag: deleteHashTag,
-                ),
+                child: HashTagItemList(),
               ),
             ),
             const SizedBox(height: 16),
@@ -93,7 +88,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                         onPressed: () {
                           setState(() {
                             selectFlag = !selectFlag;
-                            selectedIndexList = [];
+                            selectedRecommendIndexList = [];
                           });
                         },
                         icon: Remix.close_line,
@@ -110,7 +105,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                 // 추천 리스트
                 itemCount: recommendedItems.length,
                 itemBuilder: (context, index) {
-                  bool isContain = selectedIndexList.contains(index);
+                  bool isContain = selectedRecommendIndexList.contains(index);
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,9 +119,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                           onPressed: () {
                             setState(() {
                               if (isContain) {
-                                selectedIndexList.remove(index);
+                                selectedRecommendIndexList.remove(index);
                               } else {
-                                selectedIndexList.add(index);
+                                selectedRecommendIndexList.add(index);
                               }
                             });
                           },
@@ -146,30 +141,6 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
             ),
           ]),
         ));
-  }
-
-  void onSelected(String type, String value) {
-    if (selectedList.length >= 6) {
-      showCustomAlertDialog(context, '해쉬태그는 최대\n6개까지만 가능합니다.');
-    } else {
-      bool isDuplicate = selectedList // 항목이 중복으로 들어있는지 체크
-          .any((item) => item['type'] == type && item['value'] == value);
-
-      if (!isDuplicate) {
-        setState(() {
-          if (!selectedList.contains({'type': type, 'value': value})) {
-            selectedList.add({'type': type, 'value': value});
-          }
-        });
-      }
-    }
-  }
-
-  void deleteHashTag(String type, String value) {
-    setState(() {
-      selectedList.removeWhere(
-          (element) => element['type'] == type && element['value'] == value);
-    });
   }
 
   dynamic getDottedLine(int index, bool isFirst, int totalLength) {
@@ -500,9 +471,7 @@ class _CustomTextButton extends StatelessWidget {
 }
 
 class _SelectBox extends StatefulWidget {
-  const _SelectBox({super.key, required this.onSelected});
-
-  final Function onSelected;
+  const _SelectBox({super.key});
 
   @override
   State<_SelectBox> createState() => __SelectBoxState();
@@ -544,7 +513,6 @@ class __SelectBoxState extends State<_SelectBox> {
             child: _OptionGrid(
               label: label,
               optionsList: optionList,
-              onSelected: widget.onSelected,
             ),
           ),
         );
@@ -620,21 +588,20 @@ class __SelectBoxState extends State<_SelectBox> {
   }
 }
 
-class _OptionGrid extends StatefulWidget {
+class _OptionGrid extends ConsumerStatefulWidget {
   final List<String> optionsList;
-  final Function onSelected;
   final String label;
 
-  _OptionGrid(
-      {required this.label,
-      required this.optionsList,
-      required this.onSelected});
+  _OptionGrid({
+    required this.label,
+    required this.optionsList,
+  });
 
   @override
   __OptionGridState createState() => __OptionGridState();
 }
 
-class __OptionGridState extends State<_OptionGrid> {
+class __OptionGridState extends ConsumerState<_OptionGrid> {
   int currentIndexPage = 0;
   final _controller = PageController();
 
@@ -688,7 +655,9 @@ class __OptionGridState extends State<_OptionGrid> {
                           padding: const EdgeInsets.all(6.0),
                           child: TextButton(
                             onPressed: () {
-                              widget.onSelected(widget.label, location);
+                              ref
+                                  .read(selectedFilterListProvider.notifier)
+                                  .onSelected(context, widget.label, location);
                             },
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white,
@@ -698,7 +667,10 @@ class __OptionGridState extends State<_OptionGrid> {
                             ),
                             child: InkResponse(
                               onTap: () {
-                                widget.onSelected(widget.label, location);
+                                ref
+                                    .read(selectedFilterListProvider.notifier)
+                                    .onSelected(
+                                        context, widget.label, location);
                               },
                               containedInkWell: true,
                               borderRadius: BorderRadius.circular(10),
