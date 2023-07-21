@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
-class HashTagItem extends StatelessWidget {
+class HashTagItem extends ConsumerWidget {
   final String value;
   final String type;
-  final Function deleteHashTag;
 
-  const HashTagItem(
-      {super.key,
-      required this.type,
-      required this.value,
-      required this.deleteHashTag});
+  const HashTagItem({
+    super.key,
+    required this.type,
+    required this.value,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
         height: 35,
         width: 110, // 글자 최대수 생각해서 변경해야함
@@ -40,7 +41,9 @@ class HashTagItem extends StatelessWidget {
                 minHeight: 20,
               ),
               onPressed: () {
-                deleteHashTag(type, value);
+                ref
+                    .read(selectedFilterListProvider.notifier)
+                    .deleteHashTag(type, value);
               },
             )
           ],
