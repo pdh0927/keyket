@@ -7,6 +7,7 @@ import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/const/data.dart';
 import 'package:keyket/recommend/const/text_style.dart';
+import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
@@ -34,7 +35,6 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
-    final selectedFilterList = ref.watch(selectedFilterListProvider);
 
     return DefaultLayout(
         title: '추천',
@@ -56,7 +56,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24),
               child: _SelectBox(),
             ),
-            SizedBox(height: selectedFilterList.isNotEmpty ? 8 : 0),
+            SizedBox(
+                height: (ref.watch(selectedRegionFilterProvider) != null ||
+                        ref.watch(selectedThemeFilterListProvider).isNotEmpty)
+                    ? 8
+                    : 0),
             // HashTag
             SizedBox(
               width: 100.w - 32,
@@ -488,8 +492,7 @@ class __SelectBoxState extends State<_SelectBox> {
     super.dispose();
   }
 
-  void showOverlay(
-      BuildContext context, List<String> optionList, String label) {
+  void showOverlay(BuildContext context, String label) {
     hideOverlay();
 
     RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -512,7 +515,6 @@ class __SelectBoxState extends State<_SelectBox> {
             },
             child: _OptionGrid(
               label: label,
-              optionsList: optionList,
             ),
           ),
         );
@@ -546,7 +548,7 @@ class __SelectBoxState extends State<_SelectBox> {
                   isLocationSelected = false;
                 });
               } else {
-                showOverlay(context, locationList, '지역');
+                showOverlay(context, '지역');
                 setState(() {
                   isLocationSelected = !isLocationSelected;
                   isThemeSelected = false;
@@ -569,7 +571,7 @@ class __SelectBoxState extends State<_SelectBox> {
                   isThemeSelected = false;
                 });
               } else {
-                showOverlay(context, themeList, '테마');
+                showOverlay(context, '테마');
                 setState(() {
                   isThemeSelected = !isThemeSelected;
                   isLocationSelected = false;
@@ -589,12 +591,10 @@ class __SelectBoxState extends State<_SelectBox> {
 }
 
 class _OptionGrid extends ConsumerStatefulWidget {
-  final List<String> optionsList;
   final String label;
 
   _OptionGrid({
     required this.label,
-    required this.optionsList,
   });
 
   @override
@@ -604,6 +604,7 @@ class _OptionGrid extends ConsumerStatefulWidget {
 class __OptionGridState extends ConsumerState<_OptionGrid> {
   int currentIndexPage = 0;
   final _controller = PageController();
+  var optionsList;
 
   @override
   void initState() {
@@ -613,13 +614,15 @@ class __OptionGridState extends ConsumerState<_OptionGrid> {
       });
     });
     super.initState();
+    optionsList =
+        widget.label == '지역' ? RecommendRegion.values : RecommendTheme.values;
   }
 
   @override
   Widget build(BuildContext context) {
     int numOfPages = widget.label == '지역'
-        ? (widget.optionsList.length / 12).ceil()
-        : (widget.optionsList.length / 6).ceil();
+        ? (optionsList.length / 12).ceil()
+        : (optionsList.length / 6).ceil();
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: Material(
@@ -633,11 +636,11 @@ class __OptionGridState extends ConsumerState<_OptionGrid> {
                 itemBuilder: (context, index) {
                   int start = widget.label == '지역' ? index * 12 : index * 6;
                   int end = widget.label == '지역'
-                      ? (start + 12 > widget.optionsList.length
-                          ? widget.optionsList.length
+                      ? (start + 12 > optionsList.length
+                          ? optionsList.length
                           : start + 12)
-                      : (start + 6 > widget.optionsList.length
-                          ? widget.optionsList.length
+                      : (start + 6 > optionsList.length
+                          ? optionsList.length
                           : start + 6);
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -648,17 +651,12 @@ class __OptionGridState extends ConsumerState<_OptionGrid> {
                           ? 58 / 36
                           : 75 / 36, // 아이템 가로/세로 비율 지정
                       crossAxisCount: widget.label == '지역' ? 4 : 3,
-                      children: widget.optionsList
-                          .sublist(start, end)
-                          .map((location) {
+                      children:
+                          optionsList.sublist(start, end).map<Widget>((option) {
                         return Padding(
                           padding: const EdgeInsets.all(6.0),
                           child: TextButton(
-                            onPressed: () {
-                              ref
-                                  .read(selectedFilterListProvider.notifier)
-                                  .onSelected(context, widget.label, location);
-                            },
+                            onPressed: () {},
                             style: TextButton.styleFrom(
                               backgroundColor: Colors.white,
                               shape: RoundedRectangleBorder(
@@ -667,17 +665,24 @@ class __OptionGridState extends ConsumerState<_OptionGrid> {
                             ),
                             child: InkResponse(
                               onTap: () {
-                                ref
-                                    .read(selectedFilterListProvider.notifier)
-                                    .onSelected(
-                                        context, widget.label, location);
+                                widget.label == '지역'
+                                    ? ref
+                                        .read(selectedRegionFilterProvider
+                                            .notifier)
+                                        .onSelected(option)
+                                    : ref
+                                        .read(selectedThemeFilterListProvider
+                                            .notifier)
+                                        .onSelected(context, option);
                               },
                               containedInkWell: true,
                               borderRadius: BorderRadius.circular(10),
                               child: Container(
                                 alignment: Alignment.center,
                                 child: Text(
-                                  location,
+                                  widget.label == '지역'
+                                      ? recommendRegionKor[option.index]
+                                      : recommendThemeKor[option.index],
                                   style: optionTextStyle,
                                 ),
                               ),

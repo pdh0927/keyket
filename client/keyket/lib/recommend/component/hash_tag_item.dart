@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
 class HashTagItem extends ConsumerWidget {
-  final String value;
-  final String type;
+  final RecommendRegion? region;
+  final RecommendTheme? theme;
 
   const HashTagItem({
     super.key,
-    required this.type,
-    required this.value,
+    this.region,
+    this.theme,
   });
 
   @override
@@ -29,7 +30,7 @@ class HashTagItem extends ConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '# $value',
+              '# ${region != null ? recommendRegionKor[region!.index] : recommendThemeKor[theme!.index]}',
               style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
             ),
             IconButton(
@@ -41,9 +42,15 @@ class HashTagItem extends ConsumerWidget {
                 minHeight: 20,
               ),
               onPressed: () {
-                ref
-                    .read(selectedFilterListProvider.notifier)
-                    .deleteHashTag(type, value);
+                if (region != null) {
+                  ref
+                      .read(selectedRegionFilterProvider.notifier)
+                      .deleteHashTag();
+                } else {
+                  ref
+                      .read(selectedThemeFilterListProvider.notifier)
+                      .deleteHashTag(theme!);
+                }
               },
             )
           ],
