@@ -23,6 +23,27 @@ enum RecommendRegion {
 
 enum RecommendTheme { healing, activity, festival, date, historyAndCulture }
 
+List<String> recommendRegionKor = [
+  '서울',
+  '부산',
+  '대구',
+  '광주',
+  '인천',
+  '대전',
+  '울산',
+  '경기',
+  '강원',
+  '충북',
+  '충남',
+  '전북',
+  '전남',
+  '경북',
+  '경남',
+  '제주'
+];
+
+List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화'];
+
 @JsonSerializable()
 class RecommendItemModel {
   final String id;
