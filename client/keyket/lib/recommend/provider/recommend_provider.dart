@@ -12,15 +12,18 @@ class RecommendItemListNotifier
     extends StateNotifier<List<RecommendItemModel>> {
   RecommendItemListNotifier() // ShoppingListNotifier 초기화(StateNotifier에 기본으로 있는 state를 super 안의 값으로 초기화)
       : super([]) {
-    getInitData();
+    getRecommendData();
   }
 
-  void getInitData() async {
+  void getRecommendData() async {
     List<RecommendItemModel> recommendItemList = [];
 
     try {
-      QuerySnapshot<Map<String, dynamic>> doc_list =
-          await firestore.collection('recommend').get();
+      QuerySnapshot<Map<String, dynamic>> doc_list = await firestore
+          .collection('recommend')
+          .where('theme', whereIn: ['healing', 'activity'])
+          .where('region', isEqualTo: 'seoul')
+          .get();
 
       for (var doc in doc_list.docs) {
         // 보완 필요
@@ -34,6 +37,5 @@ class RecommendItemListNotifier
     }
 
     state = recommendItemList;
-    print(state);
   }
 }
