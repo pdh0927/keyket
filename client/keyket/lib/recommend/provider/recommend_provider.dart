@@ -45,17 +45,18 @@ class RecommendItemListNotifier
 
       // themeStrings이 빈 배열이 아닐 경우 where 조건 추가
       if (selectedThemes.isNotEmpty) {
-        List<String> themeStrings = selectedThemes
+        List<String> themeStringList = selectedThemes
             .map((theme) => theme.toString().split('.').last)
             .toList();
-        query = query.where('theme', whereIn: themeStrings);
+        query = query.where('theme',
+            arrayContainsAny:
+                themeStringList); // themeStringList 안에 있는 요소가 하나라도 포함되면
       }
       QuerySnapshot<Map<String, dynamic>> docList = await query.get();
 
       for (var doc in docList.docs) {
         Map<String, dynamic> data = doc.data();
         data['id'] = doc.id;
-
         recommendItemList.add(RecommendItemModel.fromJson(data));
       }
     } catch (e) {
