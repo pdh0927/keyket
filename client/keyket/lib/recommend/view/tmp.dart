@@ -49,9 +49,22 @@ class _TmpState extends State<Tmp> {
   }
 
   // saveData() async {
+  // List<Map<String, dynamic>> recommendedItems = [
+  //   {
+  //     'content': 'tes123t',
+  //     'region': 'seoul',
+  //     'theme': ['healing', 'activity']
+  //   },
+  //   {
+  //     'content': 'test1123',
+  //     'region': 'daegu',
+  //     'theme': ['healing']
+  //   }
+  // ];
   //   for (var item in recommendedItems) {
-  // await firestore.collection('recommend').add(item);
-  // print(item);
+  //     await firestore.collection('recommend').add(item);
+  //     print(item);
+  //   }
   // }
 
   // print(result);
