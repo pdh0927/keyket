@@ -71,7 +71,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
             // Center(child: Text('HOME')),
             Tmp(),
             RecommendScreen(),
-            BucketListScreen(),
+            BucketListListScreen(),
             MyScreen()
           ]),
     );
