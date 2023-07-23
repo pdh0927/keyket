@@ -9,24 +9,30 @@ class BucketListCard extends StatelessWidget {
       {super.key,
       required this.name,
       required this.image,
-      required this.achievement_rate,
-      required this.created_at,
-      required this.updated_at});
+      required this.achievementRate,
+      required this.createdAt,
+      required this.updatedAt});
 
   final String name;
   final Widget image;
-  final double achievement_rate;
-  final DateTime created_at;
-  final DateTime updated_at;
+  final double achievementRate;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   factory BucketListCard.fromModel({required BucketListModel model}) {
     return BucketListCard(
-      image:
-          Image.asset(width: 100, height: 100, model.image, fit: BoxFit.cover),
+      image: model.image == ''
+          ? Image.asset(
+              width: 100,
+              height: 100,
+              "asset/img/default_bucket.png",
+              fit: BoxFit.cover)
+          : Image.asset(
+              width: 100, height: 100, model.image, fit: BoxFit.cover),
       name: model.name,
-      achievement_rate: model.achievementRate,
-      created_at: model.createdAt,
-      updated_at: model.updatedAt,
+      achievementRate: model.achievementRate,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
     );
   }
   @override
@@ -50,9 +56,9 @@ class BucketListCard extends StatelessWidget {
                     )
                   ],
                 )),
-            _CustomProgressBar(achievement_rate: achievement_rate),
+            _CustomProgressBar(achievementRate: achievementRate),
             Text(
-              '최근 수정 : ${updated_at.year.toString().substring(2)}.${updated_at.month.toString().padLeft(2, '0')}.${updated_at.day.toString().padLeft(2, '0')}',
+              '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
             )
           ],
         )
@@ -62,8 +68,8 @@ class BucketListCard extends StatelessWidget {
 }
 
 class _CustomProgressBar extends StatelessWidget {
-  final double achievement_rate;
-  const _CustomProgressBar({super.key, required this.achievement_rate});
+  final double achievementRate;
+  const _CustomProgressBar({super.key, required this.achievementRate});
 
   @override
   Widget build(BuildContext context) {
@@ -76,13 +82,13 @@ class _CustomProgressBar extends StatelessWidget {
             border: Border.all(width: 1, color: PRIMARY_COLOR),
           ),
           child: LinearProgressIndicator(
-            value: achievement_rate,
+            value: achievementRate,
             backgroundColor: Colors.transparent,
             valueColor: const AlwaysStoppedAnimation<Color>(PRIMARY_COLOR),
           ),
         ),
         const SizedBox(width: 8),
-        Text('${(achievement_rate * 100).roundToDouble().toStringAsFixed(0)}%')
+        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%')
       ],
     );
   }
