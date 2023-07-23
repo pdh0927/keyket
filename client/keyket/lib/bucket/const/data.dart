@@ -2,7 +2,7 @@ import 'package:keyket/bucket/model/bucket_list_model.dart';
 
 List<BucketListModel> bucketList = [
   BucketListModel(
-      id: 1,
+      id: 'dh',
       name: '맛집탐방 파티',
       image: 'asset/img/default_bucket.png',
       achievementRate: 0.2,
