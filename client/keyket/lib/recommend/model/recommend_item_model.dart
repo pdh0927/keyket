@@ -21,7 +21,7 @@ enum RecommendRegion {
   jeju
 }
 
-enum RecommendTheme { healing, activity, festival, date, historyAndCulture }
+enum RecommendTheme { healing, activity, festival, date, hist, food }
 
 List<String> recommendRegionKor = [
   '서울',
@@ -42,13 +42,13 @@ List<String> recommendRegionKor = [
   '제주'
 ];
 
-List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화'];
+List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화', '먹거리'];
 
 @JsonSerializable()
 class RecommendItemModel {
   final String id;
   final RecommendRegion region;
-  final RecommendTheme theme;
+  final List<RecommendTheme> theme;
   final String content;
 
   RecommendItemModel({
