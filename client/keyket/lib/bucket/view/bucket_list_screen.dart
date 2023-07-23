@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:keyket/bucket/component/bucket_card.dart';
+import 'package:keyket/bucket/component/bucket_list_card.dart';
 import 'package:keyket/bucket/const/data.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/common/const/colors.dart';
@@ -67,7 +67,7 @@ class _BucketListScreenState extends State<BucketListScreen> {
                           //     builder: (_) =>
                           //         RestaurantDetailScreen(id: pItem.id)));
                         },
-                        child: BucketCard.fromModel(model: pItem));
+                        child: BucketListCard.fromModel(model: pItem));
                   },
                   separatorBuilder: (_, index) {
                     // 분리 시 들어갈 항목

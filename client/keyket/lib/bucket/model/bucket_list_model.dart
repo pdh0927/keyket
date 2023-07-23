@@ -1,9 +1,9 @@
 import 'package:json_annotation/json_annotation.dart';
 
-part 'bucket_model.g.dart';
+part 'bucket_list_model.g.dart';
 
 @JsonSerializable()
-class BucketModel {
+class BucketListModel {
   final int id;
   final String name;
   final String image;
@@ -13,7 +13,7 @@ class BucketModel {
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  BucketModel(
+  BucketListModel(
       {required this.id,
       required this.name,
       required this.image,
@@ -23,8 +23,8 @@ class BucketModel {
       required this.createdAt,
       required this.updatedAt});
 
-  factory BucketModel.fromJson(Map<String, dynamic> json) =>
-      _$BucketModelFromJson(json);
+  factory BucketListModel.fromJson(Map<String, dynamic> json) =>
+      _$BucketListModelFromJson(json);
 
-  Map<String, dynamic> toJson() => _$BucketModelToJson(this);
+  Map<String, dynamic> toJson() => _$BucketListModelToJson(this);
 }

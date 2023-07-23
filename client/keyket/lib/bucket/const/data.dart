@@ -1,7 +1,7 @@
-import 'package:keyket/bucket/model/bucket_model.dart';
+import 'package:keyket/bucket/model/bucket_list_model.dart';
 
-List<BucketModel> bucketList = [
-  BucketModel(
+List<BucketListModel> bucketList = [
+  BucketListModel(
       id: 1,
       name: '맛집탐방 파티',
       image: 'asset/img/default_bucket.png',

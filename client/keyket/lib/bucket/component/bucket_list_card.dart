@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/bucket/const/text_style.dart';
-import 'package:keyket/bucket/model/bucket_model.dart';
+import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
-class BucketCard extends StatelessWidget {
-  const BucketCard(
+class BucketListCard extends StatelessWidget {
+  const BucketListCard(
       {super.key,
       required this.name,
       required this.image,
@@ -19,8 +19,8 @@ class BucketCard extends StatelessWidget {
   final DateTime created_at;
   final DateTime updated_at;
 
-  factory BucketCard.fromModel({required BucketModel model}) {
-    return BucketCard(
+  factory BucketListCard.fromModel({required BucketListModel model}) {
+    return BucketListCard(
       image:
           Image.asset(width: 100, height: 100, model.image, fit: BoxFit.cover),
       name: model.name,
