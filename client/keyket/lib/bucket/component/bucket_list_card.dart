@@ -1,32 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/bucket/const/text_style.dart';
-import 'package:keyket/bucket/model/bucket_model.dart';
+import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
-class BucketCard extends StatelessWidget {
-  const BucketCard(
+class BucketListCard extends StatelessWidget {
+  const BucketListCard(
       {super.key,
       required this.name,
       required this.image,
-      required this.achievement_rate,
-      required this.created_at,
-      required this.updated_at});
+      required this.achievementRate,
+      required this.createdAt,
+      required this.updatedAt});
 
   final String name;
   final Widget image;
-  final double achievement_rate;
-  final DateTime created_at;
-  final DateTime updated_at;
+  final double achievementRate;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  factory BucketCard.fromModel({required BucketModel model}) {
-    return BucketCard(
-      image:
-          Image.asset(width: 100, height: 100, model.image, fit: BoxFit.cover),
+  factory BucketListCard.fromModel({required BucketListModel model}) {
+    return BucketListCard(
+      image: model.image == ''
+          ? Image.asset(
+              width: 100,
+              height: 100,
+              "asset/img/default_bucket.png",
+              fit: BoxFit.cover)
+          : Image.asset(
+              width: 100, height: 100, model.image, fit: BoxFit.cover),
       name: model.name,
-      achievement_rate: model.achievement_rate,
-      created_at: model.created_at,
-      updated_at: model.updated_at,
+      achievementRate: model.achievementRate,
+      createdAt: model.createdAt,
+      updatedAt: model.updatedAt,
     );
   }
   @override
@@ -50,9 +56,9 @@ class BucketCard extends StatelessWidget {
                     )
                   ],
                 )),
-            _CustomProgressBar(achievement_rate: achievement_rate),
+            _CustomProgressBar(achievementRate: achievementRate),
             Text(
-              '최근 수정 : ${updated_at.year.toString().substring(2)}.${updated_at.month.toString().padLeft(2, '0')}.${updated_at.day.toString().padLeft(2, '0')}',
+              '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
             )
           ],
         )
@@ -62,8 +68,8 @@ class BucketCard extends StatelessWidget {
 }
 
 class _CustomProgressBar extends StatelessWidget {
-  final double achievement_rate;
-  const _CustomProgressBar({super.key, required this.achievement_rate});
+  final double achievementRate;
+  const _CustomProgressBar({super.key, required this.achievementRate});
 
   @override
   Widget build(BuildContext context) {
@@ -76,13 +82,13 @@ class _CustomProgressBar extends StatelessWidget {
             border: Border.all(width: 1, color: PRIMARY_COLOR),
           ),
           child: LinearProgressIndicator(
-            value: achievement_rate,
+            value: achievementRate,
             backgroundColor: Colors.transparent,
             valueColor: const AlwaysStoppedAnimation<Color>(PRIMARY_COLOR),
           ),
         ),
         const SizedBox(width: 8),
-        Text('${(achievement_rate * 100).roundToDouble().toStringAsFixed(0)}%')
+        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%')
       ],
     );
   }
