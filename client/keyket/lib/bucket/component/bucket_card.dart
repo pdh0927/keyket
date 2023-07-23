@@ -24,9 +24,9 @@ class BucketCard extends StatelessWidget {
       image:
           Image.asset(width: 100, height: 100, model.image, fit: BoxFit.cover),
       name: model.name,
-      achievement_rate: model.achievement_rate,
-      created_at: model.created_at,
-      updated_at: model.updated_at,
+      achievement_rate: model.achievementRate,
+      created_at: model.createdAt,
+      updated_at: model.updatedAt,
     );
   }
   @override
