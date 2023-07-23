@@ -17,16 +17,20 @@ final firestore = FirebaseFirestore.instance;
 
 final recommendItemListProvider =
     StateNotifierProvider<RecommendItemListNotifier, List<RecommendItemModel>>(
-        (ref) => RecommendItemListNotifier(ref)); // class를 privider로
+        (ref) {
+  RecommendRegion? selectedRegion = ref.watch(selectedRegionFilterProvider);
+  List<RecommendTheme> selectedThemes =
+      ref.watch(selectedThemeFilterListProvider);
+  return RecommendItemListNotifier(selectedRegion, selectedThemes);
+}); // class를 privider로
 
 class RecommendItemListNotifier
     extends StateNotifier<List<RecommendItemModel>> {
   RecommendItemListNotifier(
-      ref) // ShoppingListNotifier 초기화(StateNotifier에 기본으로 있는 state를 super 안의 값으로 초기화)
+      RecommendRegion? selectedRegion,
+      List<RecommendTheme>
+          selectedThemes) // StateNotifier에 기본으로 있는 state를 super 안의 값으로 초기화
       : super([]) {
-    RecommendRegion? selectedRegion = ref.watch(selectedRegionFilterProvider);
-    List<RecommendTheme> selectedThemes =
-        ref.watch(selectedThemeFilterListProvider);
     getRecommendData(selectedRegion, selectedThemes);
   }
 
