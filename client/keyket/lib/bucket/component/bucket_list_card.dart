@@ -59,6 +59,10 @@ class BucketListCard extends StatelessWidget {
             _CustomProgressBar(achievementRate: achievementRate),
             Text(
               '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
+              style: const TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 12,
+                  fontWeight: FontWeight.w400),
             )
           ],
         )
@@ -88,7 +92,11 @@ class _CustomProgressBar extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%')
+        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%',
+            style: const TextStyle(
+                fontFamily: 'SCDream',
+                fontSize: 12,
+                fontWeight: FontWeight.w400))
       ],
     );
   }

@@ -37,8 +37,10 @@ class DefaultLayout extends StatelessWidget {
           backgroundColor: Colors.white,
           elevation: 0,
           title: Text(title!,
-              style:
-                  const TextStyle(fontSize: 24.0, fontWeight: FontWeight.w500)),
+              style: const TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 24.0,
+                  fontWeight: FontWeight.w500)),
           centerTitle: false,
           titleSpacing: 25,
           actions: actions ?? [],
