@@ -48,6 +48,9 @@ class _BucketListListScreenScreenState
                         setState(() {
                           isShared = true;
                         });
+                        ref
+                            .read(sharedBucketListListProvider.notifier)
+                            .getSharedBucketListdData();
                       },
                       isShared: !isShared)
                 ],
