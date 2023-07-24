@@ -32,7 +32,8 @@ showCustomAlertDialog(BuildContext context, String content) {
         content: Text(
           content,
           textAlign: TextAlign.center,
-          style: const TextStyle(fontSize: 17, color: BLACK_COLOR),
+          style: const TextStyle(
+              fontFamily: 'SCDream', fontSize: 17, color: BLACK_COLOR),
         ),
       );
     },

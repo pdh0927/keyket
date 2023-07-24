@@ -17,7 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkToken() async {
-    await Future.delayed(const Duration(seconds: 3)); // 임시 3초 delay
+    await Future.delayed(const Duration(seconds: 0)); // 임시 3초 delay
     if (true) {
       // 로그인 정보 있을 시
       Navigator.of(context).pushAndRemoveUntil(
@@ -36,7 +36,7 @@ class _SplashScreenState extends State<SplashScreen> {
         children: [
           Text(
             '로딩 화면',
-            style: TextStyle(fontSize: 25),
+            style: TextStyle(fontFamily: 'SCDream', fontSize: 25),
           ),
           CircularProgressIndicator()
         ],

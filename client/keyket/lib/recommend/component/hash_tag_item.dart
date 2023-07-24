@@ -31,7 +31,10 @@ class HashTagItem extends ConsumerWidget {
           children: [
             Text(
               '# ${region != null ? recommendRegionKor[region!.index] : recommendThemeKor[theme!.index]}',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500),
             ),
             IconButton(
               icon: const Icon(Remix.close_circle_line, size: 14),
