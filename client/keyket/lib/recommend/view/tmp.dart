@@ -61,9 +61,84 @@ class _TmpState extends State<Tmp> {
   //     'theme': ['healing']
   //   }
   // ];
-  //   for (var item in recommendedItems) {
-  //     await firestore.collection('recommend').add(item);
-  //     print(item);
+  // for (var item in recommendedItems) {
+  //   await firestore.collection('recommend').add(item);
+  // }
+
+  //   List<Map<String, dynamic>> bucketListItems = [
+  //     {
+  //       'id': 'dh',
+  //       'name': 'in 20대',
+  //       'image': '',
+  //       'achievementRate': 0.2,
+  //       'isShared': false,
+  //       'users': ['dh'],
+  //       'createdAt': DateTime(2023, 1, 1),
+  //       'updatedAt': DateTime(2023, 1, 2)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'frieds',
+  //       'image': '',
+  //       'achievementRate': 0.72,
+  //       'isShared': true,
+  //       'users': ['dh', 'sj'],
+  //       'createdAt': DateTime(2023, 4, 2),
+  //       'updatedAt': DateTime(2023, 5, 2)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'family',
+  //       'image': '',
+  //       'achievementRate': 0.52,
+  //       'isShared': true,
+  //       'users': ['dh', 'sj'],
+  //       'createdAt': DateTime(2023, 1, 23),
+  //       'updatedAt': DateTime(2023, 3, 2)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'school',
+  //       'image': '',
+  //       'achievementRate': 0.34,
+  //       'isShared': true,
+  //       'users': ['dh', 'sj'],
+  //       'createdAt': DateTime(2023, 5, 5),
+  //       'updatedAt': DateTime(2023, 6, 2)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'in 20대',
+  //       'image': '',
+  //       'achievementRate': 0.3,
+  //       'isShared': false,
+  //       'users': ['dh', 'sj'],
+  //       'createdAt': DateTime(2023, 5, 1),
+  //       'updatedAt': DateTime(2023, 7, 8)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'in 20대',
+  //       'image': '',
+  //       'achievementRate': 0.44,
+  //       'isShared': false,
+  //       'users': ['dh'],
+  //       'createdAt': DateTime(2023, 1, 1),
+  //       'updatedAt': DateTime(2023, 1, 6)
+  //     },
+  //     {
+  //       'id': 'dh',
+  //       'name': 'in 20대',
+  //       'image': '',
+  //       'achievementRate': 0.55,
+  //       'isShared': false,
+  //       'users': ['dh', 'sj'],
+  //       'createdAt': DateTime(2023, 2, 1),
+  //       'updatedAt': DateTime(2023, 4, 2)
+  //     },
+  //   ];
+  //   for (var item in bucketListItems) {
+  //     await firestore.collection('bucket_list').add(item);
   //   }
   // }
 
