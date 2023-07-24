@@ -86,6 +86,21 @@ class SharedBucketListNotifier extends StateNotifier<List<BucketListModel>> {
 
     state = sharedBucketListList;
   }
+
+  void sortByName() {
+    state.sort((a, b) => a.name.compareTo(b.name));
+    state = List.from(state);
+  }
+
+  void sortByCreatedAt() {
+    state.sort((a, b) => b.createdAt.compareTo(a.createdAt)); // 최신 날짜가 먼저 오도록
+    state = List.from(state);
+  }
+
+  void sortByUpdatedAt() {
+    state.sort((a, b) => b.updatedAt.compareTo(a.updatedAt)); // 최신 업데이트가 먼저 오도록
+    state = List.from(state);
+  }
 }
 
 Map<String, dynamic> _docToMap(

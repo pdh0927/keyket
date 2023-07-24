@@ -151,7 +151,7 @@ class _ToggleMenuButton extends StatelessWidget {
   }
 }
 
-class _SortPopupMenuButton extends StatelessWidget {
+class _SortPopupMenuButton extends ConsumerWidget {
   final SortItem selectedSortItem;
   final Function(SortItem) onSelected;
 
@@ -159,22 +159,31 @@ class _SortPopupMenuButton extends StatelessWidget {
       {super.key, required this.selectedSortItem, required this.onSelected});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<SortItem>(
       icon: const Icon(Remix.equalizer_line, size: 21),
       onSelected: onSelected,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortItem>>[
         PopupMenuItem<SortItem>(
           value: SortItem.name,
+          onTap: () {
+            ref.read(myBucketListListProvider.notifier).sortByName();
+          },
           child: Text('이름 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.latest,
-          child: Text('최신 순', style: popupMenuTextStlye),
+          onTap: () {
+            ref.read(myBucketListListProvider.notifier).sortByUpdatedAt();
+          },
+          child: Text('업데이트 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.oldest,
-          child: Text('오래된 순', style: popupMenuTextStlye),
+          onTap: () {
+            ref.read(myBucketListListProvider.notifier).sortByCreatedAt();
+          },
+          child: Text('생성 순', style: popupMenuTextStlye),
         ),
       ],
       position: PopupMenuPosition.under,
