@@ -57,7 +57,8 @@ class _BucketListListScreenScreenState
               Align(
                 alignment: Alignment.centerRight,
                 child: _SortPopupMenuButton(
-                    selectedSortItem: selectedSortItem, onSelected: onSelected),
+                  isShared: isShared,
+                ),
               ),
               Expanded(
                 child: isShared
@@ -67,12 +68,6 @@ class _BucketListListScreenScreenState
             ],
           ),
         ));
-  }
-
-  void onSelected(SortItem item) {
-    setState(() {
-      selectedSortItem = item;
-    });
   }
 }
 
@@ -152,36 +147,43 @@ class _ToggleMenuButton extends StatelessWidget {
 }
 
 class _SortPopupMenuButton extends ConsumerWidget {
-  final SortItem selectedSortItem;
-  final Function(SortItem) onSelected;
+  final bool isShared;
 
-  const _SortPopupMenuButton(
-      {super.key, required this.selectedSortItem, required this.onSelected});
+  const _SortPopupMenuButton({super.key, required this.isShared});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<SortItem>(
       icon: const Icon(Remix.equalizer_line, size: 21),
-      onSelected: onSelected,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortItem>>[
         PopupMenuItem<SortItem>(
           value: SortItem.name,
           onTap: () {
-            ref.read(myBucketListListProvider.notifier).sortByName();
+            isShared
+                ? ref.read(sharedBucketListListProvider.notifier).sortByName()
+                : ref.read(myBucketListListProvider.notifier).sortByName();
           },
           child: Text('이름 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.latest,
           onTap: () {
-            ref.read(myBucketListListProvider.notifier).sortByUpdatedAt();
+            isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .sortByUpdatedAt()
+                : ref.read(myBucketListListProvider.notifier).sortByUpdatedAt();
           },
           child: Text('업데이트 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.oldest,
           onTap: () {
-            ref.read(myBucketListListProvider.notifier).sortByCreatedAt();
+            isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .sortByCreatedAt()
+                : ref.read(myBucketListListProvider.notifier).sortByCreatedAt();
           },
           child: Text('생성 순', style: popupMenuTextStlye),
         ),
