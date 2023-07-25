@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/component/custom_input_dialog.dart';
+import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
@@ -116,7 +117,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                     children: [
                       getDottedLine(
                           index, true, recommendedItems.length), // 구분 점선
-                      _RecommendItem(
+                      ListItem(
                           // 추천 아이템
                           selectFlag: selectFlag,
                           isContain: isContain,
@@ -130,12 +131,6 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                             });
                           },
                           content: recommendedItems[index].content),
-                      const Divider(
-                        // 구분선
-                        color: Color(0xFF616161),
-                        thickness: 1,
-                        height: 0,
-                      ),
                       getDottedLine(
                           index, false, recommendedItems.length) // 구분 점선
                     ],
@@ -381,47 +376,6 @@ class _OrdinaryBucketItem extends StatelessWidget {
           color: Color(0xFFd9d9d9),
           thickness: 1,
           height: 0,
-        ),
-      ],
-    );
-  }
-}
-
-class _RecommendItem extends StatelessWidget {
-  const _RecommendItem(
-      {super.key,
-      required this.selectFlag,
-      required this.isContain,
-      required this.onPressed,
-      required this.content});
-  final bool selectFlag;
-  final bool isContain;
-  final Function() onPressed;
-  final String content;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        selectFlag == true
-            ? IconButton(
-                onPressed: onPressed,
-                padding: EdgeInsets.zero,
-                splashRadius: 15,
-                icon: isContain
-                    ? const Icon(Icons.check_box_rounded, color: PRIMARY_COLOR)
-                    : const Icon(Icons.check_box_outline_blank_rounded,
-                        color: PRIMARY_COLOR))
-            : const SizedBox(height: 0),
-        Container(
-          alignment: Alignment.centerLeft,
-          height: 55,
-          padding: EdgeInsets.only(left: selectFlag == true ? 0 : 10),
-          child: Text(
-            content,
-            style: dropdownTextStyle,
-            textAlign: TextAlign.start,
-          ),
         ),
       ],
     );
