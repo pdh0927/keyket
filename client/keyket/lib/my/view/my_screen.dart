@@ -1,12 +1,21 @@
+import 'dart:io';
+import 'package:keyket/my/view/my_image_screen.dart';
+import 'package:keyket/my/view/my_notification_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:flutter/services.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:image_picker/image_picker.dart';
 
-class MyScreen extends StatelessWidget {
+class MyScreen extends StatefulWidget {
   const MyScreen({super.key});
 
+  @override
+  State<MyScreen> createState() => _MyScreenState();
+}
+
+class _MyScreenState extends State<MyScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
@@ -28,15 +37,15 @@ class MyScreen extends StatelessWidget {
     return [
       IconButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Hi(),
-            ),
-          );
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => _Message(),
+          //   ),
+          // );
         },
         icon: const Icon(
-          Remix.lock_line,
+          Remix.lock_unlock_line,
           size: 24,
           color: Color(0XFF3498DB),
         ),
@@ -46,7 +55,7 @@ class MyScreen extends StatelessWidget {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => _Notification(),
+              builder: (context) => MyNotification(),
             ),
           );
         },
@@ -58,116 +67,6 @@ class MyScreen extends StatelessWidget {
       ),
       SizedBox(width: 20)
     ];
-  }
-}
-
-class _Notification extends StatelessWidget {
-  const _Notification({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultLayout(
-      title: '공지사항',
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        child: ListView(
-          children: [
-            Container(
-              color: Color(0xFF616161),
-              width: 10,
-              height: 1,
-            ),
-            ExpansionTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('24/06/07'),
-                  Text('여행 유형테스트 업데이트 안내'),
-                ],
-              ),
-              children: [
-                ListTile(
-                  title: Text(' '),
-                ),
-              ],
-            ),
-            Container(
-              color: Color(0xFF616161),
-              width: 350,
-              height: 1,
-            ),
-            ExpansionTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('24/01/01'),
-                  Text('유료 구매 혜택 안내'),
-                ],
-              ),
-              children: [
-                ListTile(
-                  title: Text(' '),
-                ),
-              ],
-            ),
-            Container(
-              color: Color(0xFF616161),
-              width: 350,
-              height: 1,
-            ),
-            ExpansionTile(
-              title: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('23/07/07'),
-                  Text('안녕하세요 키킷입니다.'),
-                ],
-              ),
-              children: [
-                ListTile(
-                  title: Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        '안녕하세요 여행을 여는 열쇠, 키킷입니다. \n'
-                        '키킷 앱은 버킷리스트를 작성하는 것 뿐만 아니라 버킷리스트를 추천해주는 어플입니다. \n'
-                        '어쩌구 저쩌구 요러케 저러케 궁시렁 왕시렁 헤이즐넛 아메리카노는 더위사냥. \n'
-                        '음 앙버터가 눈앞에 있다. 하나 남은 앙버터를 가져왔다. \n'
-                        '감사합니다.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 2,
-                        ),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Color(0XFF3498DB).withOpacity(0.2),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10),
-                      ),
-                    ),
-                    width: 350,
-                    height: 200,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class Hi extends StatelessWidget {
-  const Hi({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return DefaultLayout(
-      child: Text(''),
-    );
   }
 }
 
@@ -184,7 +83,7 @@ class _Top extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            _ExamplePage(),
+            MyProfile(),
             Column(
               children: [
                 Row(
@@ -247,14 +146,26 @@ class _Top extends StatelessWidget {
   }
 }
 
-class _ExamplePage extends StatefulWidget {
-  const _ExamplePage({super.key});
+class MyProfile extends StatefulWidget {
+  const MyProfile({super.key});
 
   @override
-  State<_ExamplePage> createState() => _ExamplePageState();
+  State<MyProfile> createState() => _MyProfileState();
 }
 
-class _ExamplePageState extends State<_ExamplePage> {
+class _MyProfileState extends State<MyProfile> {
+  XFile? _image;
+  final ImagePicker picker = ImagePicker();
+
+  Future pickImage(ImageSource imageSource) async {
+    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    if (pickedFile != null) {
+      setState(() {
+        _image = XFile(pickedFile.path);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -269,7 +180,7 @@ class _ExamplePageState extends State<_ExamplePage> {
             ),
             child: GestureDetector(
               onTap: () {
-                _ShowSheet();
+                takeImage(context);
               },
               child: Icon(
                 Remix.user_fill,
@@ -300,20 +211,51 @@ class _ExamplePageState extends State<_ExamplePage> {
     );
   }
 
-  _ShowSheet() {
-    final result = showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return OutlinedButton(
-          onPressed: () {},
-          style: OutlinedButton.styleFrom(
-            backgroundColor: Color(0XFF616161).withOpacity(0.2),
-          ),
-          child: Text('프로필 사진 설정하기'),
-        );
-      },
-    );
+  takeImage(mContext) {
+    return showDialog(
+        context: mContext,
+        builder: (context) {
+          return SimpleDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+            title: Text(
+              '프로필 사진 설정',
+              style: TextStyle(
+                color: Colors.black,
+              ),
+            ),
+            children: [
+              SimpleDialogOption(
+                child: Text(
+                  '앨범에서 사진 선택하기',
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
+                ),
+                onPressed: () {
+                  pickImage(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
   }
+
+  // PickImage() {
+  //   return _image != null
+  //       ? Container(
+  //           width: 100,
+  //           height: 100,
+  //           child: Image.file(File(_image!.path)),
+  //         )
+  //       : Container(
+  //           width: 100,
+  //           height: 100,
+  //           color: Colors.grey,
+  //         );
+  // }
 }
 
 class _Middle extends StatelessWidget {
@@ -345,7 +287,7 @@ class _Middle extends StatelessWidget {
           height: 81,
           decoration: BoxDecoration(
             border: Border.all(
-              color: PRIMARY_COLOR.withOpacity(0.5),
+              color: PRIMARY_COLOR,
               width: 1,
             ),
             borderRadius: BorderRadius.circular(10),
@@ -373,7 +315,7 @@ class _Middle extends StatelessWidget {
               VerticalDivider(
                 thickness: 1,
                 width: 1,
-                color: PRIMARY_COLOR.withOpacity(0.5),
+                color: PRIMARY_COLOR,
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -418,12 +360,7 @@ class _Bottom extends StatelessWidget {
               '고객센터',
             ),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Hi(),
-                ),
-              );
+              _Message(context);
             },
           ),
           ListTile(
@@ -433,31 +370,43 @@ class _Bottom extends StatelessWidget {
             ),
             title: Text('이벤트'),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Hi(),
-                ),
-              );
+              _Message(context);
             },
           ),
           ListTile(
-            leading: const Icon(
+            leading: Icon(
               Remix.footprint_line,
               color: BLACK_COLOR,
             ),
             title: Text('여행 유형테스트'),
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => Hi(),
-                ),
-              );
+              _Message(context);
             },
           ),
         ],
       ),
+    );
+  }
+
+  _Message(context) async {
+    return showDialog(
+      context: context,
+      builder: (BuildContext) {
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: Color(0XFF616161).withOpacity(0.2),
+          elevation: 0,
+          content: Text(
+            '준비중입니다',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
     );
   }
 }
