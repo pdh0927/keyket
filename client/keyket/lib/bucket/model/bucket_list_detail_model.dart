@@ -1,5 +1,6 @@
 import 'package:json_annotation/json_annotation.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
+import 'package:keyket/recommend/model/recommend_item_model.dart';
 
 part 'bucket_list_detail_model.g.dart';
 
@@ -7,8 +8,8 @@ part 'bucket_list_detail_model.g.dart';
 class BucketListDetailModel extends BucketListModel {
   final List<String> completedCustomItemList;
   final List<String> completedrecommendItemList;
-  final List<String> customItemList;
-  final List<String> recommendItemList;
+  final List<Map<String, dynamic>> customItemList;
+  final List<RecommendItemModel> recommendItemList;
 
   BucketListDetailModel(
       {required super.id,
