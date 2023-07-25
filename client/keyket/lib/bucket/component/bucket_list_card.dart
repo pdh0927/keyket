@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
-import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
 class BucketListCard extends StatelessWidget {
@@ -37,67 +38,44 @@ class BucketListCard extends StatelessWidget {
   }
   @override
   Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(children: [
-        ClipRRect(borderRadius: BorderRadius.circular(5.0), child: image),
-        const SizedBox(width: 25),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            InkWell(
-                onTap: () {},
-                child: Row(
-                  children: [
-                    const Icon(Remix.arrow_right_s_line),
-                    Text(
-                      name,
-                      style: popupMenuTextStlye,
-                    )
-                  ],
-                )),
-            _CustomProgressBar(achievementRate: achievementRate),
-            Text(
-              '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
-              style: const TextStyle(
-                  fontFamily: 'SCDream',
-                  fontSize: 12,
-                  fontWeight: FontWeight.w400),
-            )
-          ],
-        )
-      ]),
-    );
-  }
-}
-
-class _CustomProgressBar extends StatelessWidget {
-  final double achievementRate;
-  const _CustomProgressBar({super.key, required this.achievementRate});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          height: 17,
-          width: 160,
-          decoration: BoxDecoration(
-            border: Border.all(width: 1, color: PRIMARY_COLOR),
-          ),
-          child: LinearProgressIndicator(
-            value: achievementRate,
-            backgroundColor: Colors.transparent,
-            valueColor: const AlwaysStoppedAnimation<Color>(PRIMARY_COLOR),
-          ),
-        ),
-        const SizedBox(width: 8),
-        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%',
-            style: const TextStyle(
-                fontFamily: 'SCDream',
-                fontSize: 12,
-                fontWeight: FontWeight.w400))
-      ],
+    return InkWell(
+      onTap: () {
+        Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const BucketListDetailScreen()));
+      },
+      child: IntrinsicHeight(
+        child: Row(children: [
+          ClipRRect(borderRadius: BorderRadius.circular(5.0), child: image),
+          const SizedBox(width: 25),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
+                children: [
+                  const Icon(Remix.arrow_right_s_line),
+                  Text(
+                    name,
+                    style: popupMenuTextStlye,
+                  )
+                ],
+              ),
+              CustomProgressBar(
+                achievementRate: achievementRate,
+                height: 17,
+                width: 160,
+              ),
+              Text(
+                '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
+                style: const TextStyle(
+                    fontFamily: 'SCDream',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400),
+              )
+            ],
+          )
+        ]),
+      ),
     );
   }
 }
