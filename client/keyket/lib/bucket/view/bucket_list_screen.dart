@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:keyket/bucket/component/bucket_card.dart';
-import 'package:keyket/bucket/const/data.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/component/bucket_list_card.dart';
 import 'package:keyket/bucket/const/text_style.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:remixicon/remixicon.dart';
 
 enum SortItem { name, latest, oldest }
 
-class BucketListScreen extends StatefulWidget {
-  const BucketListScreen({super.key});
+class BucketListListScreen extends ConsumerStatefulWidget {
+  const BucketListListScreen({super.key});
 
   @override
-  State<BucketListScreen> createState() => _BucketListScreenState();
+  ConsumerState<BucketListListScreen> createState() =>
+      _BucketListListScreenScreenState();
 }
 
-class _BucketListScreenState extends State<BucketListScreen> {
-  bool flag = true; // true면 나, false면 공유
+class _BucketListListScreenScreenState
+    extends ConsumerState<BucketListListScreen> {
+  bool isShared = false;
   SortItem selectedSortItem = SortItem.name;
 
   @override
@@ -35,18 +38,21 @@ class _BucketListScreenState extends State<BucketListScreen> {
                       title: '나',
                       onTap: () {
                         setState(() {
-                          flag = true;
+                          isShared = false;
                         });
                       },
-                      flag: flag),
+                      isShared: isShared),
                   _ToggleMenuButton(
                       title: '공유',
                       onTap: () {
                         setState(() {
-                          flag = false;
+                          isShared = true;
                         });
+                        ref
+                            .read(sharedBucketListListProvider.notifier)
+                            .getSharedBucketListdData();
                       },
-                      flag: !flag)
+                      isShared: !isShared)
                 ],
               ),
               const SizedBox(height: 30),
@@ -54,49 +60,76 @@ class _BucketListScreenState extends State<BucketListScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: _SortPopupMenuButton(
-                    selectedSortItem: selectedSortItem, onSelected: onSelected),
+                  isShared: isShared,
+                ),
               ),
               Expanded(
-                child: ListView.separated(
-                  itemCount: bucketList.length,
-                  itemBuilder: (_, index) {
-                    final pItem = bucketList[index];
-                    return GestureDetector(
-                        onTap: () {
-                          // Navigator.of(context).push(MaterialPageRoute(
-                          //     builder: (_) =>
-                          //         RestaurantDetailScreen(id: pItem.id)));
-                        },
-                        child: BucketCard.fromModel(model: pItem));
-                  },
-                  separatorBuilder: (_, index) {
-                    // 분리 시 들어갈 항목
-                    return const SizedBox(height: 16.0);
-                  },
-                ),
+                child: isShared
+                    ? const _SharedBucketListList()
+                    : const _MyBucketListList(),
               )
             ],
           ),
         ));
   }
+}
 
-  void onSelected(SortItem item) {
-    setState(() {
-      selectedSortItem = item;
-    });
+class _MyBucketListList extends ConsumerWidget {
+  const _MyBucketListList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final myBucketListList = ref.watch(myBucketListListProvider);
+    return _BucketListList(bucketListList: myBucketListList);
+  }
+}
+
+class _SharedBucketListList extends ConsumerWidget {
+  const _SharedBucketListList({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final sharedBucketListList = ref.watch(sharedBucketListListProvider);
+    return _BucketListList(bucketListList: sharedBucketListList);
+  }
+}
+
+class _BucketListList extends StatelessWidget {
+  final bucketListList;
+  const _BucketListList({super.key, required this.bucketListList});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.separated(
+      itemCount: bucketListList.length,
+      itemBuilder: (_, index) {
+        final pItem = bucketListList[index];
+        return GestureDetector(
+            onTap: () {
+              // Navigator.of(context).push(MaterialPageRoute(
+              //     builder: (_) =>
+              //         RestaurantDetailScreen(id: pItem.id)));
+            },
+            child: BucketListCard.fromModel(model: pItem));
+      },
+      separatorBuilder: (_, index) {
+        // 분리 시 들어갈 항목
+        return const SizedBox(height: 16.0);
+      },
+    );
   }
 }
 
 class _ToggleMenuButton extends StatelessWidget {
   final String title;
   final Function() onTap;
-  final bool flag;
+  final bool isShared;
 
   const _ToggleMenuButton(
       {super.key,
       required this.title,
       required this.onTap,
-      required this.flag});
+      required this.isShared});
 
   @override
   Widget build(BuildContext context) {
@@ -107,39 +140,55 @@ class _ToggleMenuButton extends StatelessWidget {
           height: 40,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              color: flag
-                  ? PRIMARY_COLOR.withOpacity(0.35)
-                  : const Color(0xFF1A1A1A).withOpacity(0.2),
+              color: isShared
+                  ? const Color(0xFF1A1A1A).withOpacity(0.2)
+                  : PRIMARY_COLOR.withOpacity(0.35),
               borderRadius: BorderRadius.circular(5)),
           child: Text(title, style: toggleButtonTextStlye)),
     );
   }
 }
 
-class _SortPopupMenuButton extends StatelessWidget {
-  final SortItem selectedSortItem;
-  final Function(SortItem) onSelected;
+class _SortPopupMenuButton extends ConsumerWidget {
+  final bool isShared;
 
-  const _SortPopupMenuButton(
-      {super.key, required this.selectedSortItem, required this.onSelected});
+  const _SortPopupMenuButton({super.key, required this.isShared});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return PopupMenuButton<SortItem>(
       icon: const Icon(Remix.equalizer_line, size: 21),
-      onSelected: onSelected,
       itemBuilder: (BuildContext context) => <PopupMenuEntry<SortItem>>[
         PopupMenuItem<SortItem>(
           value: SortItem.name,
+          onTap: () {
+            isShared
+                ? ref.read(sharedBucketListListProvider.notifier).sortByName()
+                : ref.read(myBucketListListProvider.notifier).sortByName();
+          },
           child: Text('이름 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.latest,
-          child: Text('최신 순', style: popupMenuTextStlye),
+          onTap: () {
+            isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .sortByUpdatedAt()
+                : ref.read(myBucketListListProvider.notifier).sortByUpdatedAt();
+          },
+          child: Text('업데이트 순', style: popupMenuTextStlye),
         ),
         PopupMenuItem<SortItem>(
           value: SortItem.oldest,
-          child: Text('오래된 순', style: popupMenuTextStlye),
+          onTap: () {
+            isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .sortByCreatedAt()
+                : ref.read(myBucketListListProvider.notifier).sortByCreatedAt();
+          },
+          child: Text('생성 순', style: popupMenuTextStlye),
         ),
       ],
       position: PopupMenuPosition.under,

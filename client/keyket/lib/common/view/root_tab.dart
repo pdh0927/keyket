@@ -4,6 +4,7 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/my/view/my_screen.dart';
 import 'package:keyket/recommend/view/recommend_screen.dart';
+import 'package:keyket/recommend/view/tmp.dart';
 import 'package:remixicon/remixicon.dart';
 
 class RootTab extends StatefulWidget {
@@ -67,9 +68,10 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
           physics: const NeverScrollableScrollPhysics(), // scroll로는 화면 전환 x
           controller: controller,
           children: const [
-            Center(child: Text('HOME')),
+            // Center(child: Text('HOME')),
+            Tmp(),
             RecommendScreen(),
-            BucketListScreen(),
+            BucketListListScreen(),
             MyScreen()
           ]),
     );

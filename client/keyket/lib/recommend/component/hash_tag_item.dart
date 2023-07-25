@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/recommend/model/recommend_item_model.dart';
+import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
-class HashTagItem extends StatelessWidget {
-  final String value;
-  final String type;
-  final Function deleteHashTag;
+class HashTagItem extends ConsumerWidget {
+  final RecommendRegion? region;
+  final RecommendTheme? theme;
 
-  const HashTagItem(
-      {super.key,
-      required this.type,
-      required this.value,
-      required this.deleteHashTag});
+  const HashTagItem({
+    super.key,
+    this.region,
+    this.theme,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
         height: 35,
         width: 110, // 글자 최대수 생각해서 변경해야함
@@ -28,8 +30,11 @@ class HashTagItem extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '# $value',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+              '# ${region != null ? recommendRegionKor[region!.index] : recommendThemeKor[theme!.index]}',
+              style: const TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500),
             ),
             IconButton(
               icon: const Icon(Remix.close_circle_line, size: 14),
@@ -40,7 +45,15 @@ class HashTagItem extends StatelessWidget {
                 minHeight: 20,
               ),
               onPressed: () {
-                deleteHashTag(type, value);
+                if (region != null) {
+                  ref
+                      .read(selectedRegionFilterProvider.notifier)
+                      .deleteHashTag();
+                } else {
+                  ref
+                      .read(selectedThemeFilterListProvider.notifier)
+                      .deleteHashTag(theme!);
+                }
               },
             )
           ],

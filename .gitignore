@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Miscellaneous
 *.class
 *.log
@@ -42,3 +43,7 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+=======
+# Ignore .DS_Store files
+.DS_Store
+>>>>>>> b966f7aac7c9967ebe253c6a2b3ecaa27d850a06
