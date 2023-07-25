@@ -50,7 +50,7 @@ class _BucketListListScreenScreenState
                         });
                         ref
                             .read(sharedBucketListListProvider.notifier)
-                            .getSharedBucketListdData();
+                            .getSharedBucketListd();
                       },
                       isShared: !isShared)
                 ],
