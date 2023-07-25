@@ -13,10 +13,10 @@ final myBucketListListProvider =
 
 class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
   MyBucketListNotifier() : super([]) {
-    getMyBucketListdData();
+    getMyBucketListd();
   }
 
-  void getMyBucketListdData() async {
+  void getMyBucketListd() async {
     List<BucketListModel> myBucketListList = [];
 
     try {
@@ -62,10 +62,10 @@ final sharedBucketListListProvider =
 
 class SharedBucketListNotifier extends StateNotifier<List<BucketListModel>> {
   SharedBucketListNotifier() : super([]) {
-    getSharedBucketListdData();
+    getSharedBucketListd();
   }
 
-  void getSharedBucketListdData() async {
+  void getSharedBucketListd() async {
     List<BucketListModel> sharedBucketListList = [];
 
     try {
