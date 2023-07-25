@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:keyket/bucket/model/custom_item_model.dart';
 
 part 'recommend_item_model.g.dart';
 
@@ -45,7 +46,7 @@ List<String> recommendRegionKor = [
 List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화', '먹거리'];
 
 @JsonSerializable()
-class RecommendItemModel {
+class RecommendItemModel extends Item {
   final String id;
   final RecommendRegion region;
   final List<RecommendTheme> theme;
