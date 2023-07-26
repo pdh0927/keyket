@@ -32,6 +32,44 @@ class BucketListModel {
     required this.recommendItemList,
   });
 
+  BucketListModel copyWith({
+    String? id,
+    String? name,
+    String? image,
+    double? achievementRate,
+    bool? isShared,
+    List<String>? users,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    List<String>? completedCustomItemList,
+    List<String>? completedRecommendItemList,
+    List<String>? customItemList,
+    List<String>? recommendItemList,
+  }) {
+    return BucketListModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      image: image ?? this.image,
+      achievementRate: achievementRate ?? this.achievementRate,
+      isShared: isShared ?? this.isShared,
+      users: users != null ? List.from(users) : this.users,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      completedCustomItemList: completedCustomItemList != null
+          ? List.from(completedCustomItemList)
+          : this.completedCustomItemList,
+      completedRecommendItemList: completedRecommendItemList != null
+          ? List.from(completedRecommendItemList)
+          : this.completedRecommendItemList,
+      customItemList: customItemList != null
+          ? List.from(customItemList)
+          : this.customItemList,
+      recommendItemList: recommendItemList != null
+          ? List.from(recommendItemList)
+          : this.recommendItemList,
+    );
+  }
+
   factory BucketListModel.fromJson(Map<String, dynamic> json) =>
       _$BucketListModelFromJson(json);
 

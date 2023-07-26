@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
-import 'package:keyket/bucket/provider/bucket_list_provider.dart';
-
 import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -55,15 +53,17 @@ class BucketListCard extends ConsumerWidget {
       recommendItemList: model.recommendItemList,
     );
   }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
       onTap: () {
-        ref
-            .read(bucketListItemProvider.notifier)
-            .getItems(id, customItemList, recommendItemList);
-        Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const BucketListDetailScreen()));
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => BucketListDetailScreen(
+                  bucketListId: id,
+                  customItemList: customItemList,
+                  recommendItemList: recommendItemList,
+                )));
       },
       child: IntrinsicHeight(
         child: Row(children: [
