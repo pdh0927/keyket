@@ -46,17 +46,15 @@ List<String> recommendRegionKor = [
 List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화', '먹거리'];
 
 @JsonSerializable()
-class RecommendItemModel extends Item {
-  final String id;
+class RecommendItemModel extends ItemModel {
   final RecommendRegion region;
   final List<RecommendTheme> theme;
-  final String content;
 
   RecommendItemModel({
-    required this.id,
+    required super.id,
     required this.region,
     required this.theme,
-    required this.content,
+    required super.content,
   });
 
   factory RecommendItemModel.fromJson(Map<String, dynamic> json) =>

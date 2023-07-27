@@ -2,8 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:keyket/bucket/model/custom_item_model.dart';
-import 'package:keyket/recommend/model/recommend_item_model.dart';
 
 final firestore = FirebaseFirestore.instance;
 
@@ -54,21 +52,32 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
     state = List.from(state);
   }
 
-  bool isComplete(String type, String bucketId, String itemId) {
+  List<String> getCompleteList(String type, String bucketListId) {
+    final bucket = state.firstWhere((bucket) => bucket.id == bucketListId);
     if (type == 'recommend') {
-      return state.any((bucket) =>
-          bucket.id == bucketId &&
-          bucket.completedRecommendItemList.contains(itemId));
+      return List.from(bucket.completedRecommendItemList);
     } else {
-      return state.any((bucket) =>
-          bucket.id == bucketId &&
-          bucket.completedCustomItemList.contains(itemId));
+      return List.from(bucket.completedCustomItemList);
     }
   }
 
+  List<String> getContainList(String type, String bucketListId) {
+    final bucket = state.firstWhere((bucket) => bucket.id == bucketListId);
+    if (type == 'recommend') {
+      return List.from(bucket.recommendItemList);
+    } else {
+      return List.from(bucket.customItemList);
+    }
+  }
+
+  BucketListModel getBucketListModel(String bucketListId) {
+    final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+    return bucketList.deepCopy();
+  }
+
   void addComplete(String type, String bucketId, String itemId) async {
-    DocumentReference bucketRef =
-        firestore.collection('bucket_list').doc(bucketId);
+    // DocumentReference bucketRef =
+    //     firestore.collection('bucket_list').doc(bucketId);
 
     if (type == 'recommend') {
       int index = state.indexWhere((bucket) => bucket.id == bucketId);
@@ -82,13 +91,14 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
 
         // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
         state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-        try {
-          await bucketRef.update({
-            'completedRecommendItemList': FieldValue.arrayUnion([itemId]),
-          });
-        } catch (e) {
-          print(e);
-        }
+
+        // try {
+        //   await bucketRef.update({
+        //     'completedRecommendItemList': FieldValue.arrayUnion([itemId]),
+        //   });
+        // } catch (e) {
+        //   print(e);
+        // }
       }
     } else {
       int index = state.indexWhere((bucket) => bucket.id == bucketId);
@@ -103,17 +113,21 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
         // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
         state = List<BucketListModel>.from(state)..[index] = updatedBucket;
 
-        // firestore에 추가
-        await bucketRef.update({
-          'completedCustomItemList': FieldValue.arrayUnion([itemId]),
-        });
+        // // firestore에 추가
+        // try {
+        //   await bucketRef.update({
+        //     'completedCustomItemList': FieldValue.arrayUnion([itemId]),
+        //   });
+        // } catch (e) {
+        //   print(e);
+        // }
       }
     }
   }
 
   void removeComplete(String type, String bucketId, String itemId) async {
-    DocumentReference bucketRef =
-        firestore.collection('bucket_list').doc(bucketId);
+    // DocumentReference bucketRef =
+    //     firestore.collection('bucket_list').doc(bucketId);
 
     if (type == 'recommend') {
       int index = state.indexWhere((bucket) => bucket.id == bucketId);
@@ -128,14 +142,18 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
         // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
         state = List<BucketListModel>.from(state)..[index] = updatedBucket;
 
-        await bucketRef.update({
-          'completedRecommendItemList': FieldValue.arrayRemove([itemId]),
-        });
+        // firestore에 추가
+        // try {
+        //   await bucketRef.update({
+        //     'completedRecommendItemList': FieldValue.arrayRemove([itemId]),
+        //   });
+        // } catch (e) {
+        //   print(e);
+        // }
       }
     } else {
       int index = state.indexWhere((bucket) => bucket.id == bucketId);
       if (index != -1) {
-        print(state);
         // 기존 BucketListModel 객체를 복사하고 completedCustomItemList에 itemId를 추가하는 새로운 객체를 생성합니다.
         BucketListModel updatedBucket = state[index].copyWith(
           completedCustomItemList:
@@ -145,11 +163,15 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
 
         // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
         state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-        print(state);
+
         // firestore에 제거
-        await bucketRef.update({
-          'completedCustomItemList': FieldValue.arrayRemove([itemId]),
-        });
+        // try {
+        //   await bucketRef.update({
+        //     'completedCustomItemList': FieldValue.arrayRemove([itemId]),
+        //   });
+        // } catch (e) {
+        //   print(e);
+        // }
       }
     }
   }
@@ -233,60 +255,27 @@ final bucketListItemListProvider =
 
 class BucketListItemNotifier extends StateNotifier<Map<String, dynamic>> {
   BucketListItemNotifier() : super({});
-
-  void getItems(String id, List<String> customItemList,
-      List<String> recommendItemList) async {
-    List<Item> itemList = [];
-
-    try {
-      // 10개 단위로 나누기
-      List<List<String>> recommendItemChunks = [];
-      for (int i = 0; i < recommendItemList.length; i += 10) {
-        recommendItemChunks.add(recommendItemList.sublist(
-            i,
-            i + 10 > recommendItemList.length
-                ? recommendItemList.length
-                : i + 10));
-      }
-
-      // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-      for (List<String> chunk in recommendItemChunks) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('recommend')
-            .where(FieldPath.documentId, whereIn: chunk)
-            .get();
-        for (DocumentSnapshot doc in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-
-          itemList.add(RecommendItemModel.fromJson(data));
-        }
-      }
-
-      // 10개 단위로 나누기
-      List<List<String>> customItemChunks = [];
-      for (int i = 0; i < customItemList.length; i += 10) {
-        customItemChunks.add(customItemList.sublist(i,
-            i + 10 > customItemList.length ? customItemList.length : i + 10));
-      }
-
-      // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-      for (List<String> chunk in customItemChunks) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('custom')
-            .where(FieldPath.documentId, whereIn: chunk)
-            .get();
-        for (DocumentSnapshot doc in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          itemList.add(CustomItemModel.fromJson(data));
-        }
-      }
-
-      // 상태 갱신
-      state = {...state, id: itemList};
-    } catch (e) {
-      print(e);
-    }
-  }
 }
+
+final bucketListChangeProvider =
+    StateNotifierProvider<BucketListChangeNotifier, Map<String, dynamic>>(
+        (ref) {
+  return BucketListChangeNotifier();
+});
+
+class BucketListChangeNotifier extends StateNotifier<Map<String, dynamic>> {
+  BucketListChangeNotifier() : super({});
+}
+
+// completeCutomAddList, completeCutomRemoveList, completeRecommendAddList, completeRecommendRemoveList에 추가 // 이렇게나 아니면 마지막에 초기 리스트와 비교해서 뺄건빼고 더할건 더하고
+// 새로 생성은 newCustomList, newRecommendList에 추가
+// 새로 추가된놈들이 complete된지는 따로 List 관리
+
+// 새로 custom 항목 추가하고
+// Id가지고 와서 complete라면 list에 추가
+// complete 바뀐거 바탕으로 update
+
+// 새로 recommend 추가라면 recommendlist 업데이트
+// complete 바뀐거 바탕으로 update
+
+// Item provider에서 옮기기

@@ -31,6 +31,24 @@ class BucketListModel {
     required this.customItemList,
     required this.recommendItemList,
   });
+  BucketListModel deepCopy() {
+    return BucketListModel(
+      id: id,
+      name: name,
+      image: image,
+      achievementRate: achievementRate,
+      isShared: isShared,
+      users: List.from(users),
+      createdAt:
+          DateTime.fromMillisecondsSinceEpoch(createdAt.millisecondsSinceEpoch),
+      updatedAt:
+          DateTime.fromMillisecondsSinceEpoch(updatedAt.millisecondsSinceEpoch),
+      completedCustomItemList: List.from(completedCustomItemList),
+      completedRecommendItemList: List.from(completedRecommendItemList),
+      customItemList: List.from(customItemList),
+      recommendItemList: List.from(recommendItemList),
+    );
+  }
 
   BucketListModel copyWith({
     String? id,

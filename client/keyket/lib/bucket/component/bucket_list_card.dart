@@ -61,8 +61,6 @@ class BucketListCard extends ConsumerWidget {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => BucketListDetailScreen(
                   bucketListId: id,
-                  customItemList: customItemList,
-                  recommendItemList: recommendItemList,
                 )));
       },
       child: IntrinsicHeight(
