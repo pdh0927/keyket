@@ -28,10 +28,16 @@ class ListItem extends StatelessWidget {
                         const BoxConstraints(maxHeight: 26, maxWidth: 26),
                     splashRadius: 15,
                     icon: isContain
-                        ? const Icon(Icons.check_box_rounded,
-                            color: PRIMARY_COLOR)
-                        : const Icon(Icons.check_box_outline_blank_rounded,
-                            color: PRIMARY_COLOR)),
+                        ? const Icon(
+                            Icons.check_box_rounded,
+                            color: PRIMARY_COLOR,
+                            size: 27,
+                          )
+                        : const Icon(
+                            Icons.check_box_outline_blank_rounded,
+                            color: PRIMARY_COLOR,
+                            size: 27,
+                          )),
               )
             : const SizedBox(height: 0),
         Expanded(
@@ -56,7 +62,7 @@ class ListItem extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(
+        const SizedBox(
           width: 9,
         )
       ],
