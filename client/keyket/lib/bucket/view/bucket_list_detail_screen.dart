@@ -39,7 +39,6 @@ class _BucketListDetailScreenState
   List<ItemModel> bucketListItemList = [];
   List<String> newCustomItemList = [];
   List<String> newCustomItemCompletedList = [];
-  bool addFlag = false;
   bool addCustomItemFlag = false;
   bool isChanged = false;
 
@@ -57,31 +56,47 @@ class _BucketListDetailScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(
-            MediaQuery.of(context).size.height / 7), // here the desired height
+        preferredSize: Size.fromHeight(100.h / 6), // here the desired height
         child: AppBar(
+          leading: IconButton(
+            icon: const Icon(
+              Remix.arrow_left_s_line,
+              color: Color(0xFF616161),
+              size: 40,
+            ),
+            onPressed: () {
+              Navigator.pop(context); // 이 부분에서 뒤로가기 기능을 구현합니다.
+            },
+          ),
           backgroundColor: const Color(0xFFC4E4FA),
           actions: <Widget>[
             IconButton(
-              icon: const Icon(Icons.menu),
+              icon: const Icon(
+                Icons.menu,
+                size: 30,
+                color: Color(0xFF616161),
+              ),
               onPressed: () {
                 // Handle menu button
               },
             ),
           ],
-          flexibleSpace: const Column(
+          flexibleSpace: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              SizedBox(height: 100.h / 20),
               Text(
-                'title',
-                style: TextStyle(
+                modifiedBucketListModel.name,
+                style: const TextStyle(
                   fontFamily: 'SCDream',
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              CustomProgressBar(achievementRate: 0.3, height: 17, width: 180)
+              SizedBox(height: 100.h / 28),
+              CustomProgressBar(
+                  achievementRate: getAchievementRate(), height: 17, width: 180)
             ],
           ),
         ),
@@ -126,30 +141,7 @@ class _BucketListDetailScreenState
                 itemCount: bucketListItemList.length + 1,
                 itemBuilder: (context, index) {
                   if (index == bucketListItemList.length) {
-                    if (addFlag && !addCustomItemFlag) {
-                      return Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // 직접 추가 버튼
-                            CustomUnderlineButton(
-                                onPressed: () {
-                                  setState(() {
-                                    addCustomItemFlag = !addCustomItemFlag;
-                                  });
-                                },
-                                icon: Remix.check_line,
-                                text: '직접 추가'),
-
-                            const SizedBox(width: 20),
-                            // 추천 list 버튼
-                            CustomUnderlineButton(
-                                onPressed: () {
-                                  showBottomSheet();
-                                },
-                                icon: Remix.search_line,
-                                text: '추천 List 보기'),
-                          ]);
-                    } else if (addFlag && addCustomItemFlag) {
+                    if (addCustomItemFlag) {
                       return _CustomAddTextField(
                         onPressed: addNewCustomItem,
                       );
@@ -160,9 +152,7 @@ class _BucketListDetailScreenState
                         alignment: Alignment.center,
                         child: IconButton(
                           onPressed: () {
-                            setState(() {
-                              addFlag = !addFlag;
-                            });
+                            showAddButtonBottomSheet();
                           },
                           icon: const Icon(
                             Remix.add_line,
@@ -304,14 +294,30 @@ class _BucketListDetailScreenState
     });
   }
 
+  double getAchievementRate() {
+    print('test');
+    print(modifiedBucketListModel.completedCustomItemList.length);
+    print(modifiedBucketListModel.completedRecommendItemList.length);
+    print(newCustomItemCompletedList.length);
+    print(modifiedBucketListModel.customItemList.length);
+    print(modifiedBucketListModel.recommendItemList.length);
+    print(newCustomItemList.length);
+    return (modifiedBucketListModel.completedCustomItemList.length +
+            modifiedBucketListModel.completedRecommendItemList.length +
+            newCustomItemCompletedList.length) /
+        (modifiedBucketListModel.customItemList.length +
+            modifiedBucketListModel.recommendItemList.length +
+            newCustomItemList.length);
+  }
+
   // 새로 추가된 cusotom item
   void addNewCustomItem(String content) {
     setState(() {
       if (content != '') {
         bucketListItemList.add(CustomItemModel(content: content, id: ''));
+        newCustomItemList.add(content);
       }
       addCustomItemFlag = !addCustomItemFlag;
-      newCustomItemList.add(content);
     });
     changeFlag();
   }
@@ -319,8 +325,8 @@ class _BucketListDetailScreenState
   // 새로 추가된 recommend item
   void addRecommendItem(RecommendItemModel item) {
     if (!modifiedBucketListModel.recommendItemList.contains(item.id)) {
-      modifiedBucketListModel.recommendItemList.add(item.id);
       setState(() {
+        modifiedBucketListModel.recommendItemList.add(item.id);
         bucketListItemList.add(RecommendItemModel(
             id: item.id,
             region: item.region,
@@ -350,13 +356,61 @@ class _BucketListDetailScreenState
           modifiedBucketListModel.completedCustomItemList.remove(item.id);
         }
       }
-      bucketListItemList.remove(item as RecommendItemModel);
+      bucketListItemList.remove(item);
     });
 
     changeFlag();
   }
 
-  void showBottomSheet() async {
+  void showAddButtonBottomSheet() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SizedBox(
+            height: 30.h,
+            child: Column(
+              children: [
+                const SizedBox(height: 15),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                      width: 40.w,
+                      height: 8,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: const Color(0xFF616161))),
+                ),
+                SizedBox(height: 10.h),
+                Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                  // 직접 추가 버튼
+                  CustomUnderlineButton(
+                      onPressed: () {
+                        setState(() {
+                          Navigator.pop(context);
+                          addCustomItemFlag = !addCustomItemFlag;
+                        });
+                      },
+                      icon: Remix.check_line,
+                      text: '직접 추가'),
+
+                  const SizedBox(width: 50),
+                  // 추천 list 버튼
+                  CustomUnderlineButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        showRecommendListBottomSheet();
+                      },
+                      icon: Remix.search_line,
+                      text: '추천 List 보기'),
+                ]),
+              ],
+            ));
+      },
+    );
+  }
+
+  void showRecommendListBottomSheet() async {
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -394,23 +448,29 @@ class _BucketListDetailScreenState
         !listEquals(originalBucketListModel.completedRecommendItemList,
             modifiedBucketListModel.completedRecommendItemList) ||
         newCustomItemList.isNotEmpty ||
+        !listEquals(originalBucketListModel.customItemList,
+            modifiedBucketListModel.customItemList) ||
         !listEquals(originalBucketListModel.recommendItemList,
             modifiedBucketListModel.recommendItemList);
   }
 
   Future<void> updateBucketListItems(List<String> newCustomItemList,
       BucketListModel modifiedBucketListModel) async {
-    // Firestore에 접근하기 위한 참조를 생성합니다.
+    // Firestore에 접근하기 위한 참조를 생성
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
-      // Firestore에 새로운 custom item을 저장하고, 반환된 ID를 리스트에 추가합니다.
-      for (String content in newCustomItemList) {
+      // Firestore에 새로운 custom item을 저장하고, 반환된 ID를 리스트에 추가
+      for (String content in List.from(newCustomItemList)) {
         DocumentReference docRef =
             await firestore.collection('custom').add({'content': content});
-        modifiedBucketListModel.customItemList.add(docRef.id);
-        if (newCustomItemCompletedList.contains(content)) {
-          modifiedBucketListModel.completedCustomItemList.add(docRef.id);
-        }
+        setState(() {
+          modifiedBucketListModel.customItemList.add(docRef.id);
+          newCustomItemList.remove(content);
+          if (newCustomItemCompletedList.contains(content)) {
+            modifiedBucketListModel.completedCustomItemList.add(docRef.id);
+            newCustomItemCompletedList.remove(content);
+          }
+        });
       }
 
       BucketListModel originalBucketListModel = ref
@@ -441,6 +501,10 @@ class _BucketListDetailScreenState
         updates['recommendItemList'] =
             modifiedBucketListModel.recommendItemList;
       }
+
+      setState(() {
+        isChanged = false;
+      });
 
       // 변경 됐다면 업데이트
       if (updates.isNotEmpty) {
