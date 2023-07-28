@@ -177,19 +177,16 @@ class _BucketListDetailScreenState
                           }
                         } else {
                           final item = bucketListItemList[index];
-                          final type = item.runtimeType == RecommendItemModel
-                              ? 'recommend'
-                              : 'custom';
-                          final bool isContain = isComplete(type, item);
+                          final bool isContain = isComplete(item);
                           return ListItem(
                             // 추천 아이템
                             selectFlag: true,
                             isContain: isContain,
                             onPressed: () {
                               if (isContain) {
-                                removeComplete(type, item);
+                                removeComplete(item);
                               } else {
-                                addComplete(type, item);
+                                addComplete(item);
                               }
                             },
                             content: bucketListItemList[index].content,
@@ -205,8 +202,8 @@ class _BucketListDetailScreenState
     );
   }
 
-  bool isComplete(String type, ItemModel item) {
-    if (type == 'recommend') {
+  bool isComplete(ItemModel item) {
+    if (item.runtimeType == RecommendItemModel) {
       return modifiedBucketListModel.completedRecommendItemList
           .contains(item.id);
     } else {
@@ -219,9 +216,9 @@ class _BucketListDetailScreenState
     }
   }
 
-  void removeComplete(String type, ItemModel item) {
+  void removeComplete(ItemModel item) {
     setState(() {
-      if (type == 'recommend') {
+      if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.remove(item.id);
       } else {
         if (item.id == '') {
@@ -234,9 +231,9 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  void addComplete(String type, ItemModel item) {
+  void addComplete(ItemModel item) {
     setState(() {
-      if (type == 'recommend') {
+      if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.add(item.id);
       } else {
         if (item.id == '') {
