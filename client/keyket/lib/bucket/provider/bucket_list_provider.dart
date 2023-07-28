@@ -37,6 +37,15 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
     state = myBucketListList;
   }
 
+  double getAchievementRate(String bucketListId) {
+    final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+
+    return (bucketList.completedCustomItemList.length +
+            bucketList.completedRecommendItemList.length) /
+        (bucketList.customItemList.length +
+            bucketList.recommendItemList.length);
+  }
+
   void sortByName() {
     state.sort((a, b) => a.name.compareTo(b.name));
     state = List.from(state);
@@ -75,105 +84,12 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
     return bucketList.deepCopy();
   }
 
-  void addComplete(String type, String bucketId, String itemId) async {
-    // DocumentReference bucketRef =
-    //     firestore.collection('bucket_list').doc(bucketId);
-
-    if (type == 'recommend') {
-      int index = state.indexWhere((bucket) => bucket.id == bucketId);
-      if (index != -1) {
-        // 기존 BucketListModel 객체를 복사하고 completedRecommendItemList에 itemId를 추가하는 새로운 객체를 생성합니다.
-        BucketListModel updatedBucket = state[index].copyWith(
-          completedRecommendItemList:
-              List<String>.from(state[index].completedRecommendItemList)
-                ..add(itemId),
-        );
-
-        // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
-        state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-
-        // try {
-        //   await bucketRef.update({
-        //     'completedRecommendItemList': FieldValue.arrayUnion([itemId]),
-        //   });
-        // } catch (e) {
-        //   print(e);
-        // }
-      }
-    } else {
-      int index = state.indexWhere((bucket) => bucket.id == bucketId);
-      if (index != -1) {
-        // 기존 BucketListModel 객체를 복사하고 completedCustomItemList에 itemId를 추가하는 새로운 객체를 생성합니다.
-        BucketListModel updatedBucket = state[index].copyWith(
-          completedCustomItemList:
-              List<String>.from(state[index].completedCustomItemList)
-                ..add(itemId),
-        );
-
-        // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
-        state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-
-        // // firestore에 추가
-        // try {
-        //   await bucketRef.update({
-        //     'completedCustomItemList': FieldValue.arrayUnion([itemId]),
-        //   });
-        // } catch (e) {
-        //   print(e);
-        // }
-      }
-    }
-  }
-
-  void removeComplete(String type, String bucketId, String itemId) async {
-    // DocumentReference bucketRef =
-    //     firestore.collection('bucket_list').doc(bucketId);
-
-    if (type == 'recommend') {
-      int index = state.indexWhere((bucket) => bucket.id == bucketId);
-      if (index != -1) {
-        // 기존 BucketListModel 객체를 복사하고 completedCustomItemList에 itemId를 추가하는 새로운 객체를 생성합니다.
-        BucketListModel updatedBucket = state[index].copyWith(
-          completedRecommendItemList:
-              List<String>.from(state[index].completedRecommendItemList)
-                ..remove(itemId),
-        );
-
-        // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
-        state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-
-        // firestore에 추가
-        // try {
-        //   await bucketRef.update({
-        //     'completedRecommendItemList': FieldValue.arrayRemove([itemId]),
-        //   });
-        // } catch (e) {
-        //   print(e);
-        // }
-      }
-    } else {
-      int index = state.indexWhere((bucket) => bucket.id == bucketId);
-      if (index != -1) {
-        // 기존 BucketListModel 객체를 복사하고 completedCustomItemList에 itemId를 추가하는 새로운 객체를 생성합니다.
-        BucketListModel updatedBucket = state[index].copyWith(
-          completedCustomItemList:
-              List<String>.from(state[index].completedCustomItemList)
-                ..remove(itemId),
-        );
-
-        // 새로운 BucketListModel 객체를 포함하는 새로운 상태 리스트를 생성합니다.
-        state = List<BucketListModel>.from(state)..[index] = updatedBucket;
-
-        // firestore에 제거
-        // try {
-        //   await bucketRef.update({
-        //     'completedCustomItemList': FieldValue.arrayRemove([itemId]),
-        //   });
-        // } catch (e) {
-        //   print(e);
-        // }
-      }
-    }
+  void changeBucketListModel(
+      String bucketListId, BucketListModel newBucketListModel) {
+    state = [
+      for (final item in state)
+        if (item.id == bucketListId) newBucketListModel else item,
+    ];
   }
 }
 
