@@ -48,7 +48,6 @@ class _BucketListDetailScreenState
     modifiedBucketListModel = ref
         .read(myBucketListListProvider.notifier)
         .getBucketListModel(widget.bucketListId);
-    // getOriginalData();
     getItems(widget.bucketListId, modifiedBucketListModel.customItemList,
         modifiedBucketListModel.recommendItemList);
     super.initState();
@@ -122,86 +121,86 @@ class _BucketListDetailScreenState
                     ),
                   )
                 : const SizedBox(height: 0),
-            bucketListItemList.isNotEmpty
-                ? Expanded(
-                    child: ListView.builder(
-                      itemCount: bucketListItemList.length + 1,
-                      itemBuilder: (context, index) {
-                        if (index == bucketListItemList.length) {
-                          if (addFlag && !addCustomItemFlag) {
-                            return Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  // 직접 추가 버튼
-                                  CustomUnderlineButton(
-                                      onPressed: () {
-                                        setState(() {
-                                          addCustomItemFlag =
-                                              !addCustomItemFlag;
-                                        });
-                                      },
-                                      icon: Remix.check_line,
-                                      text: '직접 추가'),
-
-                                  const SizedBox(width: 20),
-                                  // 추천 list 버튼
-                                  CustomUnderlineButton(
-                                      onPressed: () {
-                                        showBottomSheet();
-                                      },
-                                      icon: Remix.search_line,
-                                      text: '추천 List 보기'),
-                                ]);
-                          } else if (addFlag && addCustomItemFlag) {
-                            return _CustomAddTextField(
-                              onPressed: addNewCustomItem,
-                            );
-                          } else {
-                            // item 생성 버튼
-                            return Container(
-                              height: 80,
-                              alignment: Alignment.center,
-                              child: IconButton(
+            Expanded(
+              child: ListView.builder(
+                itemCount: bucketListItemList.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == bucketListItemList.length) {
+                    if (addFlag && !addCustomItemFlag) {
+                      return Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            // 직접 추가 버튼
+                            CustomUnderlineButton(
                                 onPressed: () {
                                   setState(() {
-                                    addFlag = !addFlag;
+                                    addCustomItemFlag = !addCustomItemFlag;
                                   });
                                 },
-                                icon: const Icon(
-                                  Remix.add_line,
-                                  color: PRIMARY_COLOR,
-                                  size: 35,
-                                ),
-                              ),
-                            );
-                          }
+                                icon: Remix.check_line,
+                                text: '직접 추가'),
+
+                            const SizedBox(width: 20),
+                            // 추천 list 버튼
+                            CustomUnderlineButton(
+                                onPressed: () {
+                                  showBottomSheet();
+                                },
+                                icon: Remix.search_line,
+                                text: '추천 List 보기'),
+                          ]);
+                    } else if (addFlag && addCustomItemFlag) {
+                      return _CustomAddTextField(
+                        onPressed: addNewCustomItem,
+                      );
+                    } else {
+                      // item 생성 버튼
+                      return Container(
+                        height: 80,
+                        alignment: Alignment.center,
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              addFlag = !addFlag;
+                            });
+                          },
+                          icon: const Icon(
+                            Remix.add_line,
+                            color: PRIMARY_COLOR,
+                            size: 35,
+                          ),
+                        ),
+                      );
+                    }
+                  } else {
+                    final item = bucketListItemList[index];
+                    final bool isContain = isComplete(item);
+                    return ListItem(
+                      // 추천 아이템
+                      selectFlag: true,
+                      isContain: isContain,
+                      isRecommendItem: false,
+                      removeItem: removeItem,
+                      onPressed: () {
+                        if (isContain) {
+                          removeComplete(item);
                         } else {
-                          final item = bucketListItemList[index];
-                          final bool isContain = isComplete(item);
-                          return ListItem(
-                            // 추천 아이템
-                            selectFlag: true,
-                            isContain: isContain,
-                            onPressed: () {
-                              if (isContain) {
-                                removeComplete(item);
-                              } else {
-                                addComplete(item);
-                              }
-                            },
-                            content: bucketListItemList[index].content,
-                          );
+                          addComplete(item);
                         }
                       },
-                    ),
-                  )
-                : const Center(child: CircularProgressIndicator()),
+                      item: item,
+                    );
+                  }
+                },
+              ),
+            )
           ],
         ),
       ),
     );
   }
 
+  // 완료 목록에 있는지 판별
   bool isComplete(ItemModel item) {
     if (item.runtimeType == RecommendItemModel) {
       return modifiedBucketListModel.completedRecommendItemList
@@ -216,6 +215,7 @@ class _BucketListDetailScreenState
     }
   }
 
+  // 완료 목록에서 제거
   void removeComplete(ItemModel item) {
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
@@ -231,6 +231,7 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
+  // 완료 목록에 추가
   void addComplete(ItemModel item) {
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
@@ -246,6 +247,7 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
+  // bucket list 항목에 있는 item들 firestore에서 content 불러와서 ItemModel로 만듦
   void getItems(String id, List<String> customItemList,
       List<String> recommendItemList) async {
     List<ItemModel> items = [];
@@ -302,6 +304,7 @@ class _BucketListDetailScreenState
     });
   }
 
+  // 새로 추가된 cusotom item
   void addNewCustomItem(String content) {
     setState(() {
       if (content != '') {
@@ -313,16 +316,43 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  void addRecommendItem(String id) {
-    if (!modifiedBucketListModel.recommendItemList.contains(id)) {
-      modifiedBucketListModel.recommendItemList.add(id);
+  // 새로 추가된 recommend item
+  void addRecommendItem(RecommendItemModel item) {
+    if (!modifiedBucketListModel.recommendItemList.contains(item.id)) {
+      modifiedBucketListModel.recommendItemList.add(item.id);
+      setState(() {
+        bucketListItemList.add(RecommendItemModel(
+            id: item.id,
+            region: item.region,
+            theme: item.theme,
+            content: item.content));
+      });
     }
     changeFlag();
   }
 
-  void removeRecommendItem(String id) {
-    modifiedBucketListModel.recommendItemList.remove(id);
-    modifiedBucketListModel.completedRecommendItemList.remove(id);
+  // item 제거
+  void removeItem(ItemModel item) {
+    setState(() {
+      if (item.runtimeType == RecommendItemModel) {
+        // recommend item이면 다 id로 저장돼있으니 modifiedBucketListModel의 recommendItemList에서 제거
+        modifiedBucketListModel.recommendItemList.remove(item.id);
+        modifiedBucketListModel.completedRecommendItemList.remove(item.id);
+      } else {
+        // custom item이면
+        if (item.id == '') {
+          // 새로 생성돼서 아직 id가 없는경우
+          newCustomItemList.remove(item.content);
+          newCustomItemCompletedList.remove(item.content);
+        } else {
+          // 기존에 있던거라서 id가 있는 경우
+          modifiedBucketListModel.customItemList.remove(item.id);
+          modifiedBucketListModel.completedCustomItemList.remove(item.id);
+        }
+      }
+      bucketListItemList.remove(item as RecommendItemModel);
+    });
+
     changeFlag();
   }
 
@@ -339,23 +369,22 @@ class _BucketListDetailScreenState
                 containedRecommendItemList:
                     modifiedBucketListModel.recommendItemList,
                 addRecommendItem: addRecommendItem,
-                removeRecommendItem: removeRecommendItem,
+                removeRecommendItem: removeItem,
               ),
             ));
       },
     );
-    getItems(widget.bucketListId, modifiedBucketListModel.customItemList,
-        modifiedBucketListModel.recommendItemList);
   }
 
+  // 저장버튼 노출을 위해서 변경 사항이 있다면 isChanged true
   void changeFlag() {
     setState(() {
       isChanged = isChange();
     });
   }
 
+  // 변경된 필드가 있는지 확인
   bool isChange() {
-    // 변경된 필드가 있는지 확인합니다.
     BucketListModel originalBucketListModel = ref
         .read(myBucketListListProvider.notifier)
         .getBucketListModel(widget.bucketListId);
@@ -415,17 +444,15 @@ class _BucketListDetailScreenState
 
       // 변경 됐다면 업데이트
       if (updates.isNotEmpty) {
+        updates['updatedAt'] = DateTime.now(); // 현재 시간을 설정
+        modifiedBucketListModel =
+            modifiedBucketListModel.copyWith(updatedAt: updates['updatedAt']);
         await firestore
             .collection('bucket_list')
             .doc(modifiedBucketListModel.id)
             .update(updates);
-        int indexToUpdate = ref
-            .read(myBucketListListProvider)
-            .indexWhere((bucket) => bucket.id == widget.bucketListId);
-        if (indexToUpdate != -1) {
-          ref.read(myBucketListListProvider)[indexToUpdate] =
-              modifiedBucketListModel;
-        }
+        ref.read(myBucketListListProvider.notifier).changeBucketListModel(
+            modifiedBucketListModel.id, modifiedBucketListModel);
       }
     } catch (e) {
       print(e);
@@ -505,18 +532,19 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                         return ListItem(
                           selectFlag: true,
                           isContain: isContain,
+                          isRecommendItem: true,
                           onPressed: () {
                             setState(
                               () {
                                 if (isContain) {
-                                  widget.removeRecommendItem(recommendItem.id);
+                                  widget.removeRecommendItem(recommendItem);
                                 } else {
-                                  widget.addRecommendItem(recommendItem.id);
+                                  widget.addRecommendItem(recommendItem);
                                 }
                               },
                             );
                           },
-                          content: recommendItem.content,
+                          item: recommendItem,
                         );
                       }))
               : const CircularProgressIndicator(),
