@@ -123,6 +123,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                           // 추천 아이템
                           selectFlag: selectFlag,
                           isContain: isContain,
+                          isRecommendItem: true,
                           onPressed: () {
                             setState(() {
                               if (isContain) {
@@ -132,7 +133,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                               }
                             });
                           },
-                          content: recommendedItems[index].content),
+                          item: recommendedItems[index]),
                       getDottedLine(
                           index, false, recommendedItems.length) // 구분 점선
                     ],
