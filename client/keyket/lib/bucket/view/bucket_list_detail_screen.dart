@@ -336,11 +336,14 @@ class _BucketListDetailScreenState
       builder: (BuildContext context) {
         return SizedBox(
             height: 90.h,
-            child: _RecommendItemList(
-              containedRecommendItemList:
-                  modifiedBucketListModel.recommendItemList,
-              addRecommendItem: addRecommendItem,
-              removeRecommendItem: removeRecommendItem,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: _RecommendItemList(
+                containedRecommendItemList:
+                    modifiedBucketListModel.recommendItemList,
+                addRecommendItem: addRecommendItem,
+                removeRecommendItem: removeRecommendItem,
+              ),
             ));
       },
     );
@@ -494,8 +497,6 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
           const SizedBox(height: 16),
           recommendItemList.isNotEmpty
               ? Expanded(
-                  child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: ListView.builder(
                       itemCount: recommendItemList.length,
                       itemBuilder: (context, index) {
@@ -520,8 +521,7 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                           },
                           content: recommendItem.content,
                         );
-                      }),
-                ))
+                      }))
               : const CircularProgressIndicator(),
         ]);
   }
