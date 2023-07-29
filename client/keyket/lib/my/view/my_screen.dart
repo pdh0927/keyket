@@ -37,12 +37,7 @@ class _MyScreenState extends State<MyScreen> {
     return [
       IconButton(
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => _Message(),
-          //   ),
-          // );
+          PopUp(context);
         },
         icon: const Icon(
           Remix.lock_unlock_line,
@@ -68,6 +63,61 @@ class _MyScreenState extends State<MyScreen> {
       SizedBox(width: 20)
     ];
   }
+
+  PopUp(context) {
+    return showDialog(
+        barrierColor: const Color(0xff616161).withOpacity(0.2),
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            backgroundColor: const Color(0xff616161),
+            title: const Text(
+              '로그아웃 하시겠습니까?',
+              style: TextStyle(
+                fontFamily: 'SCDream',
+                color: Colors.white,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SimpleDialogOption(
+                    child: const Text(
+                      '예',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SimpleDialogOption(
+                    child: const Text(
+                      '아니요',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
 }
 
 class _Top extends StatelessWidget {
@@ -88,9 +138,9 @@ class _Top extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       '강수진',
-                      style: TextStyle(fontSize: 24),
+                      style: TextStyle(fontFamily: 'SCDream', fontSize: 24),
                     ),
                     IconButton(
                       onPressed: () {},
@@ -112,19 +162,20 @@ class _Top extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(
+                      const Text(
                         "초대코드",
                         style: TextStyle(
+                          fontFamily: 'SCDream',
                           fontSize: 16,
                         ),
                       ),
-                      VerticalDivider(
+                      const VerticalDivider(
                           thickness: 1,
                           width: 1,
-                          color: Color(0xFFFF616161)), // 가운데 나누는 선
-                      Text(
+                          color: const Color(0xFFFF616161)), // 가운데 나누는 선
+                      const Text(
                         "123456",
-                        style: TextStyle(fontSize: 16),
+                        style: TextStyle(fontFamily: 'SCDream', fontSize: 16),
                       ),
                       IconButton(
                         onPressed: () {
@@ -158,7 +209,8 @@ class _MyProfileState extends State<MyProfile> {
   final ImagePicker picker = ImagePicker();
 
   Future pickImage(ImageSource imageSource) async {
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    final XFile? pickedFile = await picker.pickImage(
+        source: imageSource, maxWidth: 100, maxHeight: 100);
     if (pickedFile != null) {
       setState(() {
         _image = XFile(pickedFile.path);
@@ -170,26 +222,7 @@ class _MyProfileState extends State<MyProfile> {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: Color(0XFF616161).withOpacity(0.2),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                takeImage(context);
-              },
-              child: Icon(
-                Remix.user_fill,
-                size: 60,
-                color: Color(0XFF3498DB).withOpacity(0.8),
-              ),
-            ),
-          ),
-        ),
+        ImageCircle(),
         Positioned(
           top: 0,
           right: 0,
@@ -198,11 +231,11 @@ class _MyProfileState extends State<MyProfile> {
             height: 28,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Color(0XFF616161).withOpacity(0.2),
+              color: const Color(0XFF616161).withOpacity(0.2),
             ),
             child: Icon(
               Remix.image_edit_line,
-              color: Color(0XFF3498DB).withOpacity(0.8),
+              color: const Color(0XFF3498DB).withOpacity(0.8),
               size: 23,
             ),
           ),
@@ -211,52 +244,157 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
+  // 이미지 가져오는 부분
   takeImage(mContext) {
-    return showDialog(
-        context: mContext,
-        builder: (context) {
-          return SimpleDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            title: Text(
-              '프로필 사진 설정',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            children: [
-              SimpleDialogOption(
-                child: Text(
-                  '앨범에서 사진 선택하기',
+    return _image == null
+        ? showDialog(
+            barrierColor: const Color(0xff616161).withOpacity(0.2),
+            context: mContext,
+            builder: (context) {
+              return SimpleDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: const Color(0xff616161),
+                title: const Text(
+                  '프로필 사진 설정',
                   style: TextStyle(
-                    color: Colors.black,
+                    fontFamily: 'SCDream',
+                    color: Colors.white,
+                    fontSize: 16,
                   ),
+                  textAlign: TextAlign.center,
                 ),
-                onPressed: () {
-                  pickImage(ImageSource.gallery);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        });
+                children: [
+                  const Divider(
+                    // 구분선
+                    color: Colors.white,
+                    thickness: 1,
+                    height: 0,
+                  ),
+                  SimpleDialogOption(
+                    child: const Text(
+                      '앨범에서 사진 선택하기',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () {
+                      pickImage(ImageSource.gallery);
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              );
+            })
+        : showDialog(
+            barrierColor: const Color(0xff616161).withOpacity(0.2),
+            context: mContext,
+            builder: (context) {
+              return SimpleDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: const Color(0xff616161),
+                title: const Text(
+                  '프로필 사진 설정',
+                  style: TextStyle(
+                    fontFamily: 'SCDream',
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '앨범에서 사진 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onPressed: () {
+                          pickImage(ImageSource.gallery);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '기본 이미지로 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onPressed: () {
+                          File(_image!.path).delete(); ////////// 이 부분 덜함
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            });
   }
 
-  // PickImage() {
-  //   return _image != null
-  //       ? Container(
-  //           width: 100,
-  //           height: 100,
-  //           child: Image.file(File(_image!.path)),
-  //         )
-  //       : Container(
-  //           width: 100,
-  //           height: 100,
-  //           color: Colors.grey,
-  //         );
-  // }
+  // 사진 띄우는 부분
+  ImageCircle() {
+    return _image == null
+        ? SizedBox(
+            width: 100,
+            height: 100,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: const Color(0XFF616161).withOpacity(0.2),
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  takeImage(context);
+                },
+                child: Icon(
+                  Remix.user_fill,
+                  size: 60,
+                  color: const Color(0XFF3498DB).withOpacity(0.8),
+                ),
+              ),
+            ),
+          )
+        : CircleAvatar(
+            radius: 50,
+            backgroundImage: Image.file(File(_image!.path)).image,
+            child: GestureDetector(
+              onTap: () {
+                takeImage(context);
+              },
+            ),
+          );
+  }
 }
+
+// imageProvider --> Imageasset, Imagememory, Imagenetwork
+// image --> image.asset, imgae.network
 
 class _Middle extends StatelessWidget {
   const _Middle({super.key});
@@ -273,12 +411,12 @@ class _Middle extends StatelessWidget {
             children: [
               Text(
                 'MY BUCKET',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontFamily: 'SCDream', fontSize: 16),
               ),
               Icon(
                 Remix.shopping_cart_line,
                 size: 18,
-              ), // 아이콘 바꾸기
+              ),
             ],
           ),
         ),
@@ -302,7 +440,7 @@ class _Middle extends StatelessWidget {
                     "완성된 버킷",
                     style: TextStyle(fontSize: 12),
                   ),
-                  Text(
+                  const Text(
                     "0개",
                   ),
                   Container(
@@ -312,7 +450,7 @@ class _Middle extends StatelessWidget {
                   ),
                 ],
               ),
-              VerticalDivider(
+              const VerticalDivider(
                 thickness: 1,
                 width: 1,
                 color: PRIMARY_COLOR,
@@ -324,7 +462,7 @@ class _Middle extends StatelessWidget {
                     "진행중 버킷",
                     style: TextStyle(fontSize: 12),
                   ),
-                  Text(
+                  const Text(
                     "5개",
                   ),
                   Container(
@@ -356,7 +494,7 @@ class _Bottom extends StatelessWidget {
               Remix.customer_service_2_line,
               color: BLACK_COLOR,
             ),
-            title: Text(
+            title: const Text(
               '고객센터',
             ),
             onTap: () {
@@ -368,17 +506,17 @@ class _Bottom extends StatelessWidget {
               Remix.gift_line,
               color: BLACK_COLOR,
             ),
-            title: Text('이벤트'),
+            title: const Text('이벤트'),
             onTap: () {
               _Message(context);
             },
           ),
           ListTile(
-            leading: Icon(
+            leading: const Icon(
               Remix.footprint_line,
               color: BLACK_COLOR,
             ),
-            title: Text('여행 유형테스트'),
+            title: const Text('여행 유형테스트'),
             onTap: () {
               _Message(context);
             },
@@ -391,17 +529,19 @@ class _Bottom extends StatelessWidget {
   _Message(context) async {
     return showDialog(
       context: context,
+      barrierColor: const Color(0xff616161).withOpacity(0.2),
       builder: (BuildContext) {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: Color(0XFF616161).withOpacity(0.2),
+          backgroundColor: const Color(0xff616161),
           elevation: 0,
-          content: Text(
+          content: const Text(
             '준비중입니다',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
+              color: Colors.white,
             ),
             textAlign: TextAlign.center,
           ),
@@ -418,15 +558,15 @@ class _Divide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
         Container(
           height: 1,
           width: 350,
-          color: Color(0XFF616161).withOpacity(0.8),
+          color: const Color(0XFF616161).withOpacity(0.8),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
       ],
