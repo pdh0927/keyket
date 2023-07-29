@@ -58,6 +58,7 @@ class ListItem extends StatelessWidget {
                       ? _MoreButton(
                           item: item,
                           removeItem: removeItem!,
+                          isContain: isContain,
                         )
                       : const SizedBox(
                           width: 0,
@@ -114,7 +115,12 @@ class _SelectButton extends StatelessWidget {
 class _MoreButton extends StatelessWidget {
   final ItemModel item;
   final Function removeItem;
-  const _MoreButton({super.key, required this.item, required this.removeItem});
+  final bool isContain;
+  const _MoreButton(
+      {super.key,
+      required this.item,
+      required this.removeItem,
+      required this.isContain});
 
   @override
   Widget build(BuildContext context) {
@@ -184,8 +190,10 @@ class _MoreButton extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
+                          print(item);
+                          print(isContain);
+                          removeItem(item, isContain);
                           moreButtonOverlay.remove(); // 버튼을 클릭하면 오버레이를 제거
-                          removeItem(item);
                         },
                         child: const Text(
                           '삭제하기',

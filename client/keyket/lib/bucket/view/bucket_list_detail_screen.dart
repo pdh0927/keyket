@@ -36,7 +36,8 @@ class BucketListDetailScreen extends ConsumerStatefulWidget {
 class _BucketListDetailScreenState
     extends ConsumerState<BucketListDetailScreen> {
   late BucketListModel modifiedBucketListModel;
-  List<ItemModel> bucketListItemList = [];
+  List<ItemModel> uncompletedBucketListItemList = [];
+  List<ItemModel> completedBucketListItemList = [];
   List<String> newCustomItemList = [];
   List<String> newCustomItemCompletedList = [];
   bool addCustomItemFlag = false;
@@ -47,8 +48,12 @@ class _BucketListDetailScreenState
     modifiedBucketListModel = ref
         .read(myBucketListListProvider.notifier)
         .getBucketListModel(widget.bucketListId);
-    getItems(widget.bucketListId, modifiedBucketListModel.customItemList,
-        modifiedBucketListModel.recommendItemList);
+    getItems(
+        widget.bucketListId,
+        modifiedBucketListModel.customItemList,
+        modifiedBucketListModel.recommendItemList,
+        modifiedBucketListModel.completedCustomItemList,
+        modifiedBucketListModel.completedRecommendItemList);
     super.initState();
   }
 
@@ -138,9 +143,13 @@ class _BucketListDetailScreenState
                 : const SizedBox(height: 0),
             Expanded(
               child: ListView.builder(
-                itemCount: bucketListItemList.length + 1,
+                itemCount: completedBucketListItemList.length +
+                    uncompletedBucketListItemList.length +
+                    1,
                 itemBuilder: (context, index) {
-                  if (index == bucketListItemList.length) {
+                  if (index ==
+                      completedBucketListItemList.length +
+                          uncompletedBucketListItemList.length) {
                     if (addCustomItemFlag) {
                       return _CustomAddTextField(
                         onPressed: addNewCustomItem,
@@ -163,16 +172,24 @@ class _BucketListDetailScreenState
                       );
                     }
                   } else {
-                    final item = bucketListItemList[index];
-                    final bool isContain = isComplete(item);
+                    ItemModel item;
+                    if (index < uncompletedBucketListItemList.length) {
+                      item = uncompletedBucketListItemList[index];
+                    } else {
+                      item = completedBucketListItemList[
+                          index - uncompletedBucketListItemList.length];
+                    }
+
+                    final bool isCompleted =
+                        index >= uncompletedBucketListItemList.length;
                     return ListItem(
                       // 추천 아이템
                       selectFlag: true,
-                      isContain: isContain,
+                      isContain: isCompleted,
                       isRecommendItem: false,
                       removeItem: removeItem,
                       onPressed: () {
-                        if (isContain) {
+                        if (isCompleted) {
                           removeComplete(item);
                         } else {
                           addComplete(item);
@@ -190,33 +207,23 @@ class _BucketListDetailScreenState
     );
   }
 
-  // 완료 목록에 있는지 판별
-  bool isComplete(ItemModel item) {
-    if (item.runtimeType == RecommendItemModel) {
-      return modifiedBucketListModel.completedRecommendItemList
-          .contains(item.id);
-    } else {
-      if (item.id == '') {
-        return newCustomItemCompletedList.contains(item.content);
-      } else {
-        return modifiedBucketListModel.completedCustomItemList
-            .contains(item.id);
-      }
-    }
-  }
-
   // 완료 목록에서 제거
   void removeComplete(ItemModel item) {
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.remove(item.id);
+        modifiedBucketListModel.recommendItemList.add(item.id);
       } else {
         if (item.id == '') {
           newCustomItemCompletedList.remove(item.content);
+          newCustomItemList.add(item.content);
         } else {
           modifiedBucketListModel.completedCustomItemList.remove(item.id);
+          modifiedBucketListModel.customItemList.add(item.id);
         }
       }
+      completedBucketListItemList.remove(item);
+      uncompletedBucketListItemList.add(item);
     });
     changeFlag();
   }
@@ -226,95 +233,188 @@ class _BucketListDetailScreenState
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.add(item.id);
+        modifiedBucketListModel.recommendItemList.remove(item.id);
       } else {
         if (item.id == '') {
           newCustomItemCompletedList.add(item.content);
+          newCustomItemList.remove(item.content);
         } else {
           modifiedBucketListModel.completedCustomItemList.add(item.id);
+          modifiedBucketListModel.customItemList.remove(item.id);
         }
       }
+      completedBucketListItemList.add(item);
+      uncompletedBucketListItemList.remove(item);
     });
     changeFlag();
   }
 
-  // bucket list 항목에 있는 item들 firestore에서 content 불러와서 ItemModel로 만듦
-  void getItems(String id, List<String> customItemList,
-      List<String> recommendItemList) async {
-    List<ItemModel> items = [];
+  Future<void> getItems(
+      String id,
+      List<String> customItemList,
+      List<String> recommendItemList,
+      List<String> completedCustomItemList,
+      List<String> completedRecommendItemList) async {
+    List<ItemModel> uncompletedItems = [];
+    List<ItemModel> completedItems = [];
     final firestore = FirebaseFirestore.instance;
+
     try {
-      // 10개 단위로 나누기
-      List<List<String>> recommendItemChunks = [];
-      for (int i = 0; i < recommendItemList.length; i += 10) {
-        recommendItemChunks.add(recommendItemList.sublist(
-            i,
-            i + 10 > recommendItemList.length
-                ? recommendItemList.length
-                : i + 10));
-      }
+      // Combine custom and completed custom item lists, preserving the order
+      List<String> customItemsList = [
+        ...customItemList,
+        ...completedCustomItemList
+      ];
 
-      // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-      for (List<String> chunk in recommendItemChunks) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('recommend')
-            .where(FieldPath.documentId, whereIn: chunk)
-            .get();
-        for (DocumentSnapshot doc in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
+      // Combine recommend and completed recommend item lists, preserving the order
+      List<String> recommendItemsList = [
+        ...recommendItemList,
+        ...completedRecommendItemList
+      ];
 
-          items.add(RecommendItemModel.fromJson(data));
-        }
-      }
+      // Fetch items from the custom and recommend collections
+      var customItems = await getChunkedItems(
+          firestore: firestore,
+          collectionName: 'custom',
+          itemList: customItemsList);
 
-      // 10개 단위로 나누기
-      List<List<String>> customItemChunks = [];
-      for (int i = 0; i < customItemList.length; i += 10) {
-        customItemChunks.add(customItemList.sublist(i,
-            i + 10 > customItemList.length ? customItemList.length : i + 10));
-      }
+      var recommendItems = await getChunkedItems(
+          firestore: firestore,
+          collectionName: 'recommend',
+          itemList: recommendItemsList);
 
-      // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-      for (List<String> chunk in customItemChunks) {
-        QuerySnapshot querySnapshot = await firestore
-            .collection('custom')
-            .where(FieldPath.documentId, whereIn: chunk)
-            .get();
-        for (DocumentSnapshot doc in querySnapshot.docs) {
-          Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-          data['id'] = doc.id;
-          items.add(CustomItemModel.fromJson(data));
-        }
-      }
+      // Divide the fetched items into uncompleted and completed items
+      uncompletedItems = [
+        ...customItems.sublist(0, customItemList.length),
+        ...recommendItems.sublist(0, recommendItemList.length),
+      ];
+      completedItems = [
+        ...customItems.sublist(customItemList.length),
+        ...recommendItems.sublist(recommendItemList.length),
+      ];
     } catch (e) {
       print(e);
     }
+
     setState(() {
-      bucketListItemList = items;
+      uncompletedBucketListItemList = uncompletedItems;
+      completedBucketListItemList = completedItems;
     });
   }
 
+  Future<List<ItemModel>> getChunkedItems({
+    required FirebaseFirestore firestore,
+    required String collectionName,
+    required List<String> itemList,
+  }) async {
+    List<ItemModel> items = [];
+    // 10개 단위로 나누기
+    List<List<String>> itemChunks = [];
+    for (int i = 0; i < itemList.length; i += 10) {
+      itemChunks.add(itemList.sublist(
+          i, i + 10 > itemList.length ? itemList.length : i + 10));
+    }
+
+    // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
+    for (List<String> chunk in itemChunks) {
+      QuerySnapshot querySnapshot = await firestore
+          .collection(collectionName)
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+      for (DocumentSnapshot doc in querySnapshot.docs) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        data['id'] = doc.id;
+
+        if (collectionName == 'recommend') {
+          items.add(RecommendItemModel.fromJson(data));
+        } else if (collectionName == 'custom') {
+          items.add(CustomItemModel.fromJson(data));
+        }
+      }
+    }
+
+    return items;
+  }
+
+  // // bucket list 항목에 있는 item들 firestore에서 content 불러와서 ItemModel로 만듦
+  // void getItems(
+  //     String id,
+  //     List<String> customItemList,
+  //     List<String> recommendItemList,
+  //     List<String> completedCustomItemList,
+  //     List<String> completedRecommendItemList) async {
+  //   List<ItemModel> items = [];
+  //   final firestore = FirebaseFirestore.instance;
+  //   try {
+  //     // 10개 단위로 나누기
+  //     List<List<String>> recommendItemChunks = [];
+  //     for (int i = 0; i < recommendItemList.length; i += 10) {
+  //       recommendItemChunks.add(recommendItemList.sublist(
+  //           i,
+  //           i + 10 > recommendItemList.length
+  //               ? recommendItemList.length
+  //               : i + 10));
+  //     }
+
+  //     // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
+  //     for (List<String> chunk in recommendItemChunks) {
+  //       QuerySnapshot querySnapshot = await firestore
+  //           .collection('recommend')
+  //           .where(FieldPath.documentId, whereIn: chunk)
+  //           .get();
+  //       for (DocumentSnapshot doc in querySnapshot.docs) {
+  //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //         data['id'] = doc.id;
+
+  //         items.add(RecommendItemModel.fromJson(data));
+  //       }
+  //     }
+
+  //     // 10개 단위로 나누기
+  //     List<List<String>> customItemChunks = [];
+  //     for (int i = 0; i < customItemList.length; i += 10) {
+  //       customItemChunks.add(customItemList.sublist(i,
+  //           i + 10 > customItemList.length ? customItemList.length : i + 10));
+  //     }
+
+  //     // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
+  //     for (List<String> chunk in customItemChunks) {
+  //       QuerySnapshot querySnapshot = await firestore
+  //           .collection('custom')
+  //           .where(FieldPath.documentId, whereIn: chunk)
+  //           .get();
+  //       for (DocumentSnapshot doc in querySnapshot.docs) {
+  //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //         data['id'] = doc.id;
+  //         items.add(CustomItemModel.fromJson(data));
+  //       }
+  //     }
+  //   } catch (e) {
+  //     print(e);
+  //   }
+  //   setState(() {
+  //     bucketListItemList = items;
+  //   });
+  // }
+
   double getAchievementRate() {
-    print('test');
-    print(modifiedBucketListModel.completedCustomItemList.length);
-    print(modifiedBucketListModel.completedRecommendItemList.length);
-    print(newCustomItemCompletedList.length);
-    print(modifiedBucketListModel.customItemList.length);
-    print(modifiedBucketListModel.recommendItemList.length);
-    print(newCustomItemList.length);
-    return (modifiedBucketListModel.completedCustomItemList.length +
+    int completedCount =
+        modifiedBucketListModel.completedCustomItemList.length +
             modifiedBucketListModel.completedRecommendItemList.length +
-            newCustomItemCompletedList.length) /
-        (modifiedBucketListModel.customItemList.length +
-            modifiedBucketListModel.recommendItemList.length +
-            newCustomItemList.length);
+            newCustomItemCompletedList.length;
+    int uncompletedCount = modifiedBucketListModel.customItemList.length +
+        modifiedBucketListModel.recommendItemList.length +
+        newCustomItemList.length;
+
+    return (completedCount) / (completedCount + uncompletedCount);
   }
 
   // 새로 추가된 cusotom item
   void addNewCustomItem(String content) {
     setState(() {
       if (content != '') {
-        bucketListItemList.add(CustomItemModel(content: content, id: ''));
+        uncompletedBucketListItemList
+            .add(CustomItemModel(content: content, id: ''));
         newCustomItemList.add(content);
       }
       addCustomItemFlag = !addCustomItemFlag;
@@ -324,10 +424,11 @@ class _BucketListDetailScreenState
 
   // 새로 추가된 recommend item
   void addRecommendItem(RecommendItemModel item) {
-    if (!modifiedBucketListModel.recommendItemList.contains(item.id)) {
+    if (!modifiedBucketListModel.recommendItemList.contains(item.id) &&
+        !modifiedBucketListModel.completedRecommendItemList.contains(item.id)) {
       setState(() {
         modifiedBucketListModel.recommendItemList.add(item.id);
-        bucketListItemList.add(RecommendItemModel(
+        uncompletedBucketListItemList.add(RecommendItemModel(
             id: item.id,
             region: item.region,
             theme: item.theme,
@@ -338,25 +439,39 @@ class _BucketListDetailScreenState
   }
 
   // item 제거
-  void removeItem(ItemModel item) {
+  void removeItem(ItemModel item, bool isCompleted) {
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
         // recommend item이면 다 id로 저장돼있으니 modifiedBucketListModel의 recommendItemList에서 제거
-        modifiedBucketListModel.recommendItemList.remove(item.id);
-        modifiedBucketListModel.completedRecommendItemList.remove(item.id);
+        if (isCompleted) {
+          completedBucketListItemList.remove(item);
+          modifiedBucketListModel.completedRecommendItemList.remove(item.id);
+        } else {
+          uncompletedBucketListItemList.remove(item);
+          modifiedBucketListModel.recommendItemList.remove(item.id);
+        }
       } else {
         // custom item이면
         if (item.id == '') {
           // 새로 생성돼서 아직 id가 없는경우
-          newCustomItemList.remove(item.content);
-          newCustomItemCompletedList.remove(item.content);
+          if (isCompleted) {
+            completedBucketListItemList.remove(item);
+            newCustomItemCompletedList.remove(item.content);
+          } else {
+            uncompletedBucketListItemList.remove(item);
+            newCustomItemList.remove(item.content);
+          }
         } else {
           // 기존에 있던거라서 id가 있는 경우
-          modifiedBucketListModel.customItemList.remove(item.id);
-          modifiedBucketListModel.completedCustomItemList.remove(item.id);
+          if (isCompleted) {
+            completedBucketListItemList.remove(item);
+            modifiedBucketListModel.completedCustomItemList.remove(item.id);
+          } else {
+            uncompletedBucketListItemList.remove(item);
+            modifiedBucketListModel.customItemList.remove(item.id);
+          }
         }
       }
-      bucketListItemList.remove(item);
     });
 
     changeFlag();
@@ -420,8 +535,10 @@ class _BucketListDetailScreenState
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: _RecommendItemList(
-                containedRecommendItemList:
+                uncomplementedRecommendItemList:
                     modifiedBucketListModel.recommendItemList,
+                complementedRecommendItemList:
+                    modifiedBucketListModel.completedRecommendItemList,
                 addRecommendItem: addRecommendItem,
                 removeRecommendItem: removeItem,
               ),
@@ -442,12 +559,12 @@ class _BucketListDetailScreenState
     BucketListModel originalBucketListModel = ref
         .read(myBucketListListProvider.notifier)
         .getBucketListModel(widget.bucketListId);
-
     return !listEquals(originalBucketListModel.completedCustomItemList,
             modifiedBucketListModel.completedCustomItemList) ||
         !listEquals(originalBucketListModel.completedRecommendItemList,
             modifiedBucketListModel.completedRecommendItemList) ||
         newCustomItemList.isNotEmpty ||
+        newCustomItemCompletedList.isNotEmpty ||
         !listEquals(originalBucketListModel.customItemList,
             modifiedBucketListModel.customItemList) ||
         !listEquals(originalBucketListModel.recommendItemList,
@@ -466,10 +583,14 @@ class _BucketListDetailScreenState
         setState(() {
           modifiedBucketListModel.customItemList.add(docRef.id);
           newCustomItemList.remove(content);
-          if (newCustomItemCompletedList.contains(content)) {
-            modifiedBucketListModel.completedCustomItemList.add(docRef.id);
-            newCustomItemCompletedList.remove(content);
-          }
+        });
+      }
+      for (String content in List.from(newCustomItemCompletedList)) {
+        DocumentReference docRef =
+            await firestore.collection('custom').add({'content': content});
+        setState(() {
+          modifiedBucketListModel.completedCustomItemList.add(docRef.id);
+          newCustomItemCompletedList.remove(content);
         });
       }
 
@@ -515,8 +636,9 @@ class _BucketListDetailScreenState
             .collection('bucket_list')
             .doc(modifiedBucketListModel.id)
             .update(updates);
+
         ref.read(myBucketListListProvider.notifier).changeBucketListModel(
-            modifiedBucketListModel.id, modifiedBucketListModel);
+            widget.bucketListId, modifiedBucketListModel);
       }
     } catch (e) {
       print(e);
@@ -525,12 +647,14 @@ class _BucketListDetailScreenState
 }
 
 class _RecommendItemList extends ConsumerStatefulWidget {
-  final List<String> containedRecommendItemList;
+  final List<String> uncomplementedRecommendItemList;
+  final List<String> complementedRecommendItemList;
   final Function addRecommendItem;
   final Function removeRecommendItem;
 
   const _RecommendItemList({
-    required this.containedRecommendItemList,
+    required this.uncomplementedRecommendItemList,
+    required this.complementedRecommendItemList,
     required this.addRecommendItem,
     required this.removeRecommendItem,
   });
@@ -590,8 +714,14 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                       itemBuilder: (context, index) {
                         final RecommendItemModel recommendItem =
                             recommendItemList[index];
-                        bool isContain = widget.containedRecommendItemList
+                        bool containedComplement = widget
+                            .complementedRecommendItemList
                             .contains(recommendItem.id);
+                        bool uncontainedComplement = widget
+                            .uncomplementedRecommendItemList
+                            .contains(recommendItem.id);
+                        bool isContain =
+                            containedComplement || uncontainedComplement;
 
                         return ListItem(
                           selectFlag: true,
@@ -601,7 +731,8 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                             setState(
                               () {
                                 if (isContain) {
-                                  widget.removeRecommendItem(recommendItem);
+                                  widget.removeRecommendItem(
+                                      recommendItem, containedComplement);
                                 } else {
                                   widget.addRecommendItem(recommendItem);
                                 }
