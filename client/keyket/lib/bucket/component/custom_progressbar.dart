@@ -24,13 +24,14 @@ class CustomProgressBar extends StatelessWidget {
             border: Border.all(width: 1, color: PRIMARY_COLOR),
           ),
           child: LinearProgressIndicator(
-            value: achievementRate,
+            value: achievementRate.isNaN ? 0 : achievementRate,
             backgroundColor: Colors.transparent,
             valueColor: const AlwaysStoppedAnimation<Color>(PRIMARY_COLOR),
           ),
         ),
         const SizedBox(width: 8),
-        Text('${(achievementRate * 100).roundToDouble().toStringAsFixed(0)}%',
+        Text(
+            '${achievementRate.isNaN ? 0 : (achievementRate * 100).roundToDouble().toStringAsFixed(0)}%',
             style: const TextStyle(
                 fontFamily: 'SCDream',
                 fontSize: 12,

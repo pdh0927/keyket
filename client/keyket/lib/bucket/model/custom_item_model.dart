@@ -10,6 +10,11 @@ class CustomItemModel extends ItemModel {
       _$CustomItemModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$CustomItemModelToJson(this);
+
+  @override
+  String toString() {
+    return 'CustomItemModel: {id: $id, content: $content}';
+  }
 }
 
 abstract class ItemModel {

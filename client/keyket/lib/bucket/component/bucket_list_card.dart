@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -10,7 +11,6 @@ class BucketListCard extends ConsumerWidget {
   final String id;
   final String name;
   final Widget image;
-  final double achievementRate;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<String> completedCustomItemList;
@@ -23,7 +23,6 @@ class BucketListCard extends ConsumerWidget {
     required this.id,
     required this.name,
     required this.image,
-    required this.achievementRate,
     required this.createdAt,
     required this.updatedAt,
     required this.completedCustomItemList,
@@ -44,7 +43,6 @@ class BucketListCard extends ConsumerWidget {
               fit: BoxFit.cover)
           : Image.asset(
               width: 100, height: 100, model.image, fit: BoxFit.cover),
-      achievementRate: model.achievementRate,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       completedCustomItemList: model.completedCustomItemList,
@@ -81,7 +79,9 @@ class BucketListCard extends ConsumerWidget {
                 ],
               ),
               CustomProgressBar(
-                achievementRate: achievementRate,
+                achievementRate: ref
+                    .watch(myBucketListListProvider.notifier)
+                    .getAchievementRate(id),
                 height: 17,
                 width: 160,
               ),
