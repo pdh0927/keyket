@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/common/const/colors.dart';
-import 'package:keyket/common/const/text_style.dart';
 import 'package:remixicon/remixicon.dart';
 
 class ListItem extends StatelessWidget {
@@ -42,11 +41,15 @@ class ListItem extends StatelessWidget {
                     child: Container(
                       alignment: Alignment.centerLeft,
                       height: 55,
-                      padding:
-                          EdgeInsets.only(left: selectFlag == true ? 0 : 10),
+                      padding: EdgeInsets.only(left: selectFlag ? 0 : 10),
                       child: Text(
                         item.content,
-                        style: dropdownTextStyle,
+                        style: TextStyle(
+                            fontFamily: 'SCDream',
+                            backgroundColor:
+                                isContain ? const Color(0xFFC4E4FA) : null,
+                            fontSize: 16,
+                            color: BLACK_COLOR),
                         textAlign: TextAlign.start,
                       ),
                     ),
