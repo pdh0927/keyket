@@ -28,6 +28,13 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
       for (var doc in docList.docs) {
         Map<String, dynamic> data = _docToMap(doc);
 
+        // null이 있다면 []로 저장
+        data['completedCustomItemList'] = data['completedCustomItemList'] ?? [];
+        data['completedRecommendItemList'] =
+            data['completedRecommendItemList'] ?? [];
+        data['customItemList'] = data['customItemList'] ?? [];
+        data['recommendItemList'] = data['recommendItemList'] ?? [];
+
         myBucketListList.add(BucketListModel.fromJson(data));
       }
     } catch (e) {
@@ -39,11 +46,12 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
 
   double getAchievementRate(String bucketListId) {
     final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+    int complementedCount = bucketList.completedCustomItemList.length +
+        bucketList.completedRecommendItemList.length;
+    int uncomplementedCount =
+        bucketList.customItemList.length + bucketList.recommendItemList.length;
 
-    return (bucketList.completedCustomItemList.length +
-            bucketList.completedRecommendItemList.length) /
-        (bucketList.customItemList.length +
-            bucketList.recommendItemList.length);
+    return (complementedCount) / (uncomplementedCount + complementedCount);
   }
 
   void sortByName() {
@@ -88,7 +96,7 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
       String bucketListId, BucketListModel newBucketListModel) {
     state = [
       for (final item in state)
-        if (item.id == bucketListId) newBucketListModel else item,
+        if (item.id == bucketListId) newBucketListModel.deepCopy() else item,
     ];
   }
 }
