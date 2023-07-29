@@ -84,6 +84,23 @@ class BucketListModel {
     );
   }
 
+  @override
+  String toString() {
+    return 'BucketListModel {'
+        'id: $id, '
+        'name: $name, '
+        'image: $image, '
+        'isShared: $isShared, '
+        'users: $users, '
+        'createdAt: $createdAt, '
+        'updatedAt: $updatedAt, '
+        'completedCustomItemList: $completedCustomItemList, '
+        'completedRecommendItemList: $completedRecommendItemList, '
+        'customItemList: $customItemList, '
+        'recommendItemList: $recommendItemList'
+        '}';
+  }
+
   factory BucketListModel.fromJson(Map<String, dynamic> json) =>
       _$BucketListModelFromJson(json);
 
