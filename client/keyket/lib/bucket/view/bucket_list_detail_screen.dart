@@ -686,136 +686,185 @@ class _BucketListDetailScreenState
             modifiedBucketListModel.recommendItemList);
   }
 
-  Future<void> updateBucketListItems(List<String> newCustomItemList,
-      BucketListModel modifiedBucketListModel) async {
-    // Firestore에 접근하기 위한 참조를 생성
-    FirebaseFirestore firestore = FirebaseFirestore.instance;
-    try {
-      // Firestore에 새로운 custom item을 저장하고, 반환된 ID를 리스트에 추가
-      if (newCustomItemList.isNotEmpty ||
-          newCustomItemCompletedList.isNotEmpty) {
-        WriteBatch batch = firestore.batch();
-
-        for (String content in List.from(newCustomItemList)) {
-          DocumentReference docRef = firestore.collection('custom').doc();
-          batch.set(docRef, {'content': content});
-          setState(() {
-            modifiedBucketListModel.customItemList.add(docRef.id);
-            newCustomItemList.remove(content);
-
-            for (int i = 0; i < uncompletedBucketListItemList.length; i++) {
-              ItemModel item = uncompletedBucketListItemList[i];
-              if (item is CustomItemModel && item.content == content) {
-                setState(() {
-                  uncompletedBucketListItemList[i] =
-                      item.copyWith(id: docRef.id);
-                });
-                break;
-              }
-            }
-          });
-        }
-
-        for (String content in List.from(newCustomItemCompletedList)) {
-          DocumentReference docRef = firestore.collection('custom').doc();
-          batch.set(docRef, {'content': content});
-          setState(() {
-            modifiedBucketListModel.completedCustomItemList.add(docRef.id);
-            newCustomItemCompletedList.remove(content);
-          });
-          for (int i = 0; i < completedBucketListItemList.length; i++) {
-            ItemModel item = completedBucketListItemList[i];
-            if (item is CustomItemModel && item.content == content) {
-              setState(() {
-                completedBucketListItemList[i] = item.copyWith(id: docRef.id);
-              });
-              break;
-            }
-          }
-        }
-
-        await batch.commit();
-      }
-
-      // 완료, 미완료 변경
-      BucketListModel originalBucketListModel = ref
-          .read(myBucketListListProvider.notifier)
-          .getBucketListModel(widget.bucketListId);
-      Map<String, dynamic> updates = {};
-
-      // Check each list and add to updates if there are changes
-      if (!listEquals(originalBucketListModel.completedCustomItemList,
-          modifiedBucketListModel.completedCustomItemList)) {
-        updates['completedCustomItemList'] =
-            modifiedBucketListModel.completedCustomItemList;
-      }
-
-      if (!listEquals(originalBucketListModel.completedRecommendItemList,
-          modifiedBucketListModel.completedRecommendItemList)) {
-        updates['completedRecommendItemList'] =
-            modifiedBucketListModel.completedRecommendItemList;
-      }
-
-      if (!listEquals(originalBucketListModel.customItemList,
-          modifiedBucketListModel.customItemList)) {
-        updates['customItemList'] = modifiedBucketListModel.customItemList;
-      }
-
-      if (!listEquals(originalBucketListModel.recommendItemList,
-          modifiedBucketListModel.recommendItemList)) {
-        updates['recommendItemList'] =
-            modifiedBucketListModel.recommendItemList;
-      }
+  // 새로 추가한 bucketlist item firestore에 추가
+  Future<void> _addNewCustomBucketListItems(
+    FirebaseFirestore firestore,
+    List<String> itemList,
+    List<ItemModel> bucketListItemList,
+    List<String> customItemList,
+    WriteBatch batch,
+  ) async {
+    for (String content in List.from(itemList)) {
+      DocumentReference docRef = firestore.collection('custom').doc(); // id 지정
+      batch.set(docRef, {'content': content}); // id와 content 매칭해서 저장
 
       setState(() {
-        isChanged = false;
+        customItemList.add(docRef.id); // complete, uncomplete 목록에 추가
+        itemList.remove(content); // 임시 newList에서 제거
       });
 
-      // 변경 됐다면 업데이트
-      if (updates.isNotEmpty) {
-        updates['updatedAt'] = DateTime.now(); // 현재 시간을 설정
-        modifiedBucketListModel =
-            modifiedBucketListModel.copyWith(updatedAt: updates['updatedAt']);
-        await firestore
-            .collection('bucket_list')
-            .doc(modifiedBucketListModel.id)
-            .update(updates);
+      // 현재 item list에서 id ''였는데 생성한 id로 업데이트
+      for (int i = 0; i < bucketListItemList.length; i++) {
+        ItemModel item = bucketListItemList[i];
+        if (item is CustomItemModel && item.content == content) {
+          setState(() {
+            bucketListItemList[i] = item.copyWith(id: docRef.id);
+          });
+          break;
+        }
+      }
+    }
+  }
 
-        ref.read(myBucketListListProvider.notifier).changeBucketListModel(
-            widget.bucketListId, modifiedBucketListModel);
+  // 기존의 custom bucketList item 수정
+  Future<void> _updateCustomBucketListItem(
+    FirebaseFirestore firestore,
+    List<CustomItemModel> updatedCustomBucketListItemList,
+    WriteBatch batch,
+  ) async {
+    List<CustomItemModel> updatedItemsCopy =
+        List.from(updatedCustomBucketListItemList);
+    for (CustomItemModel updatedItem in updatedItemsCopy) {
+      DocumentReference docRef =
+          firestore.collection('custom').doc(updatedItem.id);
+      batch.update(docRef, {'content': updatedItem.content}); // 변경 content로 추가
+
+      setState(() {
+        updatedCustomBucketListItemList.remove(updatedItem); // 업데이트 목록에서 제거
+      });
+    }
+  }
+
+  // Firestore에서 items을 삭제
+  Future<void> deleteItemsFromFirestore(FirebaseFirestore firestore,
+      List<String> deleteList, WriteBatch batch) async {
+    for (String id in deleteList) {
+      // 문서에 대한 참조 가져오기
+      DocumentReference docRef = firestore.collection('custom').doc(id);
+
+      // 배치에 삭제 작업 추가
+      batch.delete(docRef);
+    }
+  }
+
+  // 두 버킷 리스트 모델 간의 변경 사항을 확인하고, 필요한 경우 Firebase에 업데이트
+  Future<void> _updateChangedBucketListModel(
+    BucketListModel modifiedBucketListModel,
+    FirebaseFirestore firestore,
+  ) async {
+    Map<String, dynamic> updates = {};
+    BucketListModel originalBucketListModel = ref
+        .read(myBucketListListProvider.notifier)
+        .getBucketListModel(widget.bucketListId);
+
+    // 완료된 custom bucketlist item 목록 확인
+    if (!listEquals(originalBucketListModel.completedCustomItemList,
+        modifiedBucketListModel.completedCustomItemList)) {
+      updates['completedCustomItemList'] =
+          modifiedBucketListModel.completedCustomItemList;
+    }
+
+    // 완료된 recommend bucketlist item 목록 확인
+    if (!listEquals(originalBucketListModel.completedRecommendItemList,
+        modifiedBucketListModel.completedRecommendItemList)) {
+      updates['completedRecommendItemList'] =
+          modifiedBucketListModel.completedRecommendItemList;
+    }
+
+    // 완료되지 않은 custom bucketlist item 목록 확인
+    if (!listEquals(originalBucketListModel.customItemList,
+        modifiedBucketListModel.customItemList)) {
+      updates['customItemList'] = modifiedBucketListModel.customItemList;
+    }
+
+    // 완료되지 않은 recommend bucketlist item 목록 확인
+    if (!listEquals(originalBucketListModel.recommendItemList,
+        modifiedBucketListModel.recommendItemList)) {
+      updates['recommendItemList'] = modifiedBucketListModel.recommendItemList;
+    }
+
+    // 다른 변경사항이 있을 시
+    if (originalBucketListModel.updatedAt !=
+        modifiedBucketListModel.updatedAt) {
+      updates['updatedAt'] = DateTime.now();
+    }
+
+    // 변경 사항이 있으면 Firebase에 업데이트
+    if (updates.isNotEmpty) {
+      await firestore
+          .collection('bucket_list')
+          .doc(modifiedBucketListModel.id)
+          .update(updates);
+
+      // 변경된 버킷 리스트 모델을 로컬에 업데이트
+      ref
+          .read(myBucketListListProvider.notifier)
+          .changeBucketListModel(widget.bucketListId, modifiedBucketListModel);
+    }
+  }
+
+  Future<void> updateBucketListItems(List<String> newCustomItemList,
+      BucketListModel modifiedBucketListModel) async {
+    try {
+      // Firestore에 접근하기 위한 참조를 생성
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      WriteBatch batch = firestore.batch(); // 전체 작업을 위한 단일 WriteBatch 생성
+      bool hasUpdates = false;
+
+      // 새로운 custom item FireStore에 추가
+      if (newCustomItemList.isNotEmpty ||
+          newCustomItemCompletedList.isNotEmpty) {
+        hasUpdates = true;
+        // 완료되지 않은 새로운 아이템 FireStore에 추가
+        await _addNewCustomBucketListItems(
+          firestore,
+          newCustomItemList,
+          uncompletedBucketListItemList,
+          modifiedBucketListModel.customItemList,
+          batch,
+        );
+        // 완료된 새로운 아이템 FireStore에 추가
+        await _addNewCustomBucketListItems(
+          firestore,
+          newCustomItemCompletedList,
+          completedBucketListItemList,
+          modifiedBucketListModel.completedCustomItemList,
+          batch,
+        );
       }
 
-      // custom 항목 수정
+      // custom bucketlist item content 수정
       if (updatedCustomBucketListItemList.isNotEmpty) {
-        WriteBatch batch = firestore.batch();
-        for (CustomItemModel updatedItem in updatedCustomBucketListItemList) {
-          DocumentReference docRef =
-              firestore.collection('custom').doc(updatedItem.id);
-          batch.update(docRef, {'content': updatedItem.content});
-
-          setState(() {
-            updatedCustomBucketListItemList.remove(updatedItem);
-          });
-        }
-
-        await batch.commit();
+        hasUpdates = true;
+        await _updateCustomBucketListItem(
+            firestore, updatedCustomBucketListItemList, batch);
       }
 
       if (deleteList.isNotEmpty) {
-        WriteBatch batch = firestore.batch();
-        for (String id in deleteList) {
-          // Get a reference to the document
-          DocumentReference docRef = firestore.collection('custom').doc(id);
+        hasUpdates = true;
+        deleteList = []; // 삭제 목록 초기화
+        await deleteItemsFromFirestore(firestore, deleteList, batch);
+      }
 
-          // Add a delete operation to the batch
-          batch.delete(docRef);
-        } // Commit the batch
+      if (hasUpdates) {
         await batch
             .commit()
-            .then((value) => print('Deleted successfully'))
-            .catchError((error) => print('Failed to delete: $error'));
-        deleteList = [];
+            .then((value) => print('Batch committed successfully'))
+            .catchError((error) => print('Failed to commit batch: $error'));
+
+        modifiedBucketListModel =
+            modifiedBucketListModel.copyWith(updatedAt: DateTime.now());
       }
+
+      // bucket list model 업데이트
+      await _updateChangedBucketListModel(
+        modifiedBucketListModel,
+        firestore,
+      );
+
+      setState(() {
+        isChanged = false; // 저장 버튼 없애기
+      });
     } catch (e) {
       print(e);
     }
