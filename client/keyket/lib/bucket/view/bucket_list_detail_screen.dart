@@ -39,6 +39,7 @@ class _BucketListDetailScreenState
   List<CustomItemModel> updatedCustomBucketListItemList = [];
   List<String> newCustomItemList = [];
   List<String> newCustomItemCompletedList = [];
+  List<String> deleteList = [];
   bool addCustomItemFlag = false;
   bool isChanged = false;
 
@@ -304,6 +305,10 @@ class _BucketListDetailScreenState
       uncompletedBucketListItemList.add(item);
     });
     changeFlag();
+    print(modifiedBucketListModel.completedCustomItemList);
+
+    print(modifiedBucketListModel.customItemList);
+    print('----------------------------');
   }
 
   // 완료 목록에 추가
@@ -324,6 +329,10 @@ class _BucketListDetailScreenState
       completedBucketListItemList.add(item);
       uncompletedBucketListItemList.remove(item);
     });
+    print(modifiedBucketListModel.completedCustomItemList);
+
+    print(modifiedBucketListModel.customItemList);
+    print('----------------------------');
     changeFlag();
   }
 
@@ -469,8 +478,8 @@ class _BucketListDetailScreenState
         }
       } else {
         // custom item이면
-        if (item.id == '') {
-          // 새로 생성돼서 아직 id가 없는경우
+        if (item.id == '') // 새로 생성돼서 아직 id가 없는경우
+        {
           if (isCompleted) {
             completedBucketListItemList.remove(item);
             newCustomItemCompletedList.remove(item.content);
@@ -478,8 +487,8 @@ class _BucketListDetailScreenState
             uncompletedBucketListItemList.remove(item);
             newCustomItemList.remove(item.content);
           }
-        } else {
-          // 기존에 있던거라서 id가 있는 경우
+        } else // 기존에 있던거라서 id가 있는 경우
+        {
           if (isCompleted) {
             completedBucketListItemList.remove(item);
             modifiedBucketListModel.completedCustomItemList.remove(item.id);
@@ -487,6 +496,7 @@ class _BucketListDetailScreenState
             uncompletedBucketListItemList.remove(item);
             modifiedBucketListModel.customItemList.remove(item.id);
           }
+          deleteList.add(item.id);
         }
       }
     });
@@ -594,26 +604,52 @@ class _BucketListDetailScreenState
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
       // Firestore에 새로운 custom item을 저장하고, 반환된 ID를 리스트에 추가
-      WriteBatch batch = firestore.batch();
+      if (newCustomItemList.isNotEmpty ||
+          newCustomItemCompletedList.isNotEmpty) {
+        WriteBatch batch = firestore.batch();
 
-      for (String content in List.from(newCustomItemList)) {
-        DocumentReference docRef = firestore.collection('custom').doc();
-        batch.set(docRef, {'content': content});
-        setState(() {
-          modifiedBucketListModel.customItemList.add(docRef.id);
-        });
+        for (String content in List.from(newCustomItemList)) {
+          DocumentReference docRef = firestore.collection('custom').doc();
+          batch.set(docRef, {'content': content});
+          setState(() {
+            modifiedBucketListModel.customItemList.add(docRef.id);
+            newCustomItemList.remove(content);
+
+            for (int i = 0; i < uncompletedBucketListItemList.length; i++) {
+              ItemModel item = uncompletedBucketListItemList[i];
+              if (item is CustomItemModel && item.content == content) {
+                setState(() {
+                  uncompletedBucketListItemList[i] =
+                      item.copyWith(id: docRef.id);
+                });
+                break;
+              }
+            }
+          });
+        }
+
+        for (String content in List.from(newCustomItemCompletedList)) {
+          DocumentReference docRef = firestore.collection('custom').doc();
+          batch.set(docRef, {'content': content});
+          setState(() {
+            modifiedBucketListModel.completedCustomItemList.add(docRef.id);
+            newCustomItemCompletedList.remove(content);
+          });
+          for (int i = 0; i < completedBucketListItemList.length; i++) {
+            ItemModel item = completedBucketListItemList[i];
+            if (item is CustomItemModel && item.content == content) {
+              setState(() {
+                completedBucketListItemList[i] = item.copyWith(id: docRef.id);
+              });
+              break;
+            }
+          }
+        }
+
+        await batch.commit();
       }
 
-      for (String content in List.from(newCustomItemCompletedList)) {
-        DocumentReference docRef = firestore.collection('custom').doc();
-        batch.set(docRef, {'content': content});
-        setState(() {
-          modifiedBucketListModel.completedCustomItemList.add(docRef.id);
-        });
-      }
-
-      await batch.commit();
-
+      // 완료, 미완료 변경
       BucketListModel originalBucketListModel = ref
           .read(myBucketListListProvider.notifier)
           .getBucketListModel(widget.bucketListId);
@@ -661,19 +697,36 @@ class _BucketListDetailScreenState
             widget.bucketListId, modifiedBucketListModel);
       }
 
+      // custom 항목 수정
       if (updatedCustomBucketListItemList.isNotEmpty) {
         WriteBatch batch = firestore.batch();
-
         for (CustomItemModel updatedItem in updatedCustomBucketListItemList) {
           DocumentReference docRef =
               firestore.collection('custom').doc(updatedItem.id);
           batch.update(docRef, {'content': updatedItem.content});
+
+          setState(() {
+            updatedCustomBucketListItemList.remove(updatedItem);
+          });
         }
-        setState(() {
-          updatedCustomBucketListItemList = [];
-        });
 
         await batch.commit();
+      }
+
+      if (deleteList.isNotEmpty) {
+        WriteBatch batch = firestore.batch();
+        for (String id in deleteList) {
+          // Get a reference to the document
+          DocumentReference docRef = firestore.collection('custom').doc(id);
+
+          // Add a delete operation to the batch
+          batch.delete(docRef);
+        } // Commit the batch
+        await batch
+            .commit()
+            .then((value) => print('Deleted successfully'))
+            .catchError((error) => print('Failed to delete: $error'));
+        deleteList = [];
       }
     } catch (e) {
       print(e);
