@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -336,91 +338,177 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
+  // Future<void> getItems(
+  //   String id,
+  //   List<String> customItemList,
+  //   List<String> recommendItemList,
+  //   List<String> completedCustomItemList,
+  //   List<String> completedRecommendItemList,
+  // ) async {
+  //   List<ItemModel> uncompletedItems = [];
+  //   List<ItemModel> completedItems = [];
+  //   final firestore = FirebaseFirestore.instance;
+
+  //   try {
+  //     // Combine custom and completed custom item lists, preserving the order
+  //     List<String> customItemsList = [
+  //       ...customItemList,
+  //       ...completedCustomItemList
+  //     ];
+
+  //     // Combine recommend and completed recommend item lists, preserving the order
+  //     List<String> recommendItemsList = [
+  //       ...recommendItemList,
+  //       ...completedRecommendItemList
+  //     ];
+
+  //     // Fetch items from the custom and recommend collections
+  //     var customItems = await getChunkedItems(
+  //       firestore: firestore,
+  //       collectionName: 'custom',
+  //       itemList: customItemsList,
+  //     );
+
+  //     var recommendItems = await getChunkedItems(
+  //       firestore: firestore,
+  //       collectionName: 'recommend',
+  //       itemList: recommendItemsList,
+  //     );
+
+  //     // Divide the fetched items into uncompleted and completed items
+  //     uncompletedItems = [
+  //       ...customItems.sublist(0, customItemList.length),
+  //       ...recommendItems.sublist(0, recommendItemList.length),
+  //     ];
+
+  //     completedItems = [
+  //       ...customItems.sublist(customItemList.length),
+  //       ...recommendItems.sublist(recommendItemList.length),
+  //     ];
+  //   } catch (e) {
+  //     print(e);
+  //   }
+
+  //   setState(() {
+  //     uncompletedBucketListItemList = uncompletedItems;
+  //     completedBucketListItemList = completedItems;
+  //   });
+  // }
+
+  // Future<List<ItemModel>> getChunkedItems({
+  //   required FirebaseFirestore firestore,
+  //   required String collectionName,
+  //   required List<String> itemList,
+  // }) async {
+  //   List<ItemModel> items = [];
+  //   // 10개 단위로 나누기
+  //   List<List<String>> itemChunks = [];
+  //   for (int i = 0; i < itemList.length; i += 10) {
+  //     itemChunks.add(itemList.sublist(
+  //         i, i + 10 > itemList.length ? itemList.length : i + 10));
+  //   }
+
+  //   // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
+  //   for (List<String> chunk in itemChunks) {
+  //     QuerySnapshot querySnapshot = await firestore
+  //         .collection(collectionName)
+  //         .where(FieldPath.documentId, whereIn: chunk)
+  //         .get();
+  //     for (DocumentSnapshot doc in querySnapshot.docs) {
+  //       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+  //       data['id'] = doc.id;
+
+  //       if (collectionName == 'recommend') {
+  //         items.add(RecommendItemModel.fromJson(data));
+  //       } else if (collectionName == 'custom') {
+  //         items.add(CustomItemModel.fromJson(data));
+  //       }
+  //     }
+  //   }
+
+  //   return items;
+  // }
+
+  // FireStore에서 item의 content 가져와서 넣기
   Future<void> getItems(
       String id,
       List<String> customItemList,
       List<String> recommendItemList,
       List<String> completedCustomItemList,
       List<String> completedRecommendItemList) async {
-    List<ItemModel> uncompletedItems = [];
-    List<ItemModel> completedItems = [];
-    final firestore = FirebaseFirestore.instance;
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    try {
-      // Combine custom and completed custom item lists, preserving the order
-      List<String> customItemsList = [
-        ...customItemList,
-        ...completedCustomItemList
-      ];
+    // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
+    List<String> customItemsList =
+        _combineLists(customItemList, completedCustomItemList);
+    List<String> recommendItemsList =
+        _combineLists(recommendItemList, completedRecommendItemList);
 
-      // Combine recommend and completed recommend item lists, preserving the order
-      List<String> recommendItemsList = [
-        ...recommendItemList,
-        ...completedRecommendItemList
-      ];
+    // Firestore에서 해당하는 item 불러오기
+    final List<ItemModel> customItems =
+        await _fetchItems(firestore, 'custom', customItemsList);
+    final List<ItemModel> recommendItems =
+        await _fetchItems(firestore, 'recommend', recommendItemsList);
 
-      // Fetch items from the custom and recommend collections
-      var customItems = await getChunkedItems(
-          firestore: firestore,
-          collectionName: 'custom',
-          itemList: customItemsList);
+    // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
+    final List<ItemModel> uncompletedItems =
+        _getSublist(customItems, 0, customItemList.length) +
+            _getSublist(recommendItems, 0, recommendItemList.length);
+    final List<ItemModel> completedItems = _getSublist(
+            customItems, customItemList.length, customItemsList.length) +
+        _getSublist(recommendItems, recommendItemList.length,
+            recommendItemsList.length);
 
-      var recommendItems = await getChunkedItems(
-          firestore: firestore,
-          collectionName: 'recommend',
-          itemList: recommendItemsList);
-
-      // Divide the fetched items into uncompleted and completed items
-      uncompletedItems = [
-        ...customItems.sublist(0, customItemList.length),
-        ...recommendItems.sublist(0, recommendItemList.length),
-      ];
-      completedItems = [
-        ...customItems.sublist(customItemList.length),
-        ...recommendItems.sublist(recommendItemList.length),
-      ];
-    } catch (e) {
-      print(e);
-    }
-
+    // 상태 업데이트
     setState(() {
       uncompletedBucketListItemList = uncompletedItems;
       completedBucketListItemList = completedItems;
     });
   }
 
-  Future<List<ItemModel>> getChunkedItems({
-    required FirebaseFirestore firestore,
-    required String collectionName,
-    required List<String> itemList,
-  }) async {
-    List<ItemModel> items = [];
-    // 10개 단위로 나누기
-    List<List<String>> itemChunks = [];
-    for (int i = 0; i < itemList.length; i += 10) {
-      itemChunks.add(itemList.sublist(
-          i, i + 10 > itemList.length ? itemList.length : i + 10));
-    }
+  // 두 List 결합
+  List<String> _combineLists(List<String> list1, List<String> list2) {
+    return [...list1, ...list2];
+  }
 
-    // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-    for (List<String> chunk in itemChunks) {
-      QuerySnapshot querySnapshot = await firestore
+  // FireStore에 접근해서 item 가져오기
+  Future<List<ItemModel>> _fetchItems(FirebaseFirestore firestore,
+      String collectionName, List<String> itemList) async {
+    List<ItemModel> items = [];
+
+    // FireStore에서는 한번에 10개씩 데이터를 가져올 수 있으므로 10개씩 분리하여 가져오기
+    for (List<String> chunk in _chunkedList(itemList, 10)) {
+      var querySnapshot = await firestore
           .collection(collectionName)
           .where(FieldPath.documentId, whereIn: chunk)
           .get();
-      for (DocumentSnapshot doc in querySnapshot.docs) {
-        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
 
-        if (collectionName == 'recommend') {
-          items.add(RecommendItemModel.fromJson(data));
-        } else if (collectionName == 'custom') {
-          items.add(CustomItemModel.fromJson(data));
-        }
+      for (var doc in querySnapshot.docs) {
+        var data = doc.data();
+        data['id'] = doc.id; // 모델에 넣기 위해 id도 map에 넣어주기
+
+        // item 종류에 따라서 알맞은 모델 변환해서 넣기
+        items.add(collectionName == 'recommend'
+            ? RecommendItemModel.fromJson(data)
+            : CustomItemModel.fromJson(data));
       }
     }
 
     return items;
+  }
+
+  // 리스트를 청크로 분리
+  List<List<String>> _chunkedList(List<String> list, int chunkSize) {
+    List<List<String>> chunks = [];
+    for (int i = 0; i < list.length; i += chunkSize) {
+      chunks.add(list.sublist(i, min(i + chunkSize, list.length)));
+    }
+    return chunks;
+  }
+
+  // 리스트를 sublist로 변환
+  List<ItemModel> _getSublist(List<ItemModel> list, int start, int end) {
+    return list.sublist(start, end);
   }
 
   double getAchievementRate() {
