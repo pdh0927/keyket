@@ -1,10 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
-
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
@@ -12,7 +11,6 @@ import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/select_box.dart';
 import 'package:keyket/common/const/colors.dart';
-import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
@@ -38,6 +36,7 @@ class _BucketListDetailScreenState
   late BucketListModel modifiedBucketListModel;
   List<ItemModel> uncompletedBucketListItemList = [];
   List<ItemModel> completedBucketListItemList = [];
+  List<CustomItemModel> updatedCustomBucketListItemList = [];
   List<String> newCustomItemList = [];
   List<String> newCustomItemCompletedList = [];
   bool addCustomItemFlag = false;
@@ -151,7 +150,7 @@ class _BucketListDetailScreenState
                       completedBucketListItemList.length +
                           uncompletedBucketListItemList.length) {
                     if (addCustomItemFlag) {
-                      return _CustomAddTextField(
+                      return CustomAddTextField(
                         onPressed: addNewCustomItem,
                       );
                     } else {
@@ -188,6 +187,7 @@ class _BucketListDetailScreenState
                       isContain: isCompleted,
                       isRecommendItem: false,
                       removeItem: removeItem,
+                      modifyItem: modifyItem,
                       onPressed: () {
                         if (isCompleted) {
                           removeComplete(item);
@@ -205,6 +205,84 @@ class _BucketListDetailScreenState
         ),
       ),
     );
+  }
+
+  void modifyItem(String modifiedContent, Type type, bool isCompleted,
+      String itemId, String beforeContent) {
+    List<ItemModel> list;
+    if (isCompleted) {
+      list = completedBucketListItemList;
+    } else {
+      list = uncompletedBucketListItemList;
+    }
+
+    int index = list.indexWhere(
+        (item) => item.content == beforeContent); // list에 변경 Item할 index 알아냄
+    if (index != -1) // 동일한 ID를 가진 항목이 존재하면
+    {
+      if (type == RecommendItemModel) {
+        if (isCompleted) {
+          setState(() {
+            modifiedBucketListModel.completedRecommendItemList.remove(itemId);
+          });
+
+          newCustomItemCompletedList.add(modifiedContent);
+        } else {
+          setState(() {
+            modifiedBucketListModel.recommendItemList.remove(itemId);
+          });
+
+          newCustomItemList.add(modifiedContent);
+        }
+
+        setState(() {
+          list[index] = (CustomItemModel(id: '', content: modifiedContent));
+        });
+      } else {
+        CustomItemModel modifiedItem = list[index] as CustomItemModel;
+
+        if (modifiedItem.id != '') {
+          modifiedItem =
+              modifiedItem.copyWith(content: modifiedContent); // 내용 변경
+          setState(() {
+            list[index] = modifiedItem;
+          });
+
+          index = updatedCustomBucketListItemList.indexWhere((item) =>
+              item.id == modifiedItem.id); // updated list에서 업데이트 된적있는지 확인
+          if (index != -1) // 업데이트된적 있다면 변경
+          {
+            updatedCustomBucketListItemList[index] = modifiedItem;
+          } else // 업데이트된적 없다면 추가
+          {
+            updatedCustomBucketListItemList.add(modifiedItem);
+          }
+        } else {
+          index = list.indexWhere(
+              (item) => item.id == itemId); // list에 변경 Item할 index 알아냄
+          setState(() {
+            list[index] = (CustomItemModel(id: '', content: modifiedContent));
+          });
+          if (isCompleted) {
+            index = newCustomItemCompletedList.indexWhere((content) =>
+                content ==
+                beforeContent); // newCustomItemCompletedList에서 변경 전 content index 검색
+
+            newCustomItemCompletedList[index] = modifiedContent;
+          } else {
+            index = newCustomItemList.indexWhere((content) =>
+                content ==
+                beforeContent); // newCustomItemList에서 변경 전 content index 검색
+
+            newCustomItemList[index] = modifiedContent;
+          }
+        }
+      }
+
+      setState(() {
+        isChanged = true;
+      });
+    }
   }
 
   // 완료 목록에서 제거
@@ -335,67 +413,6 @@ class _BucketListDetailScreenState
 
     return items;
   }
-
-  // // bucket list 항목에 있는 item들 firestore에서 content 불러와서 ItemModel로 만듦
-  // void getItems(
-  //     String id,
-  //     List<String> customItemList,
-  //     List<String> recommendItemList,
-  //     List<String> completedCustomItemList,
-  //     List<String> completedRecommendItemList) async {
-  //   List<ItemModel> items = [];
-  //   final firestore = FirebaseFirestore.instance;
-  //   try {
-  //     // 10개 단위로 나누기
-  //     List<List<String>> recommendItemChunks = [];
-  //     for (int i = 0; i < recommendItemList.length; i += 10) {
-  //       recommendItemChunks.add(recommendItemList.sublist(
-  //           i,
-  //           i + 10 > recommendItemList.length
-  //               ? recommendItemList.length
-  //               : i + 10));
-  //     }
-
-  //     // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-  //     for (List<String> chunk in recommendItemChunks) {
-  //       QuerySnapshot querySnapshot = await firestore
-  //           .collection('recommend')
-  //           .where(FieldPath.documentId, whereIn: chunk)
-  //           .get();
-  //       for (DocumentSnapshot doc in querySnapshot.docs) {
-  //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-  //         data['id'] = doc.id;
-
-  //         items.add(RecommendItemModel.fromJson(data));
-  //       }
-  //     }
-
-  //     // 10개 단위로 나누기
-  //     List<List<String>> customItemChunks = [];
-  //     for (int i = 0; i < customItemList.length; i += 10) {
-  //       customItemChunks.add(customItemList.sublist(i,
-  //           i + 10 > customItemList.length ? customItemList.length : i + 10));
-  //     }
-
-  //     // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-  //     for (List<String> chunk in customItemChunks) {
-  //       QuerySnapshot querySnapshot = await firestore
-  //           .collection('custom')
-  //           .where(FieldPath.documentId, whereIn: chunk)
-  //           .get();
-  //       for (DocumentSnapshot doc in querySnapshot.docs) {
-  //         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-  //         data['id'] = doc.id;
-  //         items.add(CustomItemModel.fromJson(data));
-  //       }
-  //     }
-  //   } catch (e) {
-  //     print(e);
-  //   }
-  //   setState(() {
-  //     bucketListItemList = items;
-  //   });
-  // }
 
   double getAchievementRate() {
     int completedCount =
@@ -577,22 +594,25 @@ class _BucketListDetailScreenState
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     try {
       // Firestore에 새로운 custom item을 저장하고, 반환된 ID를 리스트에 추가
+      WriteBatch batch = firestore.batch();
+
       for (String content in List.from(newCustomItemList)) {
-        DocumentReference docRef =
-            await firestore.collection('custom').add({'content': content});
+        DocumentReference docRef = firestore.collection('custom').doc();
+        batch.set(docRef, {'content': content});
         setState(() {
           modifiedBucketListModel.customItemList.add(docRef.id);
-          newCustomItemList.remove(content);
         });
       }
+
       for (String content in List.from(newCustomItemCompletedList)) {
-        DocumentReference docRef =
-            await firestore.collection('custom').add({'content': content});
+        DocumentReference docRef = firestore.collection('custom').doc();
+        batch.set(docRef, {'content': content});
         setState(() {
           modifiedBucketListModel.completedCustomItemList.add(docRef.id);
-          newCustomItemCompletedList.remove(content);
         });
       }
+
+      await batch.commit();
 
       BucketListModel originalBucketListModel = ref
           .read(myBucketListListProvider.notifier)
@@ -639,6 +659,21 @@ class _BucketListDetailScreenState
 
         ref.read(myBucketListListProvider.notifier).changeBucketListModel(
             widget.bucketListId, modifiedBucketListModel);
+      }
+
+      if (updatedCustomBucketListItemList.isNotEmpty) {
+        WriteBatch batch = firestore.batch();
+
+        for (CustomItemModel updatedItem in updatedCustomBucketListItemList) {
+          DocumentReference docRef =
+              firestore.collection('custom').doc(updatedItem.id);
+          batch.update(docRef, {'content': updatedItem.content});
+        }
+        setState(() {
+          updatedCustomBucketListItemList = [];
+        });
+
+        await batch.commit();
       }
     } catch (e) {
       print(e);
@@ -707,120 +742,40 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
             ),
           ),
           const SizedBox(height: 16),
-          recommendItemList.isNotEmpty
-              ? Expanded(
-                  child: ListView.builder(
-                      itemCount: recommendItemList.length,
-                      itemBuilder: (context, index) {
-                        final RecommendItemModel recommendItem =
-                            recommendItemList[index];
-                        bool containedComplement = widget
-                            .complementedRecommendItemList
-                            .contains(recommendItem.id);
-                        bool uncontainedComplement = widget
-                            .uncomplementedRecommendItemList
-                            .contains(recommendItem.id);
-                        bool isContain =
-                            containedComplement || uncontainedComplement;
+          Expanded(
+              child: ListView.builder(
+                  itemCount: recommendItemList.length,
+                  itemBuilder: (context, index) {
+                    final RecommendItemModel recommendItem =
+                        recommendItemList[index];
+                    bool containedComplement = widget
+                        .complementedRecommendItemList
+                        .contains(recommendItem.id);
+                    bool uncontainedComplement = widget
+                        .uncomplementedRecommendItemList
+                        .contains(recommendItem.id);
+                    bool isContain =
+                        containedComplement || uncontainedComplement;
 
-                        return ListItem(
-                          selectFlag: true,
-                          isContain: isContain,
-                          isRecommendItem: true,
-                          onPressed: () {
-                            setState(
-                              () {
-                                if (isContain) {
-                                  widget.removeRecommendItem(
-                                      recommendItem, containedComplement);
-                                } else {
-                                  widget.addRecommendItem(recommendItem);
-                                }
-                              },
-                            );
+                    return ListItem(
+                      selectFlag: true,
+                      isContain: isContain,
+                      isRecommendItem: true,
+                      onPressed: () {
+                        setState(
+                          () {
+                            if (isContain) {
+                              widget.removeRecommendItem(
+                                  recommendItem, containedComplement);
+                            } else {
+                              widget.addRecommendItem(recommendItem);
+                            }
                           },
-                          item: recommendItem,
                         );
-                      }))
-              : const CircularProgressIndicator(),
+                      },
+                      item: recommendItem,
+                    );
+                  }))
         ]);
-  }
-}
-
-class _CustomAddTextField extends StatefulWidget {
-  const _CustomAddTextField({
-    required this.onPressed,
-  });
-
-  final Function(String) onPressed;
-
-  @override
-  _CustomAddTextFieldState createState() => _CustomAddTextFieldState();
-}
-
-class _CustomAddTextFieldState extends State<_CustomAddTextField> {
-  final TextEditingController _controller = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 4, right: 16.0),
-          child: DottedBorder(
-            color: const Color(0xFF616161),
-            strokeWidth: 1,
-            borderType: BorderType.RRect,
-            radius: const Radius.circular(3),
-            child: const SizedBox(
-              width: 16,
-              height: 16,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Column(
-            children: [
-              Container(
-                alignment: Alignment.centerLeft,
-                height: 55,
-                padding: const EdgeInsets.only(left: 0),
-                child: TextField(
-                  controller: _controller,
-                  autofocus: true,
-                  style: dropdownTextStyle,
-                  decoration: const InputDecoration(
-                    border: InputBorder.none,
-                  ),
-                  onSubmitted: (text) {
-                    widget.onPressed(text);
-                    _controller.clear();
-                  },
-                ),
-              ),
-              const Divider(
-                color: Color(0xFF616161),
-                thickness: 1,
-                height: 0,
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(
-          width: 9,
-        ),
-      ],
-    );
   }
 }

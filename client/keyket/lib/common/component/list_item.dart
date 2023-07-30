@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
-class ListItem extends StatelessWidget {
+class ListItem extends StatefulWidget {
   final bool selectFlag;
   final bool isContain;
   final bool isRecommendItem;
@@ -23,13 +24,20 @@ class ListItem extends StatelessWidget {
       required this.item});
 
   @override
+  State<ListItem> createState() => _ListItemState();
+}
+
+class _ListItemState extends State<ListItem> {
+  bool modifyFlag = false;
+
+  @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        selectFlag == true
+        (widget.selectFlag && !modifyFlag)
             ? _SelectButton(
-                onPressed: onPressed,
-                isContain: isContain,
+                onPressed: widget.onPressed,
+                isContain: widget.isContain,
               )
             : const SizedBox(height: 0),
         Expanded(
@@ -38,37 +46,47 @@ class ListItem extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      alignment: Alignment.centerLeft,
-                      height: 55,
-                      padding: EdgeInsets.only(left: selectFlag ? 0 : 10),
-                      child: Text(
-                        item.content,
-                        style: TextStyle(
-                            fontFamily: 'SCDream',
-                            backgroundColor:
-                                isContain ? const Color(0xFFC4E4FA) : null,
-                            fontSize: 16,
-                            color: BLACK_COLOR),
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
+                    child: !modifyFlag
+                        ? Container(
+                            alignment: Alignment.centerLeft,
+                            height: 55,
+                            padding: EdgeInsets.only(
+                                left: widget.selectFlag ? 0 : 10),
+                            child: Text(
+                              widget.item.content,
+                              style: TextStyle(
+                                  fontFamily: 'SCDream',
+                                  backgroundColor: widget.isContain
+                                      ? const Color(0xFFC4E4FA)
+                                      : null,
+                                  fontSize: 16,
+                                  color: BLACK_COLOR),
+                              textAlign: TextAlign.start,
+                            ),
+                          )
+                        : CustomAddTextField(
+                            item: widget.item,
+                            modifyItem: widget.modifyItem,
+                            changeModifyFlag: changeModifyFlag,
+                            isCompleted: widget.isContain,
+                          ),
                   ),
-                  !isRecommendItem
+                  (!widget.isRecommendItem || modifyFlag)
                       ? _MoreButton(
-                          item: item,
-                          removeItem: removeItem!,
-                          isContain: isContain,
-                        )
+                          item: widget.item,
+                          removeItem: widget.removeItem!,
+                          isContain: widget.isContain,
+                          changeModifyFlag: changeModifyFlag)
                       : const SizedBox(
                           width: 0,
                         ),
                 ],
               ),
-              const Divider(
-                color: Color(0xFF616161),
+              Divider(
+                color: const Color(0xFF616161),
                 thickness: 1,
                 height: 0,
+                indent: modifyFlag ? 44 : 0,
               ),
             ],
           ),
@@ -78,6 +96,12 @@ class ListItem extends StatelessWidget {
         )
       ],
     );
+  }
+
+  void changeModifyFlag() {
+    setState(() {
+      modifyFlag = !modifyFlag;
+    });
   }
 }
 
@@ -115,11 +139,14 @@ class _SelectButton extends StatelessWidget {
 class _MoreButton extends StatelessWidget {
   final ItemModel item;
   final Function removeItem;
+  final Function changeModifyFlag;
   final bool isContain;
+
   const _MoreButton(
       {super.key,
       required this.item,
       required this.removeItem,
+      required this.changeModifyFlag,
       required this.isContain});
 
   @override
@@ -172,6 +199,7 @@ class _MoreButton extends StatelessWidget {
                         ),
                         onPressed: () {
                           moreButtonOverlay.remove(); // 버튼을 클릭하면 오버레이를 제거
+                          changeModifyFlag();
                         },
                         child: const Text(
                           '수정하기',
@@ -190,8 +218,6 @@ class _MoreButton extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          print(item);
-                          print(isContain);
                           removeItem(item, isContain);
                           moreButtonOverlay.remove(); // 버튼을 클릭하면 오버레이를 제거
                         },

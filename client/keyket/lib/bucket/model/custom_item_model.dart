@@ -11,6 +11,16 @@ class CustomItemModel extends ItemModel {
 
   Map<String, dynamic> toJson() => _$CustomItemModelToJson(this);
 
+  CustomItemModel copyWith({
+    String? id,
+    String? content,
+  }) {
+    return CustomItemModel(
+      id: id ?? this.id,
+      content: content ?? this.content,
+    );
+  }
+
   @override
   String toString() {
     return 'CustomItemModel: {id: $id, content: $content}';
