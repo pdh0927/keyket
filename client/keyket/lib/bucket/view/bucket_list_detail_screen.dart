@@ -21,8 +21,10 @@ import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
 
 class BucketListDetailScreen extends ConsumerStatefulWidget {
+  // 버킷리스트의 id
   final String bucketListId;
 
+  // 생성자에서 필요한 매개변수를 받아옵니다.
   const BucketListDetailScreen({
     super.key,
     required this.bucketListId,
@@ -35,181 +37,260 @@ class BucketListDetailScreen extends ConsumerStatefulWidget {
 
 class _BucketListDetailScreenState
     extends ConsumerState<BucketListDetailScreen> {
+  // 수정될 버킷 리스트 모델
   late BucketListModel modifiedBucketListModel;
+
+  // 화면에 보여질 완료되지 않은 항목 리스트
   List<ItemModel> uncompletedBucketListItemList = [];
+
+  // 화면에 보여질 완료된 항목 리스트
   List<ItemModel> completedBucketListItemList = [];
+
+  // 업데이트 된 custom bucketlist items 리스트
   List<CustomItemModel> updatedCustomBucketListItemList = [];
+
+  // 새로 추가된 custom bucketlist items 리스트
   List<String> newCustomItemList = [];
+
+  // 새로 추가된 완료된 custom bucketlist items 리스트
   List<String> newCustomItemCompletedList = [];
+
+  // 삭제할 아이템 id list
   List<String> deleteList = [];
+
+  // 아이템 추가 플래그
   bool addCustomItemFlag = false;
+
+  // 버킷리스트의 변경 여부
   bool isChanged = false;
 
   @override
   void initState() {
-    modifiedBucketListModel = ref
-        .read(myBucketListListProvider.notifier)
-        .getBucketListModel(widget.bucketListId);
-    getItems(
-        widget.bucketListId,
-        modifiedBucketListModel.customItemList,
-        modifiedBucketListModel.recommendItemList,
-        modifiedBucketListModel.completedCustomItemList,
-        modifiedBucketListModel.completedRecommendItemList);
     super.initState();
+    fetchData(); // 초기 데이터 구성
+  }
+
+  // 초기 데이터 구성
+  void fetchData() {
+    // 현재 저장된 버킷리스트 모델 불러오기
+    modifiedBucketListModel =
+        ref.read(myBucketListListProvider.notifier).getBucketListModel(
+              widget.bucketListId,
+            );
+    // 현재 저장된 버킷리스트 모델에 저장된 item의 content 불러오기
+    getItems(
+      widget.bucketListId,
+      modifiedBucketListModel.customItemList,
+      modifiedBucketListModel.recommendItemList,
+      modifiedBucketListModel.completedCustomItemList,
+      modifiedBucketListModel.completedRecommendItemList,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.h / 6), // here the desired height
-        child: AppBar(
-          leading: IconButton(
+      appBar: buildAppBar(context),
+      backgroundColor: Colors.white,
+      body: buildBody(),
+    );
+  }
+
+  // AppBar 구성
+  PreferredSize buildAppBar(BuildContext context) {
+    return PreferredSize(
+      // appbar size customize 위해서 사용
+      preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+      child: AppBar(
+        leading: buildAppBarLeading(context), // 뒤로가기 버튼을 구성
+        backgroundColor: const Color(0xFFC4E4FA),
+        actions: <Widget>[
+          IconButton(
             icon: const Icon(
-              Remix.arrow_left_s_line,
+              Icons.menu,
+              size: 30,
               color: Color(0xFF616161),
-              size: 40,
             ),
             onPressed: () {
-              Navigator.pop(context); // 이 부분에서 뒤로가기 기능을 구현합니다.
+              // 메뉴 버튼 클릭시 처리를 여기에 작성
             },
           ),
-          backgroundColor: const Color(0xFFC4E4FA),
-          actions: <Widget>[
-            IconButton(
-              icon: const Icon(
-                Icons.menu,
-                size: 30,
-                color: Color(0xFF616161),
-              ),
-              onPressed: () {
-                // Handle menu button
-              },
-            ),
-          ],
-          flexibleSpace: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 100.h / 20),
-              Text(
-                modifiedBucketListModel.name,
-                style: const TextStyle(
-                  fontFamily: 'SCDream',
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              SizedBox(height: 100.h / 28),
-              CustomProgressBar(
-                  achievementRate: getAchievementRate(), height: 17, width: 180)
-            ],
+        ],
+        flexibleSpace: buildFlexibleSpace(), // appbar 내용 구성
+      ),
+    );
+  }
+
+  // 뒤로가기 버튼 구성
+  IconButton buildAppBarLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(
+        Remix.arrow_left_s_line,
+        color: Color(0xFF616161),
+        size: 40,
+      ),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+  }
+
+  // appbar 내용 구성
+  Column buildFlexibleSpace() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(height: MediaQuery.of(context).size.height * 0.05), // 빈공간
+        // 제목
+        Text(
+          modifiedBucketListModel.name,
+          style: const TextStyle(
+            fontFamily: 'SCDream',
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
           ),
         ),
-      ),
-      backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Column(
-          children: [
-            const SizedBox(height: 10),
-            isChanged
-                ? Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(
-                      width: 60,
-                      height: 30,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          await updateBucketListItems(
-                              newCustomItemList, modifiedBucketListModel);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color(0xFFD9D9D9), // 버튼의 배경색을 회색으로 설정
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(10), // 버튼의 모서리를 둥글게 설정
-                          ),
-                          elevation: 0, // 버튼의 그림자를 제거
-                          padding: const EdgeInsets.all(0),
-                        ),
-                        child: const Text(
-                          '저장',
-                          style: TextStyle(color: PRIMARY_COLOR),
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(height: 0),
-            Expanded(
-              child: ListView.builder(
-                itemCount: completedBucketListItemList.length +
-                    uncompletedBucketListItemList.length +
-                    1,
-                itemBuilder: (context, index) {
-                  if (index ==
-                      completedBucketListItemList.length +
-                          uncompletedBucketListItemList.length) {
-                    if (addCustomItemFlag) {
-                      return CustomAddTextField(
-                        onPressed: addNewCustomItem,
-                      );
-                    } else {
-                      // item 생성 버튼
-                      return Container(
-                        height: 80,
-                        alignment: Alignment.center,
-                        child: IconButton(
-                          onPressed: () {
-                            showAddButtonBottomSheet();
-                          },
-                          icon: const Icon(
-                            Remix.add_line,
-                            color: PRIMARY_COLOR,
-                            size: 35,
-                          ),
-                        ),
-                      );
-                    }
-                  } else {
-                    ItemModel item;
-                    if (index < uncompletedBucketListItemList.length) {
-                      item = uncompletedBucketListItemList[index];
-                    } else {
-                      item = completedBucketListItemList[
-                          index - uncompletedBucketListItemList.length];
-                    }
+        SizedBox(height: MediaQuery.of(context).size.height * 0.033), // 빈공간
+        // 달성도
+        CustomProgressBar(
+            achievementRate: getAchievementRate(), height: 17, width: 180)
+      ],
+    );
+  }
 
-                    final bool isCompleted =
-                        index >= uncompletedBucketListItemList.length;
-                    return ListItem(
-                      // 추천 아이템
-                      selectFlag: true,
-                      isContain: isCompleted,
-                      isRecommendItem: false,
-                      removeItem: removeItem,
-                      modifyItem: modifyItem,
-                      onPressed: () {
-                        if (isCompleted) {
-                          removeComplete(item);
-                        } else {
-                          addComplete(item);
-                        }
-                      },
-                      item: item,
-                    );
-                  }
+  // 본문을 구성
+  Padding buildBody() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        children: [
+          const SizedBox(height: 10), // 빈공간
+          buildSaveButton(), // 저장 버튼
+          // 버킷리스트 내용 구성
+          Expanded(child: buildListView()),
+        ],
+      ),
+    );
+  }
+
+  // 저장 버튼을 구성
+  Widget buildSaveButton() {
+    // 변동사항이 있을 시만 생김
+    return isChanged
+        ? Align(
+            alignment: Alignment.centerRight,
+            child: SizedBox(
+              width: 60,
+              height: 30,
+              child: ElevatedButton(
+                onPressed: () async {
+                  // FireStore에 변경사항 저장
+                  await updateBucketListItems(
+                      newCustomItemList, modifiedBucketListModel);
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFD9D9D9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                ),
+                child: const Text(
+                  '저장',
+                  style: TextStyle(color: PRIMARY_COLOR),
+                ),
               ),
-            )
-          ],
+            ),
+          )
+        : const SizedBox(height: 0);
+  }
+
+  // 버킷리스트 내용 구성
+  ListView buildListView() {
+    return ListView.builder(
+      itemCount: completedBucketListItemList.length +
+          uncompletedBucketListItemList.length +
+          1,
+      itemBuilder: (context, index) {
+        if (isLastItem(index)) // 마지막 index 일때
+        {
+          if (addCustomItemFlag) // custom item 추가 버튼 클릭시
+          {
+            return CustomAddTextField(onPressed: addNewCustomItem);
+          } else // custom item 추가 버튼
+          {
+            return buildAddItemButton();
+          }
+        } else // 마지막 index 아닐때 버킷리스트 구성 내용
+        {
+          return buildListItem(index);
+        }
+      },
+    );
+  }
+
+  // 마지막 아이템인지 확인
+  bool isLastItem(int index) {
+    // index가 완료된 목록, 미완료된 목록 수를 더한것과 같을 때 마지막
+    return index ==
+        completedBucketListItemList.length +
+            uncompletedBucketListItemList.length;
+  }
+
+  // 아이템 추가 버튼을
+  Container buildAddItemButton() {
+    return Container(
+      height: 80,
+      alignment: Alignment.center,
+      child: IconButton(
+        onPressed: () {
+          // 추가 버튼 클릭시 추가 메뉴 띄움
+          showAddButtonBottomSheet();
+        },
+        icon: const Icon(
+          Remix.add_line,
+          color: PRIMARY_COLOR,
+          size: 35,
         ),
       ),
     );
   }
 
+  // 리스트의 각 항목을 구성
+  ListItem buildListItem(int index) {
+    ItemModel item;
+
+    // 먼저 미완료 목록부터 띄움
+    if (index < uncompletedBucketListItemList.length) {
+      item = uncompletedBucketListItemList[index];
+    } else {
+      item = completedBucketListItemList[
+          index - uncompletedBucketListItemList.length];
+    }
+
+    final bool isCompleted = index >= uncompletedBucketListItemList.length;
+
+    return ListItem(
+      // 추천 아이템
+      selectFlag: true,
+      isContain: isCompleted,
+      isRecommendItem: false,
+      removeItem: removeItem,
+      modifyItem: modifyItem,
+      onPressed: () {
+        if (isCompleted) {
+          removeComplete(item);
+        } else {
+          addComplete(item);
+        }
+      },
+      item: item,
+    );
+  }
+
+  // item 수정
   void modifyItem(String modifiedContent, Type type, bool isCompleted,
       String itemId, String beforeContent) {
     List<ItemModel> list;
@@ -307,10 +388,6 @@ class _BucketListDetailScreenState
       uncompletedBucketListItemList.add(item);
     });
     changeFlag();
-    print(modifiedBucketListModel.completedCustomItemList);
-
-    print(modifiedBucketListModel.customItemList);
-    print('----------------------------');
   }
 
   // 완료 목록에 추가
@@ -331,103 +408,8 @@ class _BucketListDetailScreenState
       completedBucketListItemList.add(item);
       uncompletedBucketListItemList.remove(item);
     });
-    print(modifiedBucketListModel.completedCustomItemList);
-
-    print(modifiedBucketListModel.customItemList);
-    print('----------------------------');
     changeFlag();
   }
-
-  // Future<void> getItems(
-  //   String id,
-  //   List<String> customItemList,
-  //   List<String> recommendItemList,
-  //   List<String> completedCustomItemList,
-  //   List<String> completedRecommendItemList,
-  // ) async {
-  //   List<ItemModel> uncompletedItems = [];
-  //   List<ItemModel> completedItems = [];
-  //   final firestore = FirebaseFirestore.instance;
-
-  //   try {
-  //     // Combine custom and completed custom item lists, preserving the order
-  //     List<String> customItemsList = [
-  //       ...customItemList,
-  //       ...completedCustomItemList
-  //     ];
-
-  //     // Combine recommend and completed recommend item lists, preserving the order
-  //     List<String> recommendItemsList = [
-  //       ...recommendItemList,
-  //       ...completedRecommendItemList
-  //     ];
-
-  //     // Fetch items from the custom and recommend collections
-  //     var customItems = await getChunkedItems(
-  //       firestore: firestore,
-  //       collectionName: 'custom',
-  //       itemList: customItemsList,
-  //     );
-
-  //     var recommendItems = await getChunkedItems(
-  //       firestore: firestore,
-  //       collectionName: 'recommend',
-  //       itemList: recommendItemsList,
-  //     );
-
-  //     // Divide the fetched items into uncompleted and completed items
-  //     uncompletedItems = [
-  //       ...customItems.sublist(0, customItemList.length),
-  //       ...recommendItems.sublist(0, recommendItemList.length),
-  //     ];
-
-  //     completedItems = [
-  //       ...customItems.sublist(customItemList.length),
-  //       ...recommendItems.sublist(recommendItemList.length),
-  //     ];
-  //   } catch (e) {
-  //     print(e);
-  //   }
-
-  //   setState(() {
-  //     uncompletedBucketListItemList = uncompletedItems;
-  //     completedBucketListItemList = completedItems;
-  //   });
-  // }
-
-  // Future<List<ItemModel>> getChunkedItems({
-  //   required FirebaseFirestore firestore,
-  //   required String collectionName,
-  //   required List<String> itemList,
-  // }) async {
-  //   List<ItemModel> items = [];
-  //   // 10개 단위로 나누기
-  //   List<List<String>> itemChunks = [];
-  //   for (int i = 0; i < itemList.length; i += 10) {
-  //     itemChunks.add(itemList.sublist(
-  //         i, i + 10 > itemList.length ? itemList.length : i + 10));
-  //   }
-
-  //   // 각 10개 단위의 부분 리스트에 대해 쿼리를 실행
-  //   for (List<String> chunk in itemChunks) {
-  //     QuerySnapshot querySnapshot = await firestore
-  //         .collection(collectionName)
-  //         .where(FieldPath.documentId, whereIn: chunk)
-  //         .get();
-  //     for (DocumentSnapshot doc in querySnapshot.docs) {
-  //       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-  //       data['id'] = doc.id;
-
-  //       if (collectionName == 'recommend') {
-  //         items.add(RecommendItemModel.fromJson(data));
-  //       } else if (collectionName == 'custom') {
-  //         items.add(CustomItemModel.fromJson(data));
-  //       }
-  //     }
-  //   }
-
-  //   return items;
-  // }
 
   // FireStore에서 item의 content 가져와서 넣기
   Future<void> getItems(
@@ -686,6 +668,73 @@ class _BucketListDetailScreenState
             modifiedBucketListModel.recommendItemList);
   }
 
+  Future<void> updateBucketListItems(List<String> newCustomItemList,
+      BucketListModel modifiedBucketListModel) async {
+    try {
+      // Firestore에 접근하기 위한 참조를 생성
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+      WriteBatch batch = firestore.batch(); // 전체 작업을 위한 단일 WriteBatch 생성
+      bool hasUpdates = false;
+
+      // 새로운 custom item FireStore에 추가
+      if (newCustomItemList.isNotEmpty ||
+          newCustomItemCompletedList.isNotEmpty) {
+        hasUpdates = true;
+        // 완료되지 않은 새로운 아이템 FireStore에 추가
+        await _addNewCustomBucketListItems(
+          firestore,
+          newCustomItemList,
+          uncompletedBucketListItemList,
+          modifiedBucketListModel.customItemList,
+          batch,
+        );
+        // 완료된 새로운 아이템 FireStore에 추가
+        await _addNewCustomBucketListItems(
+          firestore,
+          newCustomItemCompletedList,
+          completedBucketListItemList,
+          modifiedBucketListModel.completedCustomItemList,
+          batch,
+        );
+      }
+
+      // custom bucketlist item content 수정
+      if (updatedCustomBucketListItemList.isNotEmpty) {
+        hasUpdates = true;
+        await _updateCustomBucketListItem(
+            firestore, updatedCustomBucketListItemList, batch);
+      }
+
+      if (deleteList.isNotEmpty) {
+        hasUpdates = true;
+        deleteList = []; // 삭제 목록 초기화
+        await deleteItemsFromFirestore(firestore, deleteList, batch);
+      }
+
+      if (hasUpdates) {
+        await batch
+            .commit()
+            .then((value) => print('Batch committed successfully'))
+            .catchError((error) => print('Failed to commit batch: $error'));
+
+        modifiedBucketListModel =
+            modifiedBucketListModel.copyWith(updatedAt: DateTime.now());
+      }
+
+      // bucket list model 업데이트
+      await _updateChangedBucketListModel(
+        modifiedBucketListModel,
+        firestore,
+      );
+
+      setState(() {
+        isChanged = false; // 저장 버튼 없애기
+      });
+    } catch (e) {
+      print(e);
+    }
+  }
+
   // 새로 추가한 bucketlist item firestore에 추가
   Future<void> _addNewCustomBucketListItems(
     FirebaseFirestore firestore,
@@ -800,73 +849,6 @@ class _BucketListDetailScreenState
       ref
           .read(myBucketListListProvider.notifier)
           .changeBucketListModel(widget.bucketListId, modifiedBucketListModel);
-    }
-  }
-
-  Future<void> updateBucketListItems(List<String> newCustomItemList,
-      BucketListModel modifiedBucketListModel) async {
-    try {
-      // Firestore에 접근하기 위한 참조를 생성
-      FirebaseFirestore firestore = FirebaseFirestore.instance;
-      WriteBatch batch = firestore.batch(); // 전체 작업을 위한 단일 WriteBatch 생성
-      bool hasUpdates = false;
-
-      // 새로운 custom item FireStore에 추가
-      if (newCustomItemList.isNotEmpty ||
-          newCustomItemCompletedList.isNotEmpty) {
-        hasUpdates = true;
-        // 완료되지 않은 새로운 아이템 FireStore에 추가
-        await _addNewCustomBucketListItems(
-          firestore,
-          newCustomItemList,
-          uncompletedBucketListItemList,
-          modifiedBucketListModel.customItemList,
-          batch,
-        );
-        // 완료된 새로운 아이템 FireStore에 추가
-        await _addNewCustomBucketListItems(
-          firestore,
-          newCustomItemCompletedList,
-          completedBucketListItemList,
-          modifiedBucketListModel.completedCustomItemList,
-          batch,
-        );
-      }
-
-      // custom bucketlist item content 수정
-      if (updatedCustomBucketListItemList.isNotEmpty) {
-        hasUpdates = true;
-        await _updateCustomBucketListItem(
-            firestore, updatedCustomBucketListItemList, batch);
-      }
-
-      if (deleteList.isNotEmpty) {
-        hasUpdates = true;
-        deleteList = []; // 삭제 목록 초기화
-        await deleteItemsFromFirestore(firestore, deleteList, batch);
-      }
-
-      if (hasUpdates) {
-        await batch
-            .commit()
-            .then((value) => print('Batch committed successfully'))
-            .catchError((error) => print('Failed to commit batch: $error'));
-
-        modifiedBucketListModel =
-            modifiedBucketListModel.copyWith(updatedAt: DateTime.now());
-      }
-
-      // bucket list model 업데이트
-      await _updateChangedBucketListModel(
-        modifiedBucketListModel,
-        firestore,
-      );
-
-      setState(() {
-        isChanged = false; // 저장 버튼 없애기
-      });
-    } catch (e) {
-      print(e);
     }
   }
 }
