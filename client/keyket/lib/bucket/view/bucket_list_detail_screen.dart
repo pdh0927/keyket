@@ -411,7 +411,7 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  // FireStore에서 item의 content 가져와서 넣기
+// FireStore에서 item의 content 가져와서 넣기
   Future<void> getItems(
       String id,
       List<String> customItemList,
@@ -421,36 +421,82 @@ class _BucketListDetailScreenState
     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
     // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
-    List<String> customItemsList =
-        _combineLists(customItemList, completedCustomItemList);
-    List<String> recommendItemsList =
-        _combineLists(recommendItemList, completedRecommendItemList);
+    List<String> tmpCustomItemsList = List.from(customItemList)
+      ..addAll(completedCustomItemList);
+    List<String> tmpRecommendItemsList = List.from(recommendItemList)
+      ..addAll(completedRecommendItemList);
 
     // Firestore에서 해당하는 item 불러오기
     final List<ItemModel> customItems =
-        await _fetchItems(firestore, 'custom', customItemsList);
+        await _fetchItems(firestore, 'custom', tmpCustomItemsList);
     final List<ItemModel> recommendItems =
-        await _fetchItems(firestore, 'recommend', recommendItemsList);
+        await _fetchItems(firestore, 'recommend', tmpRecommendItemsList);
+
+    // Firestore에서 가져온 customItems id 목록
+    Set<String> fetchedCustomItemsIds =
+        Set.from(customItems.map((item) => item.id));
+
+    // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
+    int targetRemoveCount = customItemList.length +
+        completedCustomItemList.length -
+        fetchedCustomItemsIds.length;
+    int customItemListRemovedCount = _removeNonExistentItems(
+        customItemList, fetchedCustomItemsIds, targetRemoveCount);
+    int completedCustomItemListRemovedCount = 0;
+    if (customItemListRemovedCount < targetRemoveCount) {
+      completedCustomItemListRemovedCount = _removeNonExistentItems(
+          completedCustomItemList,
+          fetchedCustomItemsIds,
+          targetRemoveCount - customItemListRemovedCount);
+    }
+
+    Map<String, dynamic> updates = {};
+
+    // custom_item_list가 변경되었으면 updates에 추가
+    if (customItemListRemovedCount > 0) {
+      updates['customItemList'] = customItemList;
+    }
+
+    // completed_custom_item_list가 변경되었으면 updates에 추가
+    if (completedCustomItemListRemovedCount > 0) {
+      updates['completedCustomItemList'] = completedCustomItemList;
+    }
+
+    // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
+    if (updates.isNotEmpty) {
+      await firestore.collection('bucket_list').doc(id).update(updates);
+    }
+
+    // 기존 BucketListModel 찾기
+    final existingBucketList = ref
+        .read(myBucketListListProvider)
+        .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+
+    // 새로운 itemList로 BucketListModel 업데이트
+    final updatedBucketList = existingBucketList.copyWith(
+      customItemList: customItemList,
+      completedCustomItemList: completedCustomItemList,
+    );
+
+    // StateNotifier를 통해 상태 업데이트
+    ref
+        .read(myBucketListListProvider.notifier)
+        .updateBucketList(updatedBucketList);
 
     // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
     final List<ItemModel> uncompletedItems =
-        _getSublist(customItems, 0, customItemList.length) +
-            _getSublist(recommendItems, 0, recommendItemList.length);
-    final List<ItemModel> completedItems = _getSublist(
-            customItems, customItemList.length, customItemsList.length) +
-        _getSublist(recommendItems, recommendItemList.length,
-            recommendItemsList.length);
+        List.from(customItems.getRange(0, customItemList.length))
+          ..addAll(recommendItems.getRange(0, recommendItemList.length));
+    final List<ItemModel> completedItems = List.from(
+        customItems.getRange(customItemList.length, customItems.length))
+      ..addAll(recommendItems.getRange(
+          recommendItemList.length, recommendItems.length));
 
     // 상태 업데이트
     setState(() {
       uncompletedBucketListItemList = uncompletedItems;
       completedBucketListItemList = completedItems;
     });
-  }
-
-  // 두 List 결합
-  List<String> _combineLists(List<String> list1, List<String> list2) {
-    return [...list1, ...list2];
   }
 
   // FireStore에 접근해서 item 가져오기
@@ -488,9 +534,21 @@ class _BucketListDetailScreenState
     return chunks;
   }
 
-  // 리스트를 sublist로 변환
-  List<ItemModel> _getSublist(List<ItemModel> list, int start, int end) {
-    return list.sublist(start, end);
+  int _removeNonExistentItems(List<String> itemList,
+      Set<String> existingItemsIds, int targetRemoveCount) {
+    int removedCount = 0;
+    int currentIndex = 0;
+
+    while (currentIndex < itemList.length && removedCount < targetRemoveCount) {
+      if (!existingItemsIds.contains(itemList[currentIndex])) {
+        itemList.removeAt(currentIndex);
+        removedCount++;
+      } else {
+        currentIndex++;
+      }
+    }
+
+    return removedCount; // Returns the count of items removed
   }
 
   double getAchievementRate() {
@@ -707,8 +765,8 @@ class _BucketListDetailScreenState
 
       if (deleteList.isNotEmpty) {
         hasUpdates = true;
-        deleteList = []; // 삭제 목록 초기화
         await deleteItemsFromFirestore(firestore, deleteList, batch);
+        deleteList = []; // 삭제 목록 초기화
       }
 
       if (hasUpdates) {
