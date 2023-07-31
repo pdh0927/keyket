@@ -44,6 +44,17 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
     state = myBucketListList;
   }
 
+  // 버킷리시트 업데이트
+  void updateBucketList(BucketListModel updatedBucketList) {
+    state = [
+      for (final bucketList in state)
+        if (bucketList.id == updatedBucketList.id)
+          updatedBucketList
+        else
+          bucketList
+    ];
+  }
+
   double getAchievementRate(String bucketListId) {
     final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
     int complementedCount = bucketList.completedCustomItemList.length +
