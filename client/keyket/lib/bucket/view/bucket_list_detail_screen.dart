@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
+import 'package:keyket/bucket/component/member_card.dart';
+import 'package:keyket/bucket/const/tmp_data.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
@@ -93,6 +95,152 @@ class _BucketListDetailScreenState
       appBar: buildAppBar(context),
       backgroundColor: Colors.white,
       body: buildBody(),
+      endDrawer: Drawer(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              SizedBox(height: 6.h),
+              Container(
+                height: 31,
+                width: 85,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  color: const Color(0xFFD9D9D9),
+                ),
+                child: const Text(
+                  '멤버',
+                  style: TextStyle(
+                      fontFamily: 'SCDream',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w400,
+                      color: PRIMARY_COLOR),
+                ),
+              ),
+              const SizedBox(height: 10),
+              SizedBox(
+                height: tmp_user_list.length <= 5
+                    ? tmp_user_list.length * 50.0
+                    : 200.0,
+                child: SingleChildScrollView(
+                  physics: tmp_user_list.length <= 5
+                      ? NeverScrollableScrollPhysics()
+                      : ScrollPhysics(),
+                  child: Column(
+                    children: tmp_user_list.map((user) {
+                      return MemberCard.fromModel(
+                        model: user,
+                        isHost: tmp_user_list.indexOf(user) == 0,
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              TextButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsets>(
+                      const EdgeInsets.only(right: 16, left: 10)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Remix.add_line,
+                      size: 30,
+                      color: PRIMARY_COLOR,
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      '초대하기',
+                      style: TextStyle(
+                          fontFamily: 'SCDream',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: PRIMARY_COLOR),
+                    )
+                  ],
+                ),
+                onPressed: () {
+                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
+                },
+              ),
+              const Divider(
+                thickness: 1,
+                height: 15,
+                color: Color(0xFF616161),
+              ),
+              TextButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsets>(
+                      EdgeInsets.only(right: 16, left: 10)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Remix.folder_open_line,
+                      size: 30,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      '배경화면 편집',
+                      style: TextStyle(
+                          fontFamily: 'SCDream',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF1A1A1A)),
+                    ),
+                    Spacer(),
+                    Icon(
+                      Remix.arrow_down_s_line,
+                      size: 30,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
+                },
+              ),
+              TextButton(
+                style: ButtonStyle(
+                  padding: MaterialStateProperty.all<EdgeInsets>(
+                      EdgeInsets.only(right: 16, left: 10)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Remix.edit_line,
+                      size: 30,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                    SizedBox(width: 10),
+                    Text(
+                      '제목 편집',
+                      style: TextStyle(
+                          fontFamily: 'SCDream',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400,
+                          color: Color(0xFF1A1A1A)),
+                    ),
+                    Spacer(),
+                    Icon(
+                      Remix.arrow_down_s_line,
+                      size: 30,
+                      color: Color(0xFF1A1A1A),
+                    ),
+                  ],
+                ),
+                onPressed: () {
+                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -105,16 +253,18 @@ class _BucketListDetailScreenState
         leading: buildAppBarLeading(context), // 뒤로가기 버튼을 구성
         backgroundColor: const Color(0xFFC4E4FA),
         actions: <Widget>[
-          IconButton(
-            icon: const Icon(
-              Icons.menu,
-              size: 30,
-              color: Color(0xFF616161),
-            ),
-            onPressed: () {
-              // 메뉴 버튼 클릭시 처리를 여기에 작성
-            },
-          ),
+          Builder(builder: (context) {
+            return IconButton(
+              icon: const Icon(
+                Icons.menu,
+                size: 30,
+                color: Color(0xFF616161),
+              ),
+              onPressed: () {
+                Scaffold.of(context).openEndDrawer();
+              },
+            );
+          }),
         ],
         flexibleSpace: buildFlexibleSpace(), // appbar 내용 구성
       ),
