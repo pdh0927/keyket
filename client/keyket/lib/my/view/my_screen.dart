@@ -143,56 +143,114 @@ class _Top extends StatelessWidget {
                       style: TextStyle(fontFamily: 'SCDream', fontSize: 24),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // _ChangeNickname();
+                      },
                       icon: Icon(Remix.edit_line),
                       iconSize: 25, // 아이콘 사이즈 수정
                     ),
                   ],
                 ),
-                Container(
-                  width: 210,
-                  height: 35,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color(0xFFFF616161),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      const Text(
-                        "초대코드",
-                        style: TextStyle(
-                          fontFamily: 'SCDream',
-                          fontSize: 16,
+                Row(
+                  children: [
+                    Container(
+                      height: 35,
+                      width: 99,
+                      decoration: const BoxDecoration(
+                        color: Color(0XFFC4E4FA),
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(20.0),
                         ),
                       ),
-                      const VerticalDivider(
-                          thickness: 1,
-                          width: 1,
-                          color: const Color(0xFFFF616161)), // 가운데 나누는 선
-                      const Text(
-                        "123456",
-                        style: TextStyle(fontFamily: 'SCDream', fontSize: 16),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "초대코드",
+                            style: TextStyle(
+                              fontFamily: 'SCDream',
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: '123456')); // 클립보드 복사
-                        },
-                        icon: Icon(Remix.file_copy_line),
-                        iconSize: 20,
+                    ),
+                    Container(
+                      height: 35,
+                      width: 122,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(20.0),
+                        ),
+                        border: Border.all(
+                            color: const Color(0XFF616161), width: 0.5),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "123456",
+                            style: TextStyle(
+                                fontFamily: 'SCDream',
+                                fontSize: 16,
+                                color: Colors.black),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: '123456'),
+                              ); // 클립보드 복사
+                              _InviteMessage(context);
+                            },
+                            icon: Icon(Remix.file_copy_line),
+                            iconSize: 20,
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
       ],
+    );
+  }
+
+  // _ChangeNickname() async {
+  //   return Text('정혜린');
+  // }
+
+  _InviteMessage(context) async {
+    return showDialog(
+      context: context,
+      barrierColor: const Color(0xff616161).withOpacity(0.2),
+      builder: (BuildContext) {
+        Future.delayed(Duration(seconds: 1), () {
+          // 1초 후에 사라짐
+          Navigator.of(context).pop(true);
+        });
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: const Color(0xff616161),
+          elevation: 0,
+          content: const Text(
+            '초대코드가 복사되었습니다.',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w200,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
     );
   }
 }
@@ -255,36 +313,43 @@ class _MyProfileState extends State<MyProfile> {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8)),
                 backgroundColor: const Color(0xff616161),
-                title: const Text(
-                  '프로필 사진 설정',
-                  style: TextStyle(
-                    fontFamily: 'SCDream',
-                    color: Colors.white,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
                 children: [
-                  const Divider(
-                    // 구분선
-                    color: Colors.white,
-                    thickness: 1,
-                    height: 0,
-                  ),
-                  SimpleDialogOption(
-                    child: const Text(
-                      '앨범에서 사진 선택하기',
-                      style: TextStyle(
-                        fontFamily: 'SCDream',
-                        color: Colors.white,
-                        fontSize: 16,
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SimpleDialogOption(
+                        child: Text(
+                          '프로필 사진 설정',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    onPressed: () {
-                      pickImage(ImageSource.gallery);
-                      Navigator.pop(context);
-                    },
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '앨범에서 사진 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () {
+                          pickImage(ImageSource.gallery);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
                 ],
               );
@@ -426,7 +491,7 @@ class _Middle extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: PRIMARY_COLOR,
-              width: 1,
+              width: 2,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -438,20 +503,34 @@ class _Middle extends StatelessWidget {
                 children: [
                   const Text(
                     "완성된 버킷",
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'SCDream',
+                    ),
                   ),
-                  const Text(
-                    "0개",
-                  ),
-                  Container(
-                    height: 1,
-                    width: 76,
-                    color: Colors.black,
+                  Column(
+                    children: [
+                      const Text(
+                        "0개",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'SCDream',
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Container(
+                          height: 1,
+                          width: 76,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
               const VerticalDivider(
-                thickness: 1,
+                thickness: 2,
                 width: 1,
                 color: PRIMARY_COLOR,
               ),
@@ -460,15 +539,29 @@ class _Middle extends StatelessWidget {
                 children: [
                   const Text(
                     "진행중 버킷",
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'SCDream',
+                    ),
                   ),
-                  const Text(
-                    "5개",
-                  ),
-                  Container(
-                    height: 1,
-                    width: 76,
-                    color: Colors.black,
+                  Column(
+                    children: [
+                      const Text(
+                        "5개",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'SCDream',
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Container(
+                          height: 1,
+                          width: 76,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -564,7 +657,7 @@ class _Divide extends StatelessWidget {
         Container(
           height: 1,
           width: 350,
-          color: const Color(0XFF616161).withOpacity(0.8),
+          color: const Color(0XFF616161),
         ),
         const SizedBox(
           height: 20,
