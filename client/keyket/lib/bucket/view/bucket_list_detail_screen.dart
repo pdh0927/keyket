@@ -1,9 +1,12 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/component/input_box.dart';
@@ -22,6 +25,7 @@ import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
+import 'package:uuid/uuid.dart';
 
 class BucketListDetailScreen extends ConsumerStatefulWidget {
   // 버킷리스트의 id
@@ -70,8 +74,13 @@ class _BucketListDetailScreenState
   // 초대하기 버튼 클릭 여부
   bool inviteFlag = false;
 
+  // 배경화면 편집 모드가 활성화되었는지 나타내는 변수
+  bool backgroundFlag = false;
+
   // 제목편집 버튼 클릭 여부
   bool titleFlag = false;
+
+  File? tmpImage;
 
   @override
   void initState() {
@@ -226,9 +235,40 @@ class _BucketListDetailScreenState
                     ],
                   ),
                   onPressed: () {
-                    // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
+                    setState(() {
+                      backgroundFlag = !backgroundFlag;
+                    });
                   },
                 ),
+                backgroundFlag
+                    ? Column(
+                        children: [
+                          ElevatedButton(
+                            onPressed: () async {
+                              final picker = ImagePicker();
+                              final pickedFile = await picker.pickImage(
+                                  source: ImageSource.gallery);
+                              if (pickedFile != null) {
+                                setState(() {
+                                  tmpImage = File(pickedFile.path);
+                                  isChanged = true;
+                                });
+                              }
+                            },
+                            child: Text('앨범에서 사진 선택'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              setState(() {
+                                modifiedBucketListModel =
+                                    modifiedBucketListModel.copyWith(image: '');
+                              });
+                            },
+                            child: Text('기본 이미지로 설정'),
+                          ),
+                        ],
+                      )
+                    : SizedBox(height: 0),
                 TextButton(
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsets>(
@@ -293,13 +333,40 @@ class _BucketListDetailScreenState
   }
 
   // AppBar 구성
+  // PreferredSize buildAppBar(BuildContext context) {
+  //   return PreferredSize(
+  //     // appbar size customize 위해서 사용
+  //     preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+  //     child: AppBar(
+  //       leading: buildAppBarLeading(context), // 뒤로가기 버튼을 구성
+  //       backgroundColor: const Color(0xFFC4E4FA),
+  //       actions: <Widget>[
+  //         Builder(builder: (context) {
+  //           return IconButton(
+  //             icon: const Icon(
+  //               Icons.menu,
+  //               size: 30,
+  //               color: Color(0xFF616161),
+  //             ),
+  //             onPressed: () {
+  //               Scaffold.of(context).openEndDrawer();
+  //             },
+  //           );
+  //         }),
+  //       ],
+  //       flexibleSpace: buildFlexibleSpace(), // appbar 내용 구성
+  //     ),
+  //   );
+  // }
   PreferredSize buildAppBar(BuildContext context) {
     return PreferredSize(
-      // appbar size customize 위해서 사용
       preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
       child: AppBar(
-        leading: buildAppBarLeading(context), // 뒤로가기 버튼을 구성
-        backgroundColor: const Color(0xFFC4E4FA),
+        leading: buildAppBarLeading(context),
+        backgroundColor:
+            (tmpImage == null && modifiedBucketListModel.image == '')
+                ? const Color(0xFFC4E4FA)
+                : Colors.transparent,
         actions: <Widget>[
           Builder(builder: (context) {
             return IconButton(
@@ -314,7 +381,23 @@ class _BucketListDetailScreenState
             );
           }),
         ],
-        flexibleSpace: buildFlexibleSpace(), // appbar 내용 구성
+        flexibleSpace: Stack(
+          fit: StackFit.expand,
+          children: <Widget>[
+            if (tmpImage != null)
+              Image.file(
+                tmpImage!,
+                fit: BoxFit.fill,
+              )
+            else if (modifiedBucketListModel.image != '')
+              Image.network(
+                modifiedBucketListModel.image,
+                fit: BoxFit.fill,
+              ),
+            buildFlexibleSpace(),
+          ],
+        ),
+        elevation: 0,
       ),
     );
   }
@@ -977,10 +1060,14 @@ class _BucketListDetailScreenState
             modifiedBucketListModel.copyWith(updatedAt: DateTime.now());
       }
 
+      // Firebase Storage 인스턴스 생성
+      FirebaseStorage storage = FirebaseStorage.instance;
+
       // bucket list model 업데이트
       await _updateChangedBucketListModel(
         modifiedBucketListModel,
         firestore,
+        storage,
       );
 
       setState(() {
@@ -1041,8 +1128,11 @@ class _BucketListDetailScreenState
   }
 
   // Firestore에서 items을 삭제
-  Future<void> deleteItemsFromFirestore(FirebaseFirestore firestore,
-      List<String> deleteList, WriteBatch batch) async {
+  Future<void> deleteItemsFromFirestore(
+    FirebaseFirestore firestore,
+    List<String> deleteList,
+    WriteBatch batch,
+  ) async {
     for (String id in deleteList) {
       // 문서에 대한 참조 가져오기
       DocumentReference docRef = firestore.collection('custom').doc(id);
@@ -1056,6 +1146,7 @@ class _BucketListDetailScreenState
   Future<void> _updateChangedBucketListModel(
     BucketListModel modifiedBucketListModel,
     FirebaseFirestore firestore,
+    FirebaseStorage storage,
   ) async {
     Map<String, dynamic> updates = {};
     BucketListModel originalBucketListModel = ref
@@ -1093,6 +1184,17 @@ class _BucketListDetailScreenState
       updates['name'] = modifiedBucketListModel.name;
     }
 
+    // 이미지가 변경되었는지 확인
+    if (tmpImage != null) {
+      // 이미지를 Firebase Storage에 업로드하고 Firestore에 이미지 URL을 저장합니다.
+      String imageUrl = await _uploadImageToFirebase(tmpImage!.path, storage);
+      updates['image'] = imageUrl;
+
+      // 변경된 이미지 URL을 modifiedBucketListModel의 이미지로 설정합니다.
+      modifiedBucketListModel =
+          modifiedBucketListModel.copyWith(image: imageUrl);
+    }
+
     // 다른 변경사항이 있을 시
     if (originalBucketListModel.updatedAt !=
         modifiedBucketListModel.updatedAt) {
@@ -1110,6 +1212,23 @@ class _BucketListDetailScreenState
       ref
           .read(myBucketListListProvider.notifier)
           .changeBucketListModel(widget.bucketListId, modifiedBucketListModel);
+    }
+  }
+
+  Future<String> _uploadImageToFirebase(
+      String imagePath, FirebaseStorage storage) async {
+    File file = File(imagePath);
+    String uniqueId = Uuid().v4();
+    try {
+      // 이미지를 Firebase Storage에 업로드하고 다운로드 URL을 가져옵니다.
+      await storage.ref('images/$uniqueId').putFile(file);
+      String downloadURL =
+          await storage.ref('images/$uniqueId').getDownloadURL();
+      return downloadURL;
+    } catch (e) {
+      // 이미지 업로드에 실패했습니다.
+      print(e);
+      return '';
     }
   }
 }
