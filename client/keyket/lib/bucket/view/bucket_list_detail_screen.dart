@@ -11,6 +11,7 @@ import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/component/input_box.dart';
 import 'package:keyket/bucket/component/member_card.dart';
+import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/const/tmp_data.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
@@ -164,6 +165,7 @@ class _BucketListDetailScreenState
                         const EdgeInsets.only(right: 16, left: 10)),
                   ),
                   child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Icon(
                         Remix.add_line,
@@ -241,34 +243,117 @@ class _BucketListDetailScreenState
                   },
                 ),
                 backgroundFlag
-                    ? Column(
-                        children: [
-                          ElevatedButton(
-                            onPressed: () async {
-                              final picker = ImagePicker();
-                              final pickedFile = await picker.pickImage(
-                                  source: ImageSource.gallery);
-                              if (pickedFile != null) {
-                                setState(() {
-                                  tmpImage = File(pickedFile.path);
-                                  isChanged = true;
-                                });
-                              }
-                            },
-                            child: Text('앨범에서 사진 선택'),
+                    ? Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: 230.0,
+                          height: 100.0,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(10.0),
+                            ),
                           ),
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                modifiedBucketListModel =
-                                    modifiedBucketListModel.copyWith(image: '');
-                              });
-                            },
-                            child: Text('기본 이미지로 설정'),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStateProperty.all(
+                                        EdgeInsets.zero),
+                                    minimumSize: MaterialStateProperty.all(
+                                        const Size(230, 50)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        const Color(0xFFC4E4FA)),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          topLeft: Radius.circular(10.0),
+                                          topRight: Radius.circular(10.0),
+                                        ),
+                                      ),
+                                    ),
+                                    elevation: MaterialStateProperty.all(0),
+                                  ),
+                                  onPressed: () async {
+                                    final picker = ImagePicker();
+                                    final pickedFile = await picker.pickImage(
+                                        source: ImageSource.gallery);
+                                    if (pickedFile != null) {
+                                      setState(() {
+                                        tmpImage = File(pickedFile.path);
+                                        isChanged = true;
+                                      });
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Remix.check_line,
+                                        color: BLACK_COLOR,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text('앨범에서 사진 선택',
+                                          style: inputBoxTextStyle),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const Divider(
+                                height: 0,
+                                color: Colors.grey,
+                                thickness: 1.0,
+                              ),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ButtonStyle(
+                                    padding: MaterialStateProperty.all(
+                                        EdgeInsets.zero),
+                                    minimumSize: MaterialStateProperty.all(
+                                        Size(230, 50)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Color(0xFFC4E4FA)),
+                                    shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                      const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.only(
+                                          bottomLeft: Radius.circular(10.0),
+                                          bottomRight: Radius.circular(10.0),
+                                        ),
+                                      ),
+                                    ),
+                                    elevation: MaterialStateProperty.all(0),
+                                  ),
+                                  onPressed: () {
+                                    setState(() {
+                                      modifiedBucketListModel =
+                                          modifiedBucketListModel.copyWith(
+                                              image: '');
+                                    });
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(
+                                        Remix.check_line,
+                                        color: BLACK_COLOR,
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Text('기본 이미지로 설정',
+                                          style: inputBoxTextStyle),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       )
-                    : SizedBox(height: 0),
+                    : const SizedBox(height: 0),
+                SizedBox(height: 5),
                 TextButton(
                   style: ButtonStyle(
                     padding: MaterialStateProperty.all<EdgeInsets>(
@@ -333,31 +418,6 @@ class _BucketListDetailScreenState
   }
 
   // AppBar 구성
-  // PreferredSize buildAppBar(BuildContext context) {
-  //   return PreferredSize(
-  //     // appbar size customize 위해서 사용
-  //     preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
-  //     child: AppBar(
-  //       leading: buildAppBarLeading(context), // 뒤로가기 버튼을 구성
-  //       backgroundColor: const Color(0xFFC4E4FA),
-  //       actions: <Widget>[
-  //         Builder(builder: (context) {
-  //           return IconButton(
-  //             icon: const Icon(
-  //               Icons.menu,
-  //               size: 30,
-  //               color: Color(0xFF616161),
-  //             ),
-  //             onPressed: () {
-  //               Scaffold.of(context).openEndDrawer();
-  //             },
-  //           );
-  //         }),
-  //       ],
-  //       flexibleSpace: buildFlexibleSpace(), // appbar 내용 구성
-  //     ),
-  //   );
-  // }
   PreferredSize buildAppBar(BuildContext context) {
     return PreferredSize(
       preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
