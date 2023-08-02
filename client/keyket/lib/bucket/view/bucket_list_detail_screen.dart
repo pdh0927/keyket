@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_add_text_field.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
+import 'package:keyket/bucket/component/input_box.dart';
 import 'package:keyket/bucket/component/member_card.dart';
 import 'package:keyket/bucket/const/tmp_data.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
@@ -66,6 +67,12 @@ class _BucketListDetailScreenState
   // 버킷리스트의 변경 여부
   bool isChanged = false;
 
+  // 초대하기 버튼 클릭 여부
+  bool inviteFlag = false;
+
+  // 제목편집 버튼 클릭 여부
+  bool titleFlag = false;
+
   @override
   void initState() {
     super.initState();
@@ -94,154 +101,195 @@ class _BucketListDetailScreenState
     return Scaffold(
       appBar: buildAppBar(context),
       backgroundColor: Colors.white,
+      resizeToAvoidBottomInset: true,
       body: buildBody(),
       endDrawer: Drawer(
         child: Padding(
           padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              SizedBox(height: 6.h),
-              Container(
-                height: 31,
-                width: 85,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  color: const Color(0xFFD9D9D9),
-                ),
-                child: const Text(
-                  '멤버',
-                  style: TextStyle(
-                      fontFamily: 'SCDream',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                      color: PRIMARY_COLOR),
-                ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: tmp_user_list.length <= 5
-                    ? tmp_user_list.length * 50.0
-                    : 200.0,
-                child: SingleChildScrollView(
-                  physics: tmp_user_list.length <= 5
-                      ? NeverScrollableScrollPhysics()
-                      : ScrollPhysics(),
-                  child: Column(
-                    children: tmp_user_list.map((user) {
-                      return MemberCard.fromModel(
-                        model: user,
-                        isHost: tmp_user_list.indexOf(user) == 0,
-                      );
-                    }).toList(),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.vertical,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 6.h),
+                Container(
+                  height: 31,
+                  width: 85,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(5),
+                    color: const Color(0xFFD9D9D9),
+                  ),
+                  child: const Text(
+                    '멤버',
+                    style: TextStyle(
+                        fontFamily: 'SCDream',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: PRIMARY_COLOR),
                   ),
                 ),
-              ),
-              const SizedBox(height: 5),
-              TextButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                      const EdgeInsets.only(right: 16, left: 10)),
+                const SizedBox(height: 10),
+                SizedBox(
+                  height: tmp_user_list.length <= 5
+                      ? tmp_user_list.length * 50.0
+                      : 200.0,
+                  child: SingleChildScrollView(
+                    physics: tmp_user_list.length <= 5
+                        ? const NeverScrollableScrollPhysics()
+                        : const ScrollPhysics(),
+                    child: Column(
+                      children: tmp_user_list.map((user) {
+                        return MemberCard.fromModel(
+                          model: user,
+                          isHost: tmp_user_list.indexOf(user) == 0,
+                        );
+                      }).toList(),
+                    ),
+                  ),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Remix.add_line,
-                      size: 30,
-                      color: PRIMARY_COLOR,
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      '초대하기',
-                      style: TextStyle(
-                          fontFamily: 'SCDream',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: PRIMARY_COLOR),
-                    )
-                  ],
+                const SizedBox(height: 5),
+                TextButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.only(right: 16, left: 10)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Remix.add_line,
+                        size: 30,
+                        color: PRIMARY_COLOR,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        '초대하기',
+                        style: TextStyle(
+                            fontFamily: 'SCDream',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: PRIMARY_COLOR),
+                      )
+                    ],
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      inviteFlag = !inviteFlag;
+                    });
+                  },
                 ),
-                onPressed: () {
-                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
-                },
-              ),
-              const Divider(
-                thickness: 1,
-                height: 15,
-                color: Color(0xFF616161),
-              ),
-              TextButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                      EdgeInsets.only(right: 16, left: 10)),
+                inviteFlag
+                    ? InputBox(
+                        inputType: '초대코드를 입력해주세요',
+                        onLeftPressed: (str) {
+                          // 추후 추가
+                        },
+                        onRightPressed: () {
+                          setState(() {
+                            inviteFlag = !inviteFlag;
+                          });
+                        },
+                      )
+                    : const SizedBox(height: 0),
+                const Divider(
+                  thickness: 1,
+                  height: 15,
+                  color: Color(0xFF616161),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Remix.folder_open_line,
-                      size: 30,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      '배경화면 편집',
-                      style: TextStyle(
-                          fontFamily: 'SCDream',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF1A1A1A)),
-                    ),
-                    Spacer(),
-                    Icon(
-                      Remix.arrow_down_s_line,
-                      size: 30,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ],
+                TextButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.only(right: 16, left: 10)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Remix.folder_open_line,
+                        size: 30,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        '배경화면 편집',
+                        style: TextStyle(
+                            fontFamily: 'SCDream',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF1A1A1A)),
+                      ),
+                      Spacer(),
+                      Icon(
+                        Remix.arrow_down_s_line,
+                        size: 30,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                    ],
+                  ),
+                  onPressed: () {
+                    // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
+                  },
                 ),
-                onPressed: () {
-                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
-                },
-              ),
-              TextButton(
-                style: ButtonStyle(
-                  padding: MaterialStateProperty.all<EdgeInsets>(
-                      EdgeInsets.only(right: 16, left: 10)),
+                TextButton(
+                  style: ButtonStyle(
+                    padding: MaterialStateProperty.all<EdgeInsets>(
+                        const EdgeInsets.only(right: 16, left: 10)),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Remix.edit_line,
+                        size: 30,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        '제목 편집',
+                        style: TextStyle(
+                            fontFamily: 'SCDream',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                            color: Color(0xFF1A1A1A)),
+                      ),
+                      Spacer(),
+                      Icon(
+                        Remix.arrow_down_s_line,
+                        size: 30,
+                        color: Color(0xFF1A1A1A),
+                      ),
+                    ],
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      titleFlag = !titleFlag;
+                    });
+                  },
                 ),
-                child: const Row(
-                  children: [
-                    Icon(
-                      Remix.edit_line,
-                      size: 30,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                    SizedBox(width: 10),
-                    Text(
-                      '제목 편집',
-                      style: TextStyle(
-                          fontFamily: 'SCDream',
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          color: Color(0xFF1A1A1A)),
-                    ),
-                    Spacer(),
-                    Icon(
-                      Remix.arrow_down_s_line,
-                      size: 30,
-                      color: Color(0xFF1A1A1A),
-                    ),
-                  ],
-                ),
-                onPressed: () {
-                  // '+ 버튼' 클릭 시 수행할 동작을 이 곳에 넣으세요.
-                },
-              ),
-            ],
+                titleFlag
+                    ? InputBox(
+                        inputType: '제목을 입력해주세요',
+                        defaultName: modifiedBucketListModel.name,
+                        onLeftPressed: nameChange,
+                        onRightPressed: () {
+                          setState(() {
+                            titleFlag = !titleFlag;
+                          });
+                        })
+                    : const SizedBox(height: 0),
+                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+              ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void nameChange(newName) {
+    setState(() {
+      modifiedBucketListModel = modifiedBucketListModel.copyWith(name: newName);
+      isChanged = true;
+      titleFlag = !titleFlag;
+    });
   }
 
   // AppBar 구성
@@ -561,7 +609,7 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-// FireStore에서 item의 content 가져와서 넣기
+  // FireStore에서 item의 content 가져와서 넣기
   Future<void> getItems(
       String id,
       List<String> customItemList,
@@ -1038,6 +1086,11 @@ class _BucketListDetailScreenState
     if (!listEquals(originalBucketListModel.recommendItemList,
         modifiedBucketListModel.recommendItemList)) {
       updates['recommendItemList'] = modifiedBucketListModel.recommendItemList;
+    }
+
+    // name이 변경되었는지 확인
+    if (originalBucketListModel.name != modifiedBucketListModel.name) {
+      updates['name'] = modifiedBucketListModel.name;
     }
 
     // 다른 변경사항이 있을 시
