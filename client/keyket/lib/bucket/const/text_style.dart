@@ -12,3 +12,10 @@ TextStyle popupMenuTextStlye = const TextStyle(
     fontSize: 16,
     fontWeight: FontWeight.w400,
     color: BLACK_COLOR);
+
+TextStyle inputBoxTextStyle = const TextStyle(
+  fontFamily: 'SCDream',
+  fontSize: 16,
+  color: Colors.black,
+  fontWeight: FontWeight.w400,
+);
