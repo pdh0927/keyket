@@ -41,7 +41,7 @@ class BucketListCard extends ConsumerWidget {
               height: 100,
               "asset/img/default_bucket.png",
               fit: BoxFit.cover)
-          : Image.asset(
+          : Image.network(
               width: 100, height: 100, model.image, fit: BoxFit.cover),
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
