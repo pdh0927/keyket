@@ -44,6 +44,17 @@ class MyBucketListNotifier extends StateNotifier<List<BucketListModel>> {
     state = myBucketListList;
   }
 
+  // 버킷리시트 업데이트
+  void updateBucketList(BucketListModel updatedBucketList) {
+    state = [
+      for (final bucketList in state)
+        if (bucketList.id == updatedBucketList.id)
+          updatedBucketList
+        else
+          bucketList
+    ];
+  }
+
   double getAchievementRate(String bucketListId) {
     final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
     int complementedCount = bucketList.completedCustomItemList.length +
@@ -109,11 +120,11 @@ final sharedBucketListListProvider =
 
 class SharedBucketListNotifier extends StateNotifier<List<BucketListModel>> {
   SharedBucketListNotifier() : super([]) {
-    getSharedBucketListd();
+    getSharedBucketList();
   }
 
-  void getSharedBucketListd() async {
-    List<BucketListModel> sharedBucketListList = [];
+  void getSharedBucketList() async {
+    List<BucketListModel> myBucketListList = [];
 
     try {
       Query<Map<String, dynamic>> query = firestore.collection('bucket_list');
@@ -125,13 +136,41 @@ class SharedBucketListNotifier extends StateNotifier<List<BucketListModel>> {
       for (var doc in docList.docs) {
         Map<String, dynamic> data = _docToMap(doc);
 
-        sharedBucketListList.add(BucketListModel.fromJson(data));
+        // null이 있다면 []로 저장
+        data['completedCustomItemList'] = data['completedCustomItemList'] ?? [];
+        data['completedRecommendItemList'] =
+            data['completedRecommendItemList'] ?? [];
+        data['customItemList'] = data['customItemList'] ?? [];
+        data['recommendItemList'] = data['recommendItemList'] ?? [];
+
+        myBucketListList.add(BucketListModel.fromJson(data));
       }
     } catch (e) {
       print(e);
     }
 
-    state = sharedBucketListList;
+    state = myBucketListList;
+  }
+
+  // 버킷리시트 업데이트
+  void updateBucketList(BucketListModel updatedBucketList) {
+    state = [
+      for (final bucketList in state)
+        if (bucketList.id == updatedBucketList.id)
+          updatedBucketList
+        else
+          bucketList
+    ];
+  }
+
+  double getAchievementRate(String bucketListId) {
+    final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+    int complementedCount = bucketList.completedCustomItemList.length +
+        bucketList.completedRecommendItemList.length;
+    int uncomplementedCount =
+        bucketList.customItemList.length + bucketList.recommendItemList.length;
+
+    return (complementedCount) / (uncomplementedCount + complementedCount);
   }
 
   void sortByName() {
@@ -147,6 +186,37 @@ class SharedBucketListNotifier extends StateNotifier<List<BucketListModel>> {
   void sortByUpdatedAt() {
     state.sort((a, b) => b.updatedAt.compareTo(a.updatedAt)); // 최신 업데이트가 먼저 오도록
     state = List.from(state);
+  }
+
+  List<String> getCompleteList(String type, String bucketListId) {
+    final bucket = state.firstWhere((bucket) => bucket.id == bucketListId);
+    if (type == 'recommend') {
+      return List.from(bucket.completedRecommendItemList);
+    } else {
+      return List.from(bucket.completedCustomItemList);
+    }
+  }
+
+  List<String> getContainList(String type, String bucketListId) {
+    final bucket = state.firstWhere((bucket) => bucket.id == bucketListId);
+    if (type == 'recommend') {
+      return List.from(bucket.recommendItemList);
+    } else {
+      return List.from(bucket.customItemList);
+    }
+  }
+
+  BucketListModel getBucketListModel(String bucketListId) {
+    final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+    return bucketList.deepCopy();
+  }
+
+  void changeBucketListModel(
+      String bucketListId, BucketListModel newBucketListModel) {
+    state = [
+      for (final item in state)
+        if (item.id == bucketListId) newBucketListModel.deepCopy() else item,
+    ];
   }
 }
 

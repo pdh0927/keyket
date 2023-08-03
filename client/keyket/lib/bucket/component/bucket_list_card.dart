@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
-import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -41,7 +40,7 @@ class BucketListCard extends ConsumerWidget {
               height: 100,
               "asset/img/default_bucket.png",
               fit: BoxFit.cover)
-          : Image.asset(
+          : Image.network(
               width: 100, height: 100, model.image, fit: BoxFit.cover),
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
@@ -79,9 +78,7 @@ class BucketListCard extends ConsumerWidget {
                 ],
               ),
               CustomProgressBar(
-                achievementRate: ref
-                    .watch(myBucketListListProvider.notifier)
-                    .getAchievementRate(id),
+                achievementRate: getAchievementRate(),
                 height: 17,
                 width: 160,
               ),
@@ -97,5 +94,13 @@ class BucketListCard extends ConsumerWidget {
         ]),
       ),
     );
+  }
+
+  double getAchievementRate() {
+    int complementedCount =
+        completedCustomItemList.length + completedRecommendItemList.length;
+    int uncomplementedCount = customItemList.length + recommendItemList.length;
+
+    return (complementedCount) / (uncomplementedCount + complementedCount);
   }
 }
