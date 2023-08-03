@@ -83,7 +83,7 @@ class _BucketListDetailScreenState
   bool titleFlag = false;
 
   File? tmpImage;
-
+  bool _isSaving = false; // 저정중을 나타내는 플래그
   @override
   void initState() {
     super.initState();
@@ -109,76 +109,85 @@ class _BucketListDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(context),
-      backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
-      body: buildBody(),
-      endDrawer: Drawer(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: SingleChildScrollView(
-            scrollDirection: Axis.vertical,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _MemberSection(tmpUserList: tmp_user_list),
-                _InviteSection(
-                    inviteFlag: inviteFlag,
-                    setStateCallback: () {
-                      setState(() {
-                        inviteFlag = !inviteFlag;
-                      });
-                    }),
-                _BackgroundEditSection(
-                    backgroundFlag: backgroundFlag,
-                    setStateCallback: () {
-                      setState(() {
-                        backgroundFlag = !backgroundFlag;
-                      });
-                    },
-                    imagePickerCallback: () async {
-                      final picker = ImagePicker();
-                      final pickedFile =
-                          await picker.pickImage(source: ImageSource.gallery);
-                      if (pickedFile != null) {
+    return Stack(children: [
+      Scaffold(
+        appBar: buildAppBar(context),
+        backgroundColor: Colors.white,
+        resizeToAvoidBottomInset: true,
+        body: buildBody(),
+        endDrawer: Drawer(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  _MemberSection(tmpUserList: tmp_user_list),
+                  _InviteSection(
+                      inviteFlag: inviteFlag,
+                      setStateCallback: () {
                         setState(() {
-                          tmpImage = File(pickedFile.path);
-                          isChanged = true;
+                          inviteFlag = !inviteFlag;
                         });
-                      }
-                      changeFlag();
-                    },
-                    setDefaultCallback: () {
-                      if (tmpImage != null) {
+                      }),
+                  _BackgroundEditSection(
+                      backgroundFlag: backgroundFlag,
+                      setStateCallback: () {
                         setState(() {
-                          tmpImage = null;
+                          backgroundFlag = !backgroundFlag;
                         });
-                      }
-                      if (modifiedBucketListModel.image != '') {
+                      },
+                      imagePickerCallback: () async {
+                        final picker = ImagePicker();
+                        final pickedFile =
+                            await picker.pickImage(source: ImageSource.gallery);
+                        if (pickedFile != null) {
+                          setState(() {
+                            tmpImage = File(pickedFile.path);
+                            isChanged = true;
+                          });
+                        }
+                        changeFlag();
+                      },
+                      setDefaultCallback: () {
+                        if (tmpImage != null) {
+                          setState(() {
+                            tmpImage = null;
+                          });
+                        }
+                        if (modifiedBucketListModel.image != '') {
+                          setState(() {
+                            modifiedBucketListModel =
+                                modifiedBucketListModel.copyWith(image: '');
+                          });
+                        }
+                        changeFlag();
+                      }),
+                  _TitleEditSection(
+                      titleFlag: titleFlag,
+                      defaultName: modifiedBucketListModel.name,
+                      setStateCallback: () {
                         setState(() {
-                          modifiedBucketListModel =
-                              modifiedBucketListModel.copyWith(image: '');
+                          titleFlag = !titleFlag;
                         });
-                      }
-                      changeFlag();
-                    }),
-                _TitleEditSection(
-                    titleFlag: titleFlag,
-                    defaultName: modifiedBucketListModel.name,
-                    setStateCallback: () {
-                      setState(() {
-                        titleFlag = !titleFlag;
-                      });
-                    },
-                    nameChange: nameChange),
-                SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
-              ],
+                      },
+                      nameChange: nameChange),
+                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    );
+      if (_isSaving) // Add this condition
+        Container(
+          color: Colors.black.withOpacity(0.5),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+    ]);
   }
 
   void nameChange(newName) {
@@ -287,7 +296,6 @@ class _BucketListDetailScreenState
     );
   }
 
-  // 저장 버튼을 구성
   Widget buildSaveButton() {
     // 변동사항이 있을 시만 생김
     return isChanged
@@ -297,11 +305,20 @@ class _BucketListDetailScreenState
               width: 60,
               height: 30,
               child: ElevatedButton(
-                onPressed: () async {
-                  // FireStore에 변경사항 저장
-                  await updateBucketListItems(
-                      newCustomItemList, modifiedBucketListModel);
-                },
+                onPressed: _isSaving
+                    ? null
+                    : () async {
+                        // 저장중일때는 버튼을 비활성화
+                        setState(() {
+                          _isSaving = true; // 저장중 플래그를 true로 변경
+                        });
+                        // FireStore에 변경사항 저장
+                        await updateBucketListItems(
+                            newCustomItemList, modifiedBucketListModel);
+                        setState(() {
+                          _isSaving = false; // 저장중 플래그를 false로 변경
+                        });
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFD9D9D9),
                   shape: RoundedRectangleBorder(
