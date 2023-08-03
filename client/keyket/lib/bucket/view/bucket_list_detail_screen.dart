@@ -20,6 +20,7 @@ import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/select_box.dart';
 import 'package:keyket/common/const/colors.dart';
+import 'package:keyket/common/model/user_model.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
@@ -121,285 +122,56 @@ class _BucketListDetailScreenState
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                SizedBox(height: 6.h),
-                Container(
-                  height: 31,
-                  width: 85,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(5),
-                    color: const Color(0xFFD9D9D9),
-                  ),
-                  child: const Text(
-                    '멤버',
-                    style: TextStyle(
-                        fontFamily: 'SCDream',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                        color: PRIMARY_COLOR),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                SizedBox(
-                  height: tmp_user_list.length <= 5
-                      ? tmp_user_list.length * 50.0
-                      : 200.0,
-                  child: SingleChildScrollView(
-                    physics: tmp_user_list.length <= 5
-                        ? const NeverScrollableScrollPhysics()
-                        : const ScrollPhysics(),
-                    child: Column(
-                      children: tmp_user_list.map((user) {
-                        return MemberCard.fromModel(
-                          model: user,
-                          isHost: tmp_user_list.indexOf(user) == 0,
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 5),
-                TextButton(
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.only(right: 16, left: 10)),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Remix.add_line,
-                        size: 30,
-                        color: PRIMARY_COLOR,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '초대하기',
-                        style: TextStyle(
-                            fontFamily: 'SCDream',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: PRIMARY_COLOR),
-                      )
-                    ],
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      inviteFlag = !inviteFlag;
-                    });
-                  },
-                ),
-                inviteFlag
-                    ? InputBox(
-                        inputType: '초대코드를 입력해주세요',
-                        onLeftPressed: (str) {
-                          // 추후 추가
-                        },
-                        onRightPressed: () {
-                          setState(() {
-                            inviteFlag = !inviteFlag;
-                          });
-                        },
-                      )
-                    : const SizedBox(height: 0),
-                const Divider(
-                  thickness: 1,
-                  height: 15,
-                  color: Color(0xFF616161),
-                ),
-                TextButton(
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.only(right: 16, left: 10)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Remix.folder_open_line,
-                        size: 30,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '배경화면 편집',
-                        style: TextStyle(
-                            fontFamily: 'SCDream',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF1A1A1A)),
-                      ),
-                      Spacer(),
-                      Icon(
-                        Remix.arrow_down_s_line,
-                        size: 30,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                    ],
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      backgroundFlag = !backgroundFlag;
-                    });
-                  },
-                ),
-                backgroundFlag
-                    ? Align(
-                        alignment: Alignment.center,
-                        child: Container(
-                          alignment: Alignment.center,
-                          width: 230.0,
-                          height: 100.0,
-                          decoration: const BoxDecoration(
-                            borderRadius: BorderRadius.all(
-                              Radius.circular(10.0),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ButtonStyle(
-                                    padding: MaterialStateProperty.all(
-                                        EdgeInsets.zero),
-                                    minimumSize: MaterialStateProperty.all(
-                                        const Size(230, 50)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        const Color(0xFFC4E4FA)),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          topLeft: Radius.circular(10.0),
-                                          topRight: Radius.circular(10.0),
-                                        ),
-                                      ),
-                                    ),
-                                    elevation: MaterialStateProperty.all(0),
-                                  ),
-                                  onPressed: () async {
-                                    final picker = ImagePicker();
-                                    final pickedFile = await picker.pickImage(
-                                        source: ImageSource.gallery);
-                                    if (pickedFile != null) {
-                                      setState(() {
-                                        tmpImage = File(pickedFile.path);
-                                        isChanged = true;
-                                      });
-                                    }
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Remix.check_line,
-                                        color: BLACK_COLOR,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text('앨범에서 사진 선택',
-                                          style: inputBoxTextStyle),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const Divider(
-                                height: 0,
-                                color: Colors.grey,
-                                thickness: 1.0,
-                              ),
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ButtonStyle(
-                                    padding: MaterialStateProperty.all(
-                                        EdgeInsets.zero),
-                                    minimumSize: MaterialStateProperty.all(
-                                        Size(230, 50)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Color(0xFFC4E4FA)),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.only(
-                                          bottomLeft: Radius.circular(10.0),
-                                          bottomRight: Radius.circular(10.0),
-                                        ),
-                                      ),
-                                    ),
-                                    elevation: MaterialStateProperty.all(0),
-                                  ),
-                                  onPressed: () {
-                                    setState(() {
-                                      modifiedBucketListModel =
-                                          modifiedBucketListModel.copyWith(
-                                              image: '');
-                                    });
-                                  },
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      const Icon(
-                                        Remix.check_line,
-                                        color: BLACK_COLOR,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Text('기본 이미지로 설정',
-                                          style: inputBoxTextStyle),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    : const SizedBox(height: 0),
-                SizedBox(height: 5),
-                TextButton(
-                  style: ButtonStyle(
-                    padding: MaterialStateProperty.all<EdgeInsets>(
-                        const EdgeInsets.only(right: 16, left: 10)),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(
-                        Remix.edit_line,
-                        size: 30,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '제목 편집',
-                        style: TextStyle(
-                            fontFamily: 'SCDream',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF1A1A1A)),
-                      ),
-                      Spacer(),
-                      Icon(
-                        Remix.arrow_down_s_line,
-                        size: 30,
-                        color: Color(0xFF1A1A1A),
-                      ),
-                    ],
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      titleFlag = !titleFlag;
-                    });
-                  },
-                ),
-                titleFlag
-                    ? InputBox(
-                        inputType: '제목을 입력해주세요',
-                        defaultName: modifiedBucketListModel.name,
-                        onLeftPressed: nameChange,
-                        onRightPressed: () {
-                          setState(() {
-                            titleFlag = !titleFlag;
-                          });
-                        })
-                    : const SizedBox(height: 0),
+                _MemberSection(tmpUserList: tmp_user_list),
+                _InviteSection(
+                    inviteFlag: inviteFlag,
+                    setStateCallback: () {
+                      setState(() {
+                        inviteFlag = !inviteFlag;
+                      });
+                    }),
+                _BackgroundEditSection(
+                    backgroundFlag: backgroundFlag,
+                    setStateCallback: () {
+                      setState(() {
+                        backgroundFlag = !backgroundFlag;
+                      });
+                    },
+                    imagePickerCallback: () async {
+                      final picker = ImagePicker();
+                      final pickedFile =
+                          await picker.pickImage(source: ImageSource.gallery);
+                      if (pickedFile != null) {
+                        setState(() {
+                          tmpImage = File(pickedFile.path);
+                          isChanged = true;
+                        });
+                      }
+                      changeFlag();
+                    },
+                    setDefaultCallback: () {
+                      if (tmpImage != null) {
+                        setState(() {
+                          tmpImage = null;
+                        });
+                      }
+                      if (modifiedBucketListModel.image != '') {
+                        setState(() {
+                          modifiedBucketListModel =
+                              modifiedBucketListModel.copyWith(image: '');
+                        });
+                      }
+                      changeFlag();
+                    }),
+                _TitleEditSection(
+                    titleFlag: titleFlag,
+                    defaultName: modifiedBucketListModel.name,
+                    setStateCallback: () {
+                      setState(() {
+                        titleFlag = !titleFlag;
+                      });
+                    },
+                    nameChange: nameChange),
                 SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
               ],
             ),
@@ -1064,7 +836,12 @@ class _BucketListDetailScreenState
         !listEquals(originalBucketListModel.customItemList,
             modifiedBucketListModel.customItemList) ||
         !listEquals(originalBucketListModel.recommendItemList,
-            modifiedBucketListModel.recommendItemList);
+            modifiedBucketListModel.recommendItemList) ||
+        originalBucketListModel.name != modifiedBucketListModel.name ||
+        originalBucketListModel.image != modifiedBucketListModel.image ||
+        !listEquals(
+            originalBucketListModel.users, modifiedBucketListModel.users) ||
+        tmpImage != null;
   }
 
   Future<void> updateBucketListItems(List<String> newCustomItemList,
@@ -1246,13 +1023,31 @@ class _BucketListDetailScreenState
 
     // 이미지가 변경되었는지 확인
     if (tmpImage != null) {
+      // 기존의 이미지가 있으면 삭제합니다.
+      if (originalBucketListModel.image != '') {
+        Reference photoRef =
+            FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
+        await photoRef.delete();
+      }
+
       // 이미지를 Firebase Storage에 업로드하고 Firestore에 이미지 URL을 저장합니다.
       String imageUrl = await _uploadImageToFirebase(tmpImage!.path, storage);
-      updates['image'] = imageUrl;
 
       // 변경된 이미지 URL을 modifiedBucketListModel의 이미지로 설정합니다.
       modifiedBucketListModel =
           modifiedBucketListModel.copyWith(image: imageUrl);
+    }
+
+    // image가 변경되었는지 확인
+    if (originalBucketListModel.image != modifiedBucketListModel.image) {
+      // 이미지를 없앨떄도 기존 이미지가 있다면 삭제
+      if (originalBucketListModel.image != '') {
+        Reference photoRef =
+            FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
+        await photoRef.delete();
+      }
+
+      updates['image'] = modifiedBucketListModel.image;
     }
 
     // 다른 변경사항이 있을 시
@@ -1389,5 +1184,309 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                     );
                   }))
         ]);
+  }
+}
+
+class _BackgroundEditButton extends StatelessWidget {
+  final String text;
+  final Function() onPressed;
+  final BorderRadiusGeometry borderRadius;
+
+  const _BackgroundEditButton({
+    Key? key,
+    required this.text,
+    required this.onPressed,
+    required this.borderRadius,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      style: ButtonStyle(
+        padding: MaterialStateProperty.all(EdgeInsets.zero),
+        minimumSize: MaterialStateProperty.all(const Size(230, 50)),
+        backgroundColor: MaterialStateProperty.all(const Color(0xFFC4E4FA)),
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: borderRadius,
+          ),
+        ),
+        elevation: MaterialStateProperty.all(0),
+      ),
+      onPressed: onPressed,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(
+            Remix.check_line,
+            color: BLACK_COLOR,
+          ),
+          const SizedBox(width: 10),
+          Text(text, style: inputBoxTextStyle),
+        ],
+      ),
+    );
+  }
+}
+
+class _MemberSection extends StatelessWidget {
+  final List<UserModel> tmpUserList;
+
+  const _MemberSection({required this.tmpUserList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SizedBox(height: 6.h),
+        Container(
+          height: 31,
+          width: 85,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: const Color(0xFFD9D9D9),
+          ),
+          child: const Text(
+            '멤버',
+            style: TextStyle(
+                fontFamily: 'SCDream',
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+                color: PRIMARY_COLOR),
+          ),
+        ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: tmpUserList.length <= 5 ? tmpUserList.length * 50.0 : 200.0,
+          child: SingleChildScrollView(
+            physics: tmp_user_list.length <= 5
+                ? const NeverScrollableScrollPhysics()
+                : const ScrollPhysics(),
+            child: Column(
+              children: tmpUserList.map((user) {
+                return MemberCard.fromModel(
+                  model: user,
+                  isHost: tmpUserList.indexOf(user) == 0,
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _InviteSection extends StatelessWidget {
+  final bool inviteFlag;
+  final Function setStateCallback;
+
+  const _InviteSection(
+      {required this.inviteFlag, required this.setStateCallback});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 5),
+        TextButton(
+          style: ButtonStyle(
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.only(right: 16, left: 10)),
+          ),
+          child: const Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Icon(
+                Remix.add_line,
+                size: 30,
+                color: PRIMARY_COLOR,
+              ),
+              SizedBox(width: 10),
+              Text(
+                '초대하기',
+                style: TextStyle(
+                    fontFamily: 'SCDream',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: PRIMARY_COLOR),
+              )
+            ],
+          ),
+          onPressed: () => setStateCallback(),
+        ),
+        inviteFlag
+            ? InputBox(
+                inputType: '초대코드를 입력해주세요',
+                onLeftPressed: (str) {
+                  // 추후 추가
+                },
+                onRightPressed: () => setStateCallback(),
+              )
+            : const SizedBox(height: 0),
+      ],
+    );
+  }
+}
+
+class _BackgroundEditSection extends StatelessWidget {
+  final bool backgroundFlag;
+  final Function setStateCallback;
+  final Function() imagePickerCallback;
+  final Function() setDefaultCallback;
+
+  const _BackgroundEditSection({
+    required this.backgroundFlag,
+    required this.setStateCallback,
+    required this.imagePickerCallback,
+    required this.setDefaultCallback,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 5),
+        TextButton(
+          style: ButtonStyle(
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.only(right: 16, left: 10)),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Remix.folder_open_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '배경화면 편집',
+                style: TextStyle(
+                    fontFamily: 'SCDream',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF1A1A1A)),
+              ),
+              Spacer(),
+              Icon(
+                Remix.arrow_down_s_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+            ],
+          ),
+          onPressed: () => setStateCallback(),
+        ),
+        backgroundFlag
+            ? Align(
+                alignment: Alignment.center,
+                child: Container(
+                  alignment: Alignment.center,
+                  width: 230.0,
+                  height: 100.0,
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(10.0),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        child: _BackgroundEditButton(
+                          text: '앨범에서 사진 선택',
+                          onPressed: imagePickerCallback,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(10.0),
+                            topRight: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      const Divider(
+                        height: 0,
+                        color: Colors.grey,
+                        thickness: 1.0,
+                      ),
+                      Expanded(
+                        child: _BackgroundEditButton(
+                          text: '기본 이미지로 설정',
+                          onPressed: setDefaultCallback,
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(10.0),
+                            bottomRight: Radius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            : const SizedBox(height: 0),
+      ],
+    );
+  }
+}
+
+class _TitleEditSection extends StatelessWidget {
+  final bool titleFlag;
+  final Function setStateCallback;
+  final String defaultName;
+  final Function(String) nameChange;
+
+  const _TitleEditSection({
+    required this.titleFlag,
+    required this.setStateCallback,
+    required this.defaultName,
+    required this.nameChange,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 5),
+        TextButton(
+          style: ButtonStyle(
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.only(right: 16, left: 10)),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Remix.edit_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '제목 편집',
+                style: TextStyle(
+                    fontFamily: 'SCDream',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400,
+                    color: Color(0xFF1A1A1A)),
+              ),
+              Spacer(),
+              Icon(
+                Remix.arrow_down_s_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+            ],
+          ),
+          onPressed: () => setStateCallback(),
+        ),
+        titleFlag
+            ? InputBox(
+                inputType: '제목을 입력해주세요',
+                defaultName: defaultName,
+                onLeftPressed: nameChange,
+                onRightPressed: () => setStateCallback(),
+              )
+            : const SizedBox(height: 0),
+      ],
+    );
   }
 }
