@@ -1,84 +1,63 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/model/kakao_login_model.dart';
+import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/common/view/root_tab.dart';
+import 'package:remixicon/remixicon.dart';
 
-import 'package:keyket/common/view/splash_screen.dart';
-
-enum LoginPlatform {
-  kakao,
-  none, // logout
-}
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final viewModel = MainViewModel(KaKaoLoginModel());
+  @override
   Widget build(BuildContext context) {
     return DefaultLayout(
-      child:
-          Center(child: _loginButton('kakaologin', () => onTapFuture(context))),
-    );
-  }
-}
-
-Widget _loginButton(String path, VoidCallback onTap) {
-  return Card(
-    elevation: 18.0,
-    shape: const CircleBorder(),
-    clipBehavior: Clip.antiAlias,
-    child: Ink.image(
-      image: AssetImage('asset/img/$path.png'),
-      width: 100,
-      height: 100,
-      child: InkWell(
-        borderRadius: const BorderRadius.all(
-          Radius.circular(35.0),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              InkWell(
+                onTap: () async {
+                  await viewModel.login();
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const RootTab()),
+                      (route) => false);
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 70,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(50),
+                      color: const Color(0xFFFAEA5C)),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Remix.kakao_talk_fill,
+                        size: 50,
+                        color: Colors.black,
+                      ),
+                      const SizedBox(width: 20),
+                      Text(
+                        '카카오톡 로그인',
+                        style: dropdownTextStyle,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
-        onTap: onTap,
       ),
-    ),
-  );
-}
-
-Future<void> onTapFuture(BuildContext context) async {
-  // 카카오톡 실행 가능 여부 확인
-  // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
-  if (await isKakaoTalkInstalled()) {
-    try {
-      await UserApi.instance.loginWithKakaoTalk();
-      print('카카오톡으로 로그인 성공');
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
-          (route) => false);
-    } catch (error) {
-      print('카카오톡으로 로그인 실패 $error');
-
-      // 사용자가 카카오톡 설치 후 디바이스 권한 요청 화면에서 로그인을 취소한 경우,
-      // 의도적인 로그인 취소로 보고 카카오계정으로 로그인 시도 없이 로그인 취소로 처리 (예: 뒤로 가기)
-      if (error is PlatformException && error.code == 'CANCELED') {
-        return;
-      }
-      // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
-      try {
-        await UserApi.instance.loginWithKakaoAccount();
-        print('카카오계정으로 로그인 성공');
-        Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(builder: (_) => const SplashScreen()),
-            (route) => false);
-      } catch (error) {
-        print('카카오계정으로 로그인 실패 $error');
-      }
-    }
-  } else {
-    try {
-      await UserApi.instance.loginWithKakaoAccount();
-      print('카카오계정으로 로그인 성공');
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const SplashScreen()),
-          (route) => false);
-    } catch (error) {
-      print('카카오계정으로 로그인 실패 $error');
-    }
+    );
   }
 }
