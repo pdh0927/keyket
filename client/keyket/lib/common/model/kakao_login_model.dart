@@ -76,6 +76,10 @@ class KaKaoLoginModel implements SocialLogin {
         // 카카오톡 설치가 안되어 있어서 카카오계정으로 로그인
         try {
           OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+
+          // 토큰 저장
+          TokenManagerProvider.instance.manager.setToken(token);
+
           final url = Uri.https('kapi.kakao.com', '/v2/user/me');
           final response = await http.get(
             url,
