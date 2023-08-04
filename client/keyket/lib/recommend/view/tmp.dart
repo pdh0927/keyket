@@ -1,16 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:keyket/common/model/kakao_login_model.dart';
+import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/common/view/login_screen.dart';
+import 'package:keyket/recommend/provider/recommend_provider.dart';
+import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 
 final firestore = FirebaseFirestore.instance;
 
-class Tmp extends StatefulWidget {
+class Tmp extends ConsumerStatefulWidget {
   const Tmp({super.key});
 
   @override
-  State<Tmp> createState() => _TmpState();
+  ConsumerState<Tmp> createState() => _TmpState();
 }
 
-class _TmpState extends State<Tmp> {
+class _TmpState extends ConsumerState<Tmp> {
   @override
   void initState() {
     super.initState();
@@ -18,6 +26,8 @@ class _TmpState extends State<Tmp> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = MainViewModel(KaKaoLoginModel());
+
     return Scaffold(
       body: Center(
         child: Column(
@@ -42,6 +52,47 @@ class _TmpState extends State<Tmp> {
               },
               child: Text('testreference call function'),
             ),
+            // StreamBuilder<User?>(
+            //     stream: FirebaseAuth.instance.authStateChanges(),
+            //     builder: (context, snapshot) {
+            //       if (!snapshot.hasData) {
+            //         return ElevatedButton(
+            //           onPressed: () async {
+            //             await viewModel.logout();
+            //           },
+            //           child: Text('logout'),
+            //         );
+            //       } else {
+            //         return ElevatedButton(
+            //             onPressed: () async {
+            //               await viewModel.login();
+            //             },
+            //             child: Text('login'));
+            //       }
+            //     })
+            ElevatedButton(
+                onPressed: () async {
+                  await viewModel.login();
+                },
+                child: Text('login')),
+            ElevatedButton(
+              onPressed: () async {
+                viewModel.logout();
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (route) => false);
+              },
+              child: Text('logout'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                print('눌림');
+                ref.read(recommendItemListProvider.notifier).getRecommendData(
+                    ref.watch(selectedRegionFilterProvider),
+                    ref.watch(selectedThemeFilterListProvider));
+              },
+              child: Text('추천 가져오기'),
+            )
           ],
         ),
       ),
