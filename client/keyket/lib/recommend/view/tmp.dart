@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/common/view/login_screen.dart';
@@ -86,7 +84,6 @@ class _TmpState extends ConsumerState<Tmp> {
             ),
             ElevatedButton(
               onPressed: () {
-                print('눌림');
                 ref.read(recommendItemListProvider.notifier).getRecommendData(
                     ref.watch(selectedRegionFilterProvider),
                     ref.watch(selectedThemeFilterListProvider));
