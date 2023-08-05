@@ -1,8 +1,8 @@
 import 'package:keyket/common/model/user_model.dart';
 
 List<UserModel> tmp_user_list = [
-  UserModel(id: 'dh', name: 'donghwan', image: ''),
-  UserModel(id: 'sh', name: 'sujin', image: ''),
-  UserModel(id: 'my', name: 'minyeol', image: ''),
-  UserModel(id: 'hr', name: 'herin', image: ''),
+  UserModel(kakaoId: 'dh', nickname: 'donghwan', image: '', inviteCode: 900),
+  UserModel(kakaoId: 'sh', nickname: 'sujin', image: '', inviteCode: 900),
+  UserModel(kakaoId: 'my', nickname: 'minyeol', image: '', inviteCode: 900),
+  UserModel(kakaoId: 'hr', nickname: 'herin', image: '', inviteCode: 900),
 ];

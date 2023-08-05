@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/view/login_screen.dart';
 import 'package:keyket/common/view/root_tab.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -17,13 +19,18 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void checkToken() async {
-    await Future.delayed(const Duration(seconds: 0)); // 임시 3초 delay
-    if (true) {
-      // 로그인 정보 있을 시
+    await Future.delayed(const Duration(seconds: 1)); // 임시 3초 delay
+
+    User? user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => const RootTab()), (route) => false);
     } else {
-      // 로그인 정보 만료 시
+      print('발급된 토큰 없음');
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          (route) => false);
     }
   }
 

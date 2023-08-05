@@ -5,14 +5,14 @@ import 'package:remixicon/remixicon.dart';
 
 class MemberCard extends ConsumerWidget {
   final String id;
-  final String name;
+  final String nickname;
   final Widget image;
   final bool isHost;
 
   const MemberCard({
     super.key,
     required this.id,
-    required this.name,
+    required this.nickname,
     required this.image,
     required this.isHost,
   });
@@ -20,13 +20,13 @@ class MemberCard extends ConsumerWidget {
   factory MemberCard.fromModel(
       {required UserModel model, required bool isHost}) {
     return MemberCard(
-      id: model.id,
-      name: model.name,
+      id: model.kakaoId,
+      nickname: model.nickname,
       image: model.image == ''
           ? CircleAvatar(
               radius: 15,
               child: Text(
-                model.name[0].toUpperCase(), // 이름의 첫 글자를 대문자로 변환
+                model.nickname[0].toUpperCase(), // 이름의 첫 글자를 대문자로 변환
                 style: const TextStyle(fontSize: 20),
               ),
             )
@@ -46,7 +46,7 @@ class MemberCard extends ConsumerWidget {
         children: [
           image, // CircleAvatar
           SizedBox(width: 10), // 간격 설정
-          Text(name),
+          Text(nickname),
           SizedBox(width: 5), // 간격 설정
           // 이 부분은 방장인지 아닌지를 판별하는 boolean 값이 들어가야 합니다.
           // 실제 조건에 따라 변경하십시오.
