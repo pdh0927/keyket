@@ -3,8 +3,6 @@ import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
-
-import 'package:keyket/common/view/splash_screen.dart';
 import 'package:remixicon/remixicon.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -28,9 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
               InkWell(
                 onTap: () async {
                   await viewModel.login();
-                  Navigator.of(context).pushAndRemoveUntil(
-                      MaterialPageRoute(builder: (_) => const SplashScreen()),
-                      (route) => false);
                 },
                 child: Container(
                   width: double.infinity,
