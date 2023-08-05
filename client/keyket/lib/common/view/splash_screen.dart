@@ -13,41 +13,32 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
-    super.initState();
-    checkToken();
-  }
-
-  void checkToken() async {
-    await Future.delayed(const Duration(seconds: 1)); // 임시 3초 delay
-
-    User? user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const RootTab()), (route) => false);
-    } else {
-      print('발급된 토큰 없음');
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
-          (route) => false);
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return const DefaultLayout(
-      child: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '로딩 화면',
-            style: TextStyle(fontFamily: 'SCDream', fontSize: 25),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User? user = snapshot.data;
+          if (user != null) {
+            return const RootTab(); // 사용자가 로그인한 상태
+          }
+          return const LoginScreen(); // 사용자가 로그아웃한 상태 또는 토큰 만료
+        }
+        return const DefaultLayout(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '로딩 화면',
+                  style: TextStyle(fontFamily: 'SCDream', fontSize: 25),
+                ),
+                CircularProgressIndicator()
+              ],
+            ),
           ),
-          CircularProgressIndicator()
-        ],
-      )),
+        );
+      },
     );
   }
 }
