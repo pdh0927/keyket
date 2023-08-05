@@ -21,7 +21,7 @@ if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
 
-def kakaoNativeAppkey = localProperties.getProperty('kakao.native.appkey')
+def kakaoNativeAppkey = localProperties.getProperty('flutter.kakao.native.appKey')
 
 apply plugin: 'com.android.application'
 // START: FlutterFire Configuration
@@ -53,7 +53,7 @@ android {
         applicationId "com.dhapp.keyket"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 21
+        minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
