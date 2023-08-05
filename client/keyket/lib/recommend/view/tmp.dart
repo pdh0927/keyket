@@ -76,9 +76,6 @@ class _TmpState extends ConsumerState<Tmp> {
             ElevatedButton(
               onPressed: () async {
                 viewModel.logout();
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    (route) => false);
               },
               child: Text('logout'),
             ),
