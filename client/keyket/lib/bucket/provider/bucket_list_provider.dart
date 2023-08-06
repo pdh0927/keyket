@@ -15,7 +15,7 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
 
     try {
       Query<Map<String, dynamic>> query = firestore.collection('bucket_list');
-      query = query.where('users', arrayContains: 'dh');
+      query = query.where('users', arrayContains: '2946987973');
       query = query.where('isShared', isEqualTo: isShared);
 
       QuerySnapshot<Map<String, dynamic>> docList = await query.get();
@@ -30,7 +30,7 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
             data['uncompletedCustomItemList'] ?? [];
         data['uncompletedRecommendItemList'] =
             data['uncompletedRecommendItemList'] ?? [];
-        print(data);
+
         bucketList.add(BucketListModel.fromJson(data));
       }
     } catch (e) {
