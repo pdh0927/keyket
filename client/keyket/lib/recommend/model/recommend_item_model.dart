@@ -63,6 +63,15 @@ class RecommendItemModel extends ItemModel {
 
   Map<String, dynamic> toJson() => _$RecommendItemModelToJson(this);
 
+  RecommendItemModel deepCopy() {
+    return RecommendItemModel(
+      id: id,
+      region: region,
+      theme: [...theme],
+      content: content,
+    );
+  }
+
   @override
   String toString() {
     return 'RecommendItemModel: {id: $id, region: $region, theme: $theme, content: $content}';
@@ -83,4 +92,19 @@ class RecommendItemModel extends ItemModel {
   @override
   int get hashCode =>
       id.hashCode ^ region.hashCode ^ theme.hashCode ^ content.hashCode;
+}
+
+class RecommendItems {
+  List<RecommendItemModel> completeItems;
+  List<RecommendItemModel> uncompleteItems;
+
+  RecommendItems deepCopy() {
+    return RecommendItems(
+      completeItems: completeItems.map((item) => item.deepCopy()).toList(),
+      uncompleteItems: uncompleteItems.map((item) => item.deepCopy()).toList(),
+    );
+  }
+
+  RecommendItems(
+      {this.completeItems = const [], this.uncompleteItems = const []});
 }
