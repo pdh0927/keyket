@@ -15,6 +15,7 @@ import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/const/tmp_data.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
+import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
@@ -32,11 +33,13 @@ import 'package:uuid/uuid.dart';
 class BucketListDetailScreen extends ConsumerStatefulWidget {
   // 버킷리스트의 id
   final String bucketListId;
+  final bool isShared;
 
   // 생성자에서 필요한 매개변수를 받아옵니다.
   const BucketListDetailScreen({
     super.key,
     required this.bucketListId,
+    required this.isShared,
   });
 
   @override
@@ -50,10 +53,10 @@ class _BucketListDetailScreenState
   late BucketListModel modifiedBucketListModel;
 
   // 화면에 보여질 완료되지 않은 항목 리스트
-  List<ItemModel> uncompletedBucketListItemList = [];
+  // List<ItemModel> uncompletedBucketListItemList = [];
 
   // 화면에 보여질 완료된 항목 리스트
-  List<ItemModel> completedBucketListItemList = [];
+  // List<ItemModel> completedBucketListItemList = [];
 
   // 업데이트 된 custom bucketlist items 리스트
   List<CustomItemModel> updatedCustomBucketListItemList = [];
@@ -83,7 +86,14 @@ class _BucketListDetailScreenState
   bool titleFlag = false;
 
   File? tmpImage;
-  bool _isSaving = false; // 저정중을 나타내는 플래그
+
+  bool _isSaving = false; // 저장중을 나타내는 플래그
+
+  List<CustomItemModel> completeCustomItemList = [];
+  List<CustomItemModel> uncompleteCustomItemList = [];
+  List<RecommendItemModel> completeRecommendItemList = [];
+  List<RecommendItemModel> uncompleteRecommendItemList = [];
+
   @override
   void initState() {
     super.initState();
@@ -93,15 +103,23 @@ class _BucketListDetailScreenState
   // 초기 데이터 구성
   void fetchData() {
     // 현재 저장된 버킷리스트 모델 불러오기
-    modifiedBucketListModel =
-        ref.read(myBucketListListProvider.notifier).getBucketListModel(
-              widget.bucketListId,
-            );
+    if (widget.isShared) {
+      modifiedBucketListModel =
+          ref.read(sharedBucketListListProvider.notifier).getBucketListModel(
+                widget.bucketListId,
+              );
+    } else {
+      modifiedBucketListModel =
+          ref.read(myBucketListListProvider.notifier).getBucketListModel(
+                widget.bucketListId,
+              );
+    }
+
     // 현재 저장된 버킷리스트 모델에 저장된 item의 content 불러오기
     getItems(
       widget.bucketListId,
-      modifiedBucketListModel.customItemList,
-      modifiedBucketListModel.recommendItemList,
+      modifiedBucketListModel.uncompletedCustomItemList,
+      modifiedBucketListModel.uncompletedRecommendItemList,
       modifiedBucketListModel.completedCustomItemList,
       modifiedBucketListModel.completedRecommendItemList,
     );
@@ -109,6 +127,17 @@ class _BucketListDetailScreenState
 
   @override
   Widget build(BuildContext context) {
+    // var customItemBucket =
+    //     ref.watch(customBucketListItemProvider)[widget.bucketListId];
+    // var recommendItemBucket =
+    //     ref.watch(recommendBucketListItemProvider)[widget.bucketListId];
+
+    // completeCustomItemList = customItemBucket?.completeItems ?? [];
+    // uncompleteCustomItemList = customItemBucket?.uncompleteItems ?? [];
+
+    // completeRecommendItemList = recommendItemBucket?.uncompleteItems ?? [];
+    // uncompleteRecommendItemList = recommendItemBucket?.completeItems ?? [];
+
     return Stack(children: [
       Scaffold(
         appBar: buildAppBar(context),
@@ -340,8 +369,10 @@ class _BucketListDetailScreenState
   // 버킷리스트 내용 구성
   ListView buildListView() {
     return ListView.builder(
-      itemCount: completedBucketListItemList.length +
-          uncompletedBucketListItemList.length +
+      itemCount: completeCustomItemList.length +
+          completeRecommendItemList.length +
+          uncompleteCustomItemList.length +
+          uncompleteRecommendItemList.length +
           1,
       itemBuilder: (context, index) {
         if (isLastItem(index)) // 마지막 index 일때
@@ -365,8 +396,10 @@ class _BucketListDetailScreenState
   bool isLastItem(int index) {
     // index가 완료된 목록, 미완료된 목록 수를 더한것과 같을 때 마지막
     return index ==
-        completedBucketListItemList.length +
-            uncompletedBucketListItemList.length;
+        completeCustomItemList.length +
+            completeRecommendItemList.length +
+            uncompleteCustomItemList.length +
+            uncompleteRecommendItemList.length;
   }
 
   // 아이템 추가 버튼을
@@ -393,14 +426,28 @@ class _BucketListDetailScreenState
     ItemModel item;
 
     // 먼저 미완료 목록부터 띄움
-    if (index < uncompletedBucketListItemList.length) {
-      item = uncompletedBucketListItemList[index];
+    if (index < uncompleteCustomItemList.length) {
+      item = uncompleteCustomItemList[index];
+    } else if (index <
+        uncompleteCustomItemList.length + uncompleteRecommendItemList.length) {
+      item =
+          uncompleteRecommendItemList[index - uncompleteCustomItemList.length];
+    } else if (index <
+        uncompleteCustomItemList.length +
+            uncompleteRecommendItemList.length +
+            completeCustomItemList.length) {
+      item = completeCustomItemList[index -
+          uncompleteCustomItemList.length -
+          uncompleteRecommendItemList.length];
     } else {
-      item = completedBucketListItemList[
-          index - uncompletedBucketListItemList.length];
+      item = completeRecommendItemList[index -
+          uncompleteCustomItemList.length -
+          uncompleteRecommendItemList.length -
+          completeCustomItemList.length];
     }
 
-    final bool isCompleted = index >= uncompletedBucketListItemList.length;
+    final bool isCompleted = index >=
+        (uncompleteCustomItemList.length + uncompleteRecommendItemList.length);
 
     return ListItem(
       // 추천 아이템
@@ -425,9 +472,17 @@ class _BucketListDetailScreenState
       String itemId, String beforeContent) {
     List<ItemModel> list;
     if (isCompleted) {
-      list = completedBucketListItemList;
+      if (type == CustomItemModel) {
+        list = completeCustomItemList;
+      } else {
+        list = completeRecommendItemList;
+      }
     } else {
-      list = uncompletedBucketListItemList;
+      if (type == CustomItemModel) {
+        list = uncompleteCustomItemList;
+      } else {
+        list = uncompleteRecommendItemList;
+      }
     }
 
     int index = list.indexWhere(
@@ -438,26 +493,30 @@ class _BucketListDetailScreenState
         if (isCompleted) {
           setState(() {
             modifiedBucketListModel.completedRecommendItemList.remove(itemId);
+            completeRecommendItemList.removeWhere((item) => item.id == itemId);
+            completeCustomItemList
+                .add(CustomItemModel(id: '', content: modifiedContent));
           });
 
           newCustomItemCompletedList.add(modifiedContent);
         } else {
           setState(() {
-            modifiedBucketListModel.recommendItemList.remove(itemId);
+            modifiedBucketListModel.uncompletedRecommendItemList.remove(itemId);
+            uncompleteRecommendItemList
+                .removeWhere((item) => item.id == itemId);
+            uncompleteCustomItemList
+                .add(CustomItemModel(id: '', content: modifiedContent));
           });
 
           newCustomItemList.add(modifiedContent);
         }
-
-        setState(() {
-          list[index] = (CustomItemModel(id: '', content: modifiedContent));
-        });
       } else {
         CustomItemModel modifiedItem = list[index] as CustomItemModel;
 
         if (modifiedItem.id != '') {
           modifiedItem =
               modifiedItem.copyWith(content: modifiedContent); // 내용 변경
+
           setState(() {
             list[index] = modifiedItem;
           });
@@ -474,9 +533,11 @@ class _BucketListDetailScreenState
         } else {
           index = list.indexWhere(
               (item) => item.id == itemId); // list에 변경 Item할 index 알아냄
+
           setState(() {
             list[index] = (CustomItemModel(id: '', content: modifiedContent));
           });
+
           if (isCompleted) {
             index = newCustomItemCompletedList.indexWhere((content) =>
                 content ==
@@ -504,18 +565,22 @@ class _BucketListDetailScreenState
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.remove(item.id);
-        modifiedBucketListModel.recommendItemList.add(item.id);
+        modifiedBucketListModel.uncompletedRecommendItemList.add(item.id);
+
+        completeRecommendItemList.remove(item as RecommendItemModel);
+        uncompleteRecommendItemList.add(item);
       } else {
         if (item.id == '') {
           newCustomItemCompletedList.remove(item.content);
           newCustomItemList.add(item.content);
         } else {
           modifiedBucketListModel.completedCustomItemList.remove(item.id);
-          modifiedBucketListModel.customItemList.add(item.id);
+          modifiedBucketListModel.uncompletedCustomItemList.add(item.id);
         }
+
+        completeCustomItemList.remove(item as CustomItemModel);
+        uncompleteCustomItemList.add(item);
       }
-      completedBucketListItemList.remove(item);
-      uncompletedBucketListItemList.add(item);
     });
     changeFlag();
   }
@@ -525,107 +590,248 @@ class _BucketListDetailScreenState
     setState(() {
       if (item.runtimeType == RecommendItemModel) {
         modifiedBucketListModel.completedRecommendItemList.add(item.id);
-        modifiedBucketListModel.recommendItemList.remove(item.id);
+        modifiedBucketListModel.uncompletedRecommendItemList.remove(item.id);
+
+        completeRecommendItemList.add(item as RecommendItemModel);
+        uncompleteRecommendItemList.remove(item);
       } else {
         if (item.id == '') {
           newCustomItemCompletedList.add(item.content);
           newCustomItemList.remove(item.content);
         } else {
           modifiedBucketListModel.completedCustomItemList.add(item.id);
-          modifiedBucketListModel.customItemList.remove(item.id);
+          modifiedBucketListModel.uncompletedCustomItemList.remove(item.id);
         }
+
+        completeCustomItemList.add(item as CustomItemModel);
+        uncompleteCustomItemList.remove(item);
       }
-      completedBucketListItemList.add(item);
-      uncompletedBucketListItemList.remove(item);
     });
     changeFlag();
   }
 
   // FireStore에서 item의 content 가져와서 넣기
+  // Future<void> getItems(
+  //     String id,
+  //     List<String> uncompletedcustomItemList,
+  //     List<String> uncompletedrecommendItemList,
+  //     List<String> completedCustomItemList,
+  //     List<String> completedRecommendItemList) async {
+  //   final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  //   // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
+  //   List<String> tmpCustomItemsList = List.from(uncompletedcustomItemList)
+  //     ..addAll(completedCustomItemList);
+  //   List<String> tmpRecommendItemsList = List.from(uncompletedrecommendItemList)
+  //     ..addAll(completedRecommendItemList);
+
+  //   // Firestore에서 해당하는 item 불러오기
+  //   final List<ItemModel> customItems =
+  //       await _fetchItems(firestore, 'custom', tmpCustomItemsList);
+  //   final List<ItemModel> recommendItems =
+  //       await _fetchItems(firestore, 'recommend', tmpRecommendItemsList);
+
+  //   // Firestore에서 가져온 customItems id 목록
+  //   Set<String> fetchedCustomItemsIds =
+  //       Set.from(customItems.map((item) => item.id));
+
+  //   // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
+  //   int targetRemoveCount = uncompletedcustomItemList.length +
+  //       completedCustomItemList.length -
+  //       fetchedCustomItemsIds.length;
+  //   int customItemListRemovedCount = _removeNonExistentItems(
+  //       uncompletedcustomItemList, fetchedCustomItemsIds, targetRemoveCount);
+  //   int completedCustomItemListRemovedCount = 0;
+  //   if (customItemListRemovedCount < targetRemoveCount) {
+  //     completedCustomItemListRemovedCount = _removeNonExistentItems(
+  //         completedCustomItemList,
+  //         fetchedCustomItemsIds,
+  //         targetRemoveCount - customItemListRemovedCount);
+  //   }
+
+  //   Map<String, dynamic> updates = {};
+
+  //   // custom_item_list가 변경되었으면 updates에 추가
+  //   if (customItemListRemovedCount > 0) {
+  //     updates['customItemList'] = uncompletedcustomItemList;
+  //   }
+
+  //   // completed_custom_item_list가 변경되었으면 updates에 추가
+  //   if (completedCustomItemListRemovedCount > 0) {
+  //     updates['completedCustomItemList'] = completedCustomItemList;
+  //   }
+
+  //   // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
+  //   if (updates.isNotEmpty) {
+  //     await firestore.collection('bucket_list').doc(id).update(updates);
+  //   }
+
+  //   // 기존 BucketListModel 찾기
+  //   final existingBucketList = ref
+  //       .read(widget.isShared
+  //           ? sharedBucketListListProvider
+  //           : myBucketListListProvider)
+  //       .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+
+  //   // 새로운 itemList로 BucketListModel 업데이트
+  //   final updatedBucketList = existingBucketList.copyWith(
+  //     customItemList: uncompletedcustomItemList,
+  //     completedCustomItemList: completedCustomItemList,
+  //   );
+
+  //   // StateNotifier를 통해 상태 업데이트
+  //   ref
+  //       .read(myBucketListListProvider.notifier)
+  //       .updateBucketList(updatedBucketList);
+
+  //   // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
+  //   final List<ItemModel> uncompletedItems = List.from(
+  //       customItems.getRange(0, uncompletedcustomItemList.length))
+  //     ..addAll(recommendItems.getRange(0, uncompletedrecommendItemList.length));
+  //   final List<ItemModel> completedItems = List.from(customItems.getRange(
+  //       uncompletedcustomItemList.length, customItems.length))
+  //     ..addAll(recommendItems.getRange(
+  //         uncompletedrecommendItemList.length, recommendItems.length));
+
+  //   // 상태 업데이트
+  //   setState(() {
+  //     uncompletedBucketListItemList = uncompletedItems;
+  //     completedBucketListItemList = completedItems;
+  //   });
+  // }
+
   Future<void> getItems(
       String id,
-      List<String> customItemList,
-      List<String> recommendItemList,
+      List<String> uncompletedcustomItemList,
+      List<String> uncompletedrecommendItemList,
       List<String> completedCustomItemList,
       List<String> completedRecommendItemList) async {
-    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+    final bucketListCustomItemState = ref.read(customBucketListItemProvider);
+    final bucketListRecommendItemState =
+        ref.read(recommendBucketListItemProvider);
 
-    // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
-    List<String> tmpCustomItemsList = List.from(customItemList)
-      ..addAll(completedCustomItemList);
-    List<String> tmpRecommendItemsList = List.from(recommendItemList)
-      ..addAll(completedRecommendItemList);
+    // ID를 로컬에서 찾을 수 있는 경우 Firestore에 접근하지 않음
+    if (!bucketListCustomItemState.containsKey(id) ||
+        !bucketListRecommendItemState.containsKey(id)) {
+      final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    // Firestore에서 해당하는 item 불러오기
-    final List<ItemModel> customItems =
-        await _fetchItems(firestore, 'custom', tmpCustomItemsList);
-    final List<ItemModel> recommendItems =
-        await _fetchItems(firestore, 'recommend', tmpRecommendItemsList);
+      List<String> tmpCustomItemsList = List.from(uncompletedcustomItemList)
+        ..addAll(completedCustomItemList);
+      List<String> tmpRecommendItemsList =
+          List.from(uncompletedrecommendItemList)
+            ..addAll(completedRecommendItemList);
 
-    // Firestore에서 가져온 customItems id 목록
-    Set<String> fetchedCustomItemsIds =
-        Set.from(customItems.map((item) => item.id));
+      // Firestore에서 해당하는 item 불러오기
+      final List<CustomItemModel> customItems =
+          (await _fetchItems(firestore, 'custom', tmpCustomItemsList))
+              .map((item) => item as CustomItemModel)
+              .toList();
 
-    // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
-    int targetRemoveCount = customItemList.length +
-        completedCustomItemList.length -
-        fetchedCustomItemsIds.length;
-    int customItemListRemovedCount = _removeNonExistentItems(
-        customItemList, fetchedCustomItemsIds, targetRemoveCount);
-    int completedCustomItemListRemovedCount = 0;
-    if (customItemListRemovedCount < targetRemoveCount) {
-      completedCustomItemListRemovedCount = _removeNonExistentItems(
-          completedCustomItemList,
-          fetchedCustomItemsIds,
-          targetRemoveCount - customItemListRemovedCount);
+      final List<RecommendItemModel> recommendItems =
+          (await _fetchItems(firestore, 'recommend', tmpRecommendItemsList))
+              .map((item) => item as RecommendItemModel)
+              .toList();
+
+      // Firestore에서 가져온 customItems id 목록
+      Set<String> fetchedCustomItemsIds =
+          Set.from(customItems.map((item) => item.id));
+
+      // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
+      int targetRemoveCount = uncompletedcustomItemList.length +
+          completedCustomItemList.length -
+          fetchedCustomItemsIds.length;
+      int customItemListRemovedCount = _removeNonExistentItems(
+          uncompletedcustomItemList, fetchedCustomItemsIds, targetRemoveCount);
+      int completedCustomItemListRemovedCount = 0;
+      if (customItemListRemovedCount < targetRemoveCount) {
+        completedCustomItemListRemovedCount = _removeNonExistentItems(
+            completedCustomItemList,
+            fetchedCustomItemsIds,
+            targetRemoveCount - customItemListRemovedCount);
+      }
+
+      // 나눠 담기 위해 index 수정
+      int uncompletedCustomItemsCount =
+          uncompletedcustomItemList.length - customItemListRemovedCount;
+      int completedCustomItemsCount =
+          completedCustomItemList.length - completedCustomItemListRemovedCount;
+
+      // 나눠 담기
+      ref
+          .read(customBucketListItemProvider.notifier)
+          .addCustomItemsToBucketList(
+              id,
+              CustomItems(
+                  completeItems: customItems
+                      .getRange(0, completedCustomItemsCount)
+                      .toList(),
+                  uncompleteItems: customItems
+                      .getRange(
+                          completedCustomItemsCount,
+                          completedCustomItemsCount +
+                              uncompletedCustomItemsCount)
+                      .toList()));
+
+      ref
+          .read(recommendBucketListItemProvider.notifier)
+          .addRecommendItemsToBucketList(
+              id,
+              RecommendItems(
+                  completeItems: recommendItems
+                      .getRange(0, completedRecommendItemList.length)
+                      .toList(),
+                  uncompleteItems: recommendItems
+                      .getRange(
+                          completedRecommendItemList.length,
+                          completedRecommendItemList.length +
+                              uncompleteRecommendItemList.length)
+                      .toList()));
+
+      Map<String, dynamic> updates = {};
+
+      // custom_item_list가 변경되었으면 updates에 추가
+      if (customItemListRemovedCount > 0) {
+        updates['customItemList'] = uncompletedcustomItemList;
+      }
+
+      // completed_custom_item_list가 변경되었으면 updates에 추가
+      if (completedCustomItemListRemovedCount > 0) {
+        updates['completedCustomItemList'] = completedCustomItemList;
+      }
+
+      // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
+      if (updates.isNotEmpty) {
+        await firestore.collection('bucket_list').doc(id).update(updates);
+
+        // 기존 BucketListModel 찾기
+        final existingBucketList = ref
+            .read(myBucketListListProvider)
+            .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+
+        // 새로운 itemList로 BucketListModel 업데이트
+        final updatedBucketList = existingBucketList.copyWith(
+          customItemList: uncompletedcustomItemList,
+          completedCustomItemList: completedCustomItemList,
+        );
+
+        // StateNotifier를 통해 상태 업데이트
+        ref
+            .read(myBucketListListProvider.notifier)
+            .updateBucketList(updatedBucketList);
+      }
     }
 
-    Map<String, dynamic> updates = {};
-
-    // custom_item_list가 변경되었으면 updates에 추가
-    if (customItemListRemovedCount > 0) {
-      updates['customItemList'] = customItemList;
-    }
-
-    // completed_custom_item_list가 변경되었으면 updates에 추가
-    if (completedCustomItemListRemovedCount > 0) {
-      updates['completedCustomItemList'] = completedCustomItemList;
-    }
-
-    // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
-    if (updates.isNotEmpty) {
-      await firestore.collection('bucket_list').doc(id).update(updates);
-    }
-
-    // 기존 BucketListModel 찾기
-    final existingBucketList = ref
-        .read(myBucketListListProvider)
-        .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
-
-    // 새로운 itemList로 BucketListModel 업데이트
-    final updatedBucketList = existingBucketList.copyWith(
-      customItemList: customItemList,
-      completedCustomItemList: completedCustomItemList,
-    );
-
-    // StateNotifier를 통해 상태 업데이트
-    ref
-        .read(myBucketListListProvider.notifier)
-        .updateBucketList(updatedBucketList);
-
-    // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
-    final List<ItemModel> uncompletedItems =
-        List.from(customItems.getRange(0, customItemList.length))
-          ..addAll(recommendItems.getRange(0, recommendItemList.length));
-    final List<ItemModel> completedItems = List.from(
-        customItems.getRange(customItemList.length, customItems.length))
-      ..addAll(recommendItems.getRange(
-          recommendItemList.length, recommendItems.length));
-
-    // 상태 업데이트
     setState(() {
-      uncompletedBucketListItemList = uncompletedItems;
-      completedBucketListItemList = completedItems;
+      CustomItems tmpCustomItems = ref
+          .read(customBucketListItemProvider)[widget.bucketListId]!
+          .deepCopy();
+      RecommendItems tmpRecommendsItems = ref
+          .read(recommendBucketListItemProvider)[widget.bucketListId]!
+          .deepCopy();
+      completeCustomItemList = tmpCustomItems.completeItems;
+      uncompleteCustomItemList = tmpCustomItems.uncompleteItems;
+      completeRecommendItemList = tmpRecommendsItems.completeItems;
+      uncompleteRecommendItemList = tmpRecommendsItems.uncompleteItems;
     });
   }
 
@@ -678,7 +884,7 @@ class _BucketListDetailScreenState
       }
     }
 
-    return removedCount; // Returns the count of items removed
+    return removedCount; // 제거된 수
   }
 
   double getAchievementRate() {
@@ -686,21 +892,26 @@ class _BucketListDetailScreenState
         modifiedBucketListModel.completedCustomItemList.length +
             modifiedBucketListModel.completedRecommendItemList.length +
             newCustomItemCompletedList.length;
-    int uncompletedCount = modifiedBucketListModel.customItemList.length +
-        modifiedBucketListModel.recommendItemList.length +
-        newCustomItemList.length;
+    int uncompletedCount =
+        modifiedBucketListModel.uncompletedCustomItemList.length +
+            modifiedBucketListModel.uncompletedRecommendItemList.length +
+            newCustomItemList.length;
 
     return (completedCount) / (completedCount + uncompletedCount);
   }
 
   // 새로 추가된 cusotom item
   void addNewCustomItem(String content) {
-    setState(() {
-      if (content != '') {
-        uncompletedBucketListItemList
-            .add(CustomItemModel(content: content, id: ''));
+    if (content != '') {
+      ref.read(customBucketListItemProvider.notifier).addCustomItemToBucketList(
+          widget.bucketListId,
+          CustomItemModel(content: content, id: ''),
+          false);
+      setState(() {
         newCustomItemList.add(content);
-      }
+      });
+    }
+    setState(() {
       addCustomItemFlag = !addCustomItemFlag;
     });
     changeFlag();
@@ -708,16 +919,17 @@ class _BucketListDetailScreenState
 
   // 새로 추가된 recommend item
   void addRecommendItem(RecommendItemModel item) {
-    if (!modifiedBucketListModel.recommendItemList.contains(item.id) &&
+    if (!modifiedBucketListModel.uncompletedRecommendItemList
+            .contains(item.id) &&
         !modifiedBucketListModel.completedRecommendItemList.contains(item.id)) {
       setState(() {
-        modifiedBucketListModel.recommendItemList.add(item.id);
-        uncompletedBucketListItemList.add(RecommendItemModel(
-            id: item.id,
-            region: item.region,
-            theme: item.theme,
-            content: item.content));
+        modifiedBucketListModel.uncompletedRecommendItemList.add(item.id);
       });
+      uncompleteRecommendItemList.add(RecommendItemModel(
+          id: item.id,
+          region: item.region,
+          theme: item.theme,
+          content: item.content));
     }
     changeFlag();
   }
@@ -725,34 +937,35 @@ class _BucketListDetailScreenState
   // item 제거
   void removeItem(ItemModel item, bool isCompleted) {
     setState(() {
-      if (item.runtimeType == RecommendItemModel) {
-        // recommend item이면 다 id로 저장돼있으니 modifiedBucketListModel의 recommendItemList에서 제거
+      if (item.runtimeType ==
+          RecommendItemModel) // recommend item이면 다 id로 저장돼있으니 modifiedBucketListModel의 recommendItemList에서 제거
+      {
         if (isCompleted) {
-          completedBucketListItemList.remove(item);
           modifiedBucketListModel.completedRecommendItemList.remove(item.id);
+          completeRecommendItemList.remove(item);
         } else {
-          uncompletedBucketListItemList.remove(item);
-          modifiedBucketListModel.recommendItemList.remove(item.id);
+          modifiedBucketListModel.uncompletedRecommendItemList.remove(item.id);
+          uncompleteRecommendItemList.remove(item);
         }
-      } else {
-        // custom item이면
+      } else // custom item이면
+      {
         if (item.id == '') // 새로 생성돼서 아직 id가 없는경우
         {
           if (isCompleted) {
-            completedBucketListItemList.remove(item);
             newCustomItemCompletedList.remove(item.content);
+            completeCustomItemList.remove(item);
           } else {
-            uncompletedBucketListItemList.remove(item);
             newCustomItemList.remove(item.content);
+            uncompleteCustomItemList.remove(item);
           }
         } else // 기존에 있던거라서 id가 있는 경우
         {
           if (isCompleted) {
-            completedBucketListItemList.remove(item);
             modifiedBucketListModel.completedCustomItemList.remove(item.id);
+            completeCustomItemList.remove(item);
           } else {
-            uncompletedBucketListItemList.remove(item);
-            modifiedBucketListModel.customItemList.remove(item.id);
+            modifiedBucketListModel.uncompletedCustomItemList.remove(item.id);
+            uncompleteCustomItemList.remove(item);
           }
           deleteList.add(item.id);
         }
@@ -821,7 +1034,7 @@ class _BucketListDetailScreenState
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: _RecommendItemList(
                 uncomplementedRecommendItemList:
-                    modifiedBucketListModel.recommendItemList,
+                    modifiedBucketListModel.uncompletedRecommendItemList,
                 complementedRecommendItemList:
                     modifiedBucketListModel.completedRecommendItemList,
                 addRecommendItem: addRecommendItem,
@@ -841,19 +1054,23 @@ class _BucketListDetailScreenState
 
   // 변경된 필드가 있는지 확인
   bool isChange() {
-    BucketListModel originalBucketListModel = ref
-        .read(myBucketListListProvider.notifier)
-        .getBucketListModel(widget.bucketListId);
+    BucketListModel originalBucketListModel = widget.isShared
+        ? ref
+            .read(sharedBucketListListProvider.notifier)
+            .getBucketListModel(widget.bucketListId)
+        : ref
+            .read(myBucketListListProvider.notifier)
+            .getBucketListModel(widget.bucketListId);
     return !listEquals(originalBucketListModel.completedCustomItemList,
             modifiedBucketListModel.completedCustomItemList) ||
         !listEquals(originalBucketListModel.completedRecommendItemList,
             modifiedBucketListModel.completedRecommendItemList) ||
         newCustomItemList.isNotEmpty ||
         newCustomItemCompletedList.isNotEmpty ||
-        !listEquals(originalBucketListModel.customItemList,
-            modifiedBucketListModel.customItemList) ||
-        !listEquals(originalBucketListModel.recommendItemList,
-            modifiedBucketListModel.recommendItemList) ||
+        !listEquals(originalBucketListModel.uncompletedCustomItemList,
+            modifiedBucketListModel.uncompletedCustomItemList) ||
+        !listEquals(originalBucketListModel.uncompletedRecommendItemList,
+            modifiedBucketListModel.uncompletedRecommendItemList) ||
         originalBucketListModel.name != modifiedBucketListModel.name ||
         originalBucketListModel.image != modifiedBucketListModel.image ||
         !listEquals(
@@ -877,17 +1094,19 @@ class _BucketListDetailScreenState
         await _addNewCustomBucketListItems(
           firestore,
           newCustomItemList,
-          uncompletedBucketListItemList,
-          modifiedBucketListModel.customItemList,
+          uncompleteCustomItemList,
+          modifiedBucketListModel.uncompletedCustomItemList,
           batch,
+          false,
         );
         // 완료된 새로운 아이템 FireStore에 추가
         await _addNewCustomBucketListItems(
           firestore,
           newCustomItemCompletedList,
-          completedBucketListItemList,
+          completeCustomItemList,
           modifiedBucketListModel.completedCustomItemList,
           batch,
+          true,
         );
       }
 
@@ -939,6 +1158,7 @@ class _BucketListDetailScreenState
     List<ItemModel> bucketListItemList,
     List<String> customItemList,
     WriteBatch batch,
+    bool isCompleted,
   ) async {
     for (String content in List.from(itemList)) {
       DocumentReference docRef = firestore.collection('custom').doc(); // id 지정
@@ -956,6 +1176,7 @@ class _BucketListDetailScreenState
           setState(() {
             bucketListItemList[i] = item.copyWith(id: docRef.id);
           });
+
           break;
         }
       }
@@ -1003,9 +1224,13 @@ class _BucketListDetailScreenState
     FirebaseStorage storage,
   ) async {
     Map<String, dynamic> updates = {};
-    BucketListModel originalBucketListModel = ref
-        .read(myBucketListListProvider.notifier)
-        .getBucketListModel(widget.bucketListId);
+    BucketListModel originalBucketListModel = widget.isShared
+        ? ref
+            .read(sharedBucketListListProvider.notifier)
+            .getBucketListModel(widget.bucketListId)
+        : ref
+            .read(myBucketListListProvider.notifier)
+            .getBucketListModel(widget.bucketListId);
 
     // 완료된 custom bucketlist item 목록 확인
     if (!listEquals(originalBucketListModel.completedCustomItemList,
@@ -1022,22 +1247,23 @@ class _BucketListDetailScreenState
     }
 
     // 완료되지 않은 custom bucketlist item 목록 확인
-    if (!listEquals(originalBucketListModel.customItemList,
-        modifiedBucketListModel.customItemList)) {
-      updates['customItemList'] = modifiedBucketListModel.customItemList;
+    if (!listEquals(originalBucketListModel.uncompletedCustomItemList,
+        modifiedBucketListModel.uncompletedCustomItemList)) {
+      updates['uncompletedCustomItemList'] =
+          modifiedBucketListModel.uncompletedCustomItemList;
     }
 
     // 완료되지 않은 recommend bucketlist item 목록 확인
-    if (!listEquals(originalBucketListModel.recommendItemList,
-        modifiedBucketListModel.recommendItemList)) {
-      updates['recommendItemList'] = modifiedBucketListModel.recommendItemList;
+    if (!listEquals(originalBucketListModel.uncompletedRecommendItemList,
+        modifiedBucketListModel.uncompletedRecommendItemList)) {
+      updates['uncompletedRecommendItemList'] =
+          modifiedBucketListModel.uncompletedRecommendItemList;
     }
 
     // name이 변경되었는지 확인
     if (originalBucketListModel.name != modifiedBucketListModel.name) {
       updates['name'] = modifiedBucketListModel.name;
     }
-
     // 이미지가 변경되었는지 확인
     if (tmpImage != null) {
       // 기존의 이미지가 있으면 삭제합니다.
@@ -1053,19 +1279,47 @@ class _BucketListDetailScreenState
       // 변경된 이미지 URL을 modifiedBucketListModel의 이미지로 설정합니다.
       modifiedBucketListModel =
           modifiedBucketListModel.copyWith(image: imageUrl);
-    }
-
-    // image가 변경되었는지 확인
-    if (originalBucketListModel.image != modifiedBucketListModel.image) {
-      // 이미지를 없앨떄도 기존 이미지가 있다면 삭제
+      updates['image'] = imageUrl; // 변경된 URL을 업데이트에 추가
+    } else if (originalBucketListModel.image != modifiedBucketListModel.image) {
+      // tmpImage가 null이지만 original image와 modified image가 다른 경우
+      // 사용자가 이미지를 삭제한 것으로 간주하고 Firestore를 업데이트합니다.
       if (originalBucketListModel.image != '') {
+        // 기존 이미지가 있다면 Storage에서 삭제합니다.
         Reference photoRef =
             FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
         await photoRef.delete();
       }
-
-      updates['image'] = modifiedBucketListModel.image;
+      updates['image'] =
+          modifiedBucketListModel.image; // 변경된 URL(여기서는 '')을 업데이트에 추가
     }
+    // // 이미지가 변경되었는지 확인
+    // if (tmpImage != null) {
+    //   // 기존의 이미지가 있으면 삭제합니다.
+    //   if (originalBucketListModel.image != '') {
+    //     Reference photoRef =
+    //         FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
+    //     await photoRef.delete();
+    //   }
+
+    //   // 이미지를 Firebase Storage에 업로드하고 Firestore에 이미지 URL을 저장합니다.
+    //   String imageUrl = await _uploadImageToFirebase(tmpImage!.path, storage);
+
+    //   // 변경된 이미지 URL을 modifiedBucketListModel의 이미지로 설정합니다.
+    //   modifiedBucketListModel =
+    //       modifiedBucketListModel.copyWith(image: imageUrl);
+    // }
+
+    // // image가 변경되었는지 확인
+    // if (originalBucketListModel.image != modifiedBucketListModel.image) {
+    //   // 이미지를 없앨떄도 기존 이미지가 있다면 삭제
+    //   if (originalBucketListModel.image != '') {
+    //     Reference photoRef =
+    //         FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
+    //     await photoRef.delete();
+    //   }
+
+    //   updates['image'] = modifiedBucketListModel.image;
+    // }
 
     // 다른 변경사항이 있을 시
     if (originalBucketListModel.updatedAt !=
@@ -1084,6 +1338,22 @@ class _BucketListDetailScreenState
       ref
           .read(myBucketListListProvider.notifier)
           .changeBucketListModel(widget.bucketListId, modifiedBucketListModel);
+
+      ref
+          .read(customBucketListItemProvider.notifier)
+          .replaceCustomItemsInBucketList(
+              widget.bucketListId,
+              CustomItems(
+                completeItems: completeCustomItemList,
+                uncompleteItems: uncompleteCustomItemList,
+              ));
+      ref
+          .read(recommendBucketListItemProvider.notifier)
+          .replaceRecommendItemsInBucketList(
+              widget.bucketListId,
+              RecommendItems(
+                  completeItems: completeRecommendItemList,
+                  uncompleteItems: uncompleteRecommendItemList));
     }
   }
 
