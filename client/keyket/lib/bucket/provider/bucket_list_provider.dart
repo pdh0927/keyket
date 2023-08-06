@@ -26,9 +26,11 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
         data['completedCustomItemList'] = data['completedCustomItemList'] ?? [];
         data['completedRecommendItemList'] =
             data['completedRecommendItemList'] ?? [];
-        data['customItemList'] = data['customItemList'] ?? [];
-        data['recommendItemList'] = data['recommendItemList'] ?? [];
-
+        data['uncompletedCustomItemList'] =
+            data['uncompletedCustomItemList'] ?? [];
+        data['uncompletedRecommendItemList'] =
+            data['uncompletedRecommendItemList'] ?? [];
+        print(data);
         bucketList.add(BucketListModel.fromJson(data));
       }
     } catch (e) {
@@ -53,8 +55,8 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
     final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
     int complementedCount = bucketList.completedCustomItemList.length +
         bucketList.completedRecommendItemList.length;
-    int uncomplementedCount =
-        bucketList.customItemList.length + bucketList.recommendItemList.length;
+    int uncomplementedCount = bucketList.uncompletedCustomItemList.length +
+        bucketList.uncompletedRecommendItemList.length;
 
     return (complementedCount) / (uncomplementedCount + complementedCount);
   }
@@ -86,9 +88,9 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
   List<String> getContainList(String type, String bucketListId) {
     final bucket = state.firstWhere((bucket) => bucket.id == bucketListId);
     if (type == 'recommend') {
-      return List.from(bucket.recommendItemList);
+      return List.from(bucket.uncompletedRecommendItemList);
     } else {
-      return List.from(bucket.customItemList);
+      return List.from(bucket.uncompletedCustomItemList);
     }
   }
 
