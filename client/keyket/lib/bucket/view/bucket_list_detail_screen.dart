@@ -101,7 +101,7 @@ class _BucketListDetailScreenState
   }
 
   // 초기 데이터 구성
-  void fetchData() {
+  void fetchData() async {
     // 현재 저장된 버킷리스트 모델 불러오기
     if (widget.isShared) {
       modifiedBucketListModel =
@@ -123,6 +123,45 @@ class _BucketListDetailScreenState
       modifiedBucketListModel.completedCustomItemList,
       modifiedBucketListModel.completedRecommendItemList,
     );
+
+    if (!ref.read(bucketListUserProvider).containsKey(widget.bucketListId)) {
+      ref.read(bucketListUserProvider.notifier).addBucketListUsers(
+          widget.bucketListId, await getUsers(modifiedBucketListModel.users));
+    }
+  }
+
+  // Firestore에서 사용자들을 가져오는 함수
+  Future<List<UserModel>> getUsers(List<String> userIds) async {
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    // 가져온 사용자들을 저장할 빈 리스트 생성
+    List<UserModel> users = [];
+    int read = 0; // 현재까지 읽은 사용자 수
+
+    // 사용자 ID 리스트를 전부 확인할 때까지 반복
+    while (read < userIds.length) {
+      // 10명 또는 남은 사용자 수만큼의 사용자 ID를 가져옴
+      List<String> chunk =
+          userIds.sublist(read, min(read + 10, userIds.length));
+
+      // Firestore에서 해당 사용자들의 정보를 가져옴
+      QuerySnapshot querySnapshot = await firestore
+          .collection('user')
+          .where(FieldPath.documentId, whereIn: chunk)
+          .get();
+
+      users.addAll(querySnapshot.docs.map((doc) {
+        // doc의 data를 map으로 변환하고, 'id' 필드에 doc의 id를 추가
+        Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
+        data['id'] = doc.id;
+
+        // 변환한 map을 사용하여 UserModel을 생성
+        return UserModel.fromJson(data);
+      }).toList());
+
+      read += chunk.length;
+    }
+    // 모든 사용자들을 담은 리스트를 반환
+    return users;
   }
 
   @override
@@ -1524,6 +1563,7 @@ class _MemberSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 6.h),
         Container(
