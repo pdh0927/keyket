@@ -4,13 +4,13 @@ part 'user_model.g.dart';
 
 @JsonSerializable()
 class UserModel {
-  final String kakaoId;
+  final String id;
   final String nickname;
   final String image;
   final int inviteCode;
 
   UserModel({
-    required this.kakaoId,
+    required this.id,
     required this.nickname,
     required this.image,
     required this.inviteCode,

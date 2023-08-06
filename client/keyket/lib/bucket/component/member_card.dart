@@ -20,7 +20,7 @@ class MemberCard extends ConsumerWidget {
   factory MemberCard.fromModel(
       {required UserModel model, required bool isHost}) {
     return MemberCard(
-      id: model.kakaoId,
+      id: model.id,
       nickname: model.nickname,
       image: model.image == ''
           ? CircleAvatar(
