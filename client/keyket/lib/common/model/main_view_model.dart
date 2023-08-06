@@ -45,12 +45,12 @@ class MainViewModel {
   }
 }
 
-Future<void> _createUserInFirestore(String kakaoId, String name) async {
+Future<void> _createUserInFirestore(String id, String name) async {
   var counterRef =
       FirebaseFirestore.instance.collection('user_count').doc('userCounter');
   var userRef = FirebaseFirestore.instance.collection('user');
 
-  DocumentSnapshot userSnapshot = await userRef.doc(kakaoId).get();
+  DocumentSnapshot userSnapshot = await userRef.doc(id).get();
 
   if (userSnapshot.exists) {
     // 이미 존재하는 사용자인 경우 종료
@@ -69,14 +69,8 @@ Future<void> _createUserInFirestore(String kakaoId, String name) async {
       int updatedCount = counterData['count'] + 1;
       transaction.update(counterRef, {'count': updatedCount});
 
-      UserModel user = UserModel(
-        kakaoId: kakaoId,
-        nickname: name,
-        image: '',
-        inviteCode: updatedCount,
-      );
-
-      transaction.set(userRef.doc(kakaoId), user.toJson());
+      transaction.set(userRef.doc(id),
+          {'nickname': name, 'image': '', 'inviteCode': updatedCount});
     }
   });
 }
