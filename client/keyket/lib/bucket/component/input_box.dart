@@ -7,12 +7,14 @@ class InputBox extends StatefulWidget {
   final String? defaultName;
   final Function(String) onLeftPressed;
   final Function() onRightPressed;
-  const InputBox(
-      {super.key,
-      required this.inputType,
-      this.defaultName,
-      required this.onLeftPressed,
-      required this.onRightPressed});
+
+  const InputBox({
+    super.key,
+    required this.inputType,
+    this.defaultName,
+    required this.onLeftPressed,
+    required this.onRightPressed,
+  });
 
   @override
   State<InputBox> createState() => _InputBoxState();
@@ -78,7 +80,7 @@ class _InputBoxState extends State<InputBox> {
               _CustomButton(
                 buttonText: '취소',
                 onPressed: () {
-                  widget.onRightPressed;
+                  widget.onRightPressed();
                 },
               ),
             ],

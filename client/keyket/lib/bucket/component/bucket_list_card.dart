@@ -14,20 +14,22 @@ class BucketListCard extends ConsumerWidget {
   final DateTime updatedAt;
   final List<String> completedCustomItemList;
   final List<String> completedRecommendItemList;
-  final List<String> customItemList;
-  final List<String> recommendItemList;
+  final List<String> uncompletedcustomItemList;
+  final List<String> uncompletedrecommendItemList;
+  final bool isShared;
 
   const BucketListCard({
     super.key,
     required this.id,
     required this.name,
     required this.image,
+    required this.isShared,
     required this.createdAt,
     required this.updatedAt,
     required this.completedCustomItemList,
     required this.completedRecommendItemList,
-    required this.customItemList,
-    required this.recommendItemList,
+    required this.uncompletedcustomItemList,
+    required this.uncompletedrecommendItemList,
   });
 
   factory BucketListCard.fromModel({required BucketListModel model}) {
@@ -42,12 +44,13 @@ class BucketListCard extends ConsumerWidget {
               fit: BoxFit.cover)
           : Image.network(
               width: 100, height: 100, model.image, fit: BoxFit.cover),
+      isShared: model.isShared,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
       completedCustomItemList: model.completedCustomItemList,
       completedRecommendItemList: model.completedRecommendItemList,
-      customItemList: model.customItemList,
-      recommendItemList: model.recommendItemList,
+      uncompletedcustomItemList: model.uncompletedCustomItemList,
+      uncompletedrecommendItemList: model.uncompletedRecommendItemList,
     );
   }
 
@@ -58,6 +61,7 @@ class BucketListCard extends ConsumerWidget {
         Navigator.of(context).push(MaterialPageRoute(
             builder: (_) => BucketListDetailScreen(
                   bucketListId: id,
+                  isShared: isShared,
                 )));
       },
       child: IntrinsicHeight(
@@ -99,7 +103,8 @@ class BucketListCard extends ConsumerWidget {
   double getAchievementRate() {
     int complementedCount =
         completedCustomItemList.length + completedRecommendItemList.length;
-    int uncomplementedCount = customItemList.length + recommendItemList.length;
+    int uncomplementedCount =
+        uncompletedcustomItemList.length + uncompletedrecommendItemList.length;
 
     return (complementedCount) / (uncomplementedCount + complementedCount);
   }

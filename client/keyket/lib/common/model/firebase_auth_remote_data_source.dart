@@ -6,7 +6,6 @@ class FirebaseAuthRemoteDataSource {
 
   Future<String> createCustomUserToken(Map<String, dynamic> user) async {
     final customTokenResponse = await http.post(Uri.parse(url), body: user);
-    print(customTokenResponse);
 
     return customTokenResponse.body;
   }

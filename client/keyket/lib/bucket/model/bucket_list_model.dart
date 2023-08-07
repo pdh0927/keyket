@@ -11,10 +11,10 @@ class BucketListModel {
   final List<String> users;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final List<String> uncompletedCustomItemList;
+  final List<String> uncompletedRecommendItemList;
   final List<String> completedCustomItemList;
   final List<String> completedRecommendItemList;
-  final List<String> customItemList;
-  final List<String> recommendItemList;
 
   BucketListModel({
     required this.id,
@@ -26,8 +26,8 @@ class BucketListModel {
     required this.updatedAt,
     required this.completedCustomItemList,
     required this.completedRecommendItemList,
-    required this.customItemList,
-    required this.recommendItemList,
+    required this.uncompletedCustomItemList,
+    required this.uncompletedRecommendItemList,
   });
   BucketListModel deepCopy() {
     return BucketListModel(
@@ -42,8 +42,8 @@ class BucketListModel {
           DateTime.fromMillisecondsSinceEpoch(updatedAt.millisecondsSinceEpoch),
       completedCustomItemList: List.from(completedCustomItemList),
       completedRecommendItemList: List.from(completedRecommendItemList),
-      customItemList: List.from(customItemList),
-      recommendItemList: List.from(recommendItemList),
+      uncompletedCustomItemList: List.from(uncompletedCustomItemList),
+      uncompletedRecommendItemList: List.from(uncompletedRecommendItemList),
     );
   }
 
@@ -75,12 +75,12 @@ class BucketListModel {
       completedRecommendItemList: completedRecommendItemList != null
           ? List.from(completedRecommendItemList)
           : this.completedRecommendItemList,
-      customItemList: customItemList != null
-          ? List.from(customItemList)
-          : this.customItemList,
-      recommendItemList: recommendItemList != null
-          ? List.from(recommendItemList)
-          : this.recommendItemList,
+      uncompletedCustomItemList: customItemList != null
+          ? List.from(uncompletedCustomItemList)
+          : this.uncompletedCustomItemList,
+      uncompletedRecommendItemList: recommendItemList != null
+          ? List.from(uncompletedRecommendItemList)
+          : this.uncompletedRecommendItemList,
     );
   }
 
@@ -96,8 +96,8 @@ class BucketListModel {
         'updatedAt: $updatedAt, '
         'completedCustomItemList: $completedCustomItemList, '
         'completedRecommendItemList: $completedRecommendItemList, '
-        'customItemList: $customItemList, '
-        'recommendItemList: $recommendItemList'
+        'customItemList: $uncompletedCustomItemList, '
+        'recommendItemList: $uncompletedRecommendItemList'
         '}';
   }
 

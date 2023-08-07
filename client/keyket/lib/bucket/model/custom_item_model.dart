@@ -25,6 +25,27 @@ class CustomItemModel extends ItemModel {
   String toString() {
     return 'CustomItemModel: {id: $id, content: $content}';
   }
+
+  CustomItemModel deepCopy() {
+    return CustomItemModel(
+      id: id,
+      content: content,
+    );
+  }
+}
+
+class CustomItems {
+  final List<CustomItemModel> completeItems;
+  final List<CustomItemModel> uncompleteItems;
+
+  CustomItems deepCopy() {
+    return CustomItems(
+      completeItems: completeItems.map((item) => item.deepCopy()).toList(),
+      uncompleteItems: uncompleteItems.map((item) => item.deepCopy()).toList(),
+    );
+  }
+
+  CustomItems({required this.completeItems, required this.uncompleteItems});
 }
 
 abstract class ItemModel {
