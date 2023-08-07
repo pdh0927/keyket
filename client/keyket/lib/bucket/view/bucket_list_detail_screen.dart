@@ -354,7 +354,58 @@ class _BucketListDetailScreenState
             fontWeight: FontWeight.w600,
           ),
         ),
-        SizedBox(height: MediaQuery.of(context).size.height * 0.033), // 빈공간
+
+        Container(
+          height: 60.0, // 이 값은 필요에 따라 조정해야 합니다.
+          child: Stack(
+            alignment: AlignmentDirectional.center,
+            children: <Widget>[
+              ...userModelList.map((userModel) {
+                int index = userModelList.indexOf(userModel);
+                return userModel.image != ''
+                    ? Positioned(
+                        left: MediaQuery.of(context).size.width * 0.5 -
+                            (userModelList.length + addUserIdList.length + 1) *
+                                7.5 +
+                            15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
+                        child: CircleAvatar(
+                          radius: 15.0, // 이미지 크기를 30x30으로 조정했습니다.
+                          backgroundImage: NetworkImage(userModel.image),
+                        ),
+                      )
+                    : Positioned(
+                        left: MediaQuery.of(context).size.width * 0.5 -
+                            (userModelList.length + addUserIdList.length + 1) *
+                                7.5 +
+                            15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
+                        child: CircleAvatar(
+                          radius: 15.0, // 이미지 크기를 30x30으로 조정했습니다.
+                          child: Text(
+                            userModel.nickname[0],
+                            style: TextStyle(fontSize: 18.0), // 텍스트 크기를 조정했습니다.
+                          ),
+                        ),
+                      );
+              }).toList(),
+              ...addUserIdList.map((id) {
+                int index = userModelList.length + addUserIdList.indexOf(id);
+                return Positioned(
+                  left: MediaQuery.of(context).size.width * 0.5 -
+                      (userModelList.length + addUserIdList.length + 1) * 7.5 +
+                      15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
+                  child: CircleAvatar(
+                    radius: 15.0, // 이미지 크기를 30x30으로 조정했습니다.
+                    child: Text(
+                      id[0], textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18.0), // 텍스트 크기를 조정했습니다.
+                    ),
+                  ),
+                );
+              }).toList(),
+            ],
+          ),
+        ),
+
         // 달성도
         CustomProgressBar(
             achievementRate: getAchievementRate(), height: 17, width: 180)
