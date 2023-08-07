@@ -19,7 +19,7 @@ class HashTagItem extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
         height: 35,
-        width: 110, // 글자 최대수 생각해서 변경해야함
+        width: 112, // 글자 최대수 생각해서 변경해야함
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(27),
             border: Border.all(

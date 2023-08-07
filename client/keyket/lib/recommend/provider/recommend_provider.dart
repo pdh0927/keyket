@@ -5,16 +5,6 @@ import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 
 final firestore = FirebaseFirestore.instance;
 
-// final recommendDataLoaderProvider = Provider<void>((ref) {
-// RecommendRegion? selectedRegion = ref.watch(selectedRegionFilterProvider);
-// List<RecommendTheme> selectedThemes =
-//     ref.watch(selectedThemeFilterListProvider);
-
-//   ref
-//       .read(recommendItemListProvider.notifier)
-//       .getRecommendData(selectedRegion, selectedThemes);
-// });
-
 final recommendItemListProvider =
     StateNotifierProvider<RecommendItemListNotifier, List<RecommendItemModel>>(
         (ref) {

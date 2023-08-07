@@ -42,10 +42,16 @@ dependencies:
   json_annotation: ^4.8.0
   flutter_riverpod: ^2.3.6
   intl: ^0.18.1
-
+  dotted_border: ^2.0.0+3
+  uuid: ^3.0.4
+  flutter_dotenv: ^5.1.0
+  http: ^1.1.0
+  
   firebase_core: ^2.15.0
   firebase_auth: ^4.7.1
   cloud_firestore: ^4.8.3
+  firebase_storage: ^11.2.5
+  kakao_flutter_sdk_user: ^1.5.0
 
 dev_dependencies:
   flutter_test:
@@ -73,6 +79,7 @@ flutter:
 
   assets:
     - asset/img/
+    - .env
 
   # To add assets to your application, add an assets section, like this:
   # assets:

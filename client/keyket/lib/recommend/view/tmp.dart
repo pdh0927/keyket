@@ -1,16 +1,22 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/common/model/kakao_login_model.dart';
+import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/common/view/login_screen.dart';
+import 'package:keyket/recommend/provider/recommend_provider.dart';
+import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 
 final firestore = FirebaseFirestore.instance;
 
-class Tmp extends StatefulWidget {
+class Tmp extends ConsumerStatefulWidget {
   const Tmp({super.key});
 
   @override
-  State<Tmp> createState() => _TmpState();
+  ConsumerState<Tmp> createState() => _TmpState();
 }
 
-class _TmpState extends State<Tmp> {
+class _TmpState extends ConsumerState<Tmp> {
   @override
   void initState() {
     super.initState();
@@ -18,10 +24,13 @@ class _TmpState extends State<Tmp> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = MainViewModel(KaKaoLoginModel());
+
     return Scaffold(
       body: Center(
         child: Column(
           children: [
+            const SizedBox(height: 200),
             const Text('추천 임시 페이지임'),
             ElevatedButton(
               onPressed: () {
@@ -37,10 +46,47 @@ class _TmpState extends State<Tmp> {
             ),
             ElevatedButton(
               onPressed: () {
-                testReference('4M9cJT2swqL2ZASwBpqI');
+                testReference('acaagF1vSB2wJ4SYcSDd');
               },
               child: Text('testreference call function'),
             ),
+            // StreamBuilder<User?>(
+            //     stream: FirebaseAuth.instance.authStateChanges(),
+            //     builder: (context, snapshot) {
+            //       if (!snapshot.hasData) {
+            //         return ElevatedButton(
+            //           onPressed: () async {
+            //             await viewModel.logout();
+            //           },
+            //           child: Text('logout'),
+            //         );
+            //       } else {
+            //         return ElevatedButton(
+            //             onPressed: () async {
+            //               await viewModel.login();
+            //             },
+            //             child: Text('login'));
+            //       }
+            //     })
+            ElevatedButton(
+                onPressed: () async {
+                  await viewModel.login();
+                },
+                child: Text('login')),
+            ElevatedButton(
+              onPressed: () async {
+                viewModel.logout();
+              },
+              child: Text('logout'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.read(recommendItemListProvider.notifier).getRecommendData(
+                    ref.watch(selectedRegionFilterProvider),
+                    ref.watch(selectedThemeFilterListProvider));
+              },
+              child: Text('추천 가져오기'),
+            )
           ],
         ),
       ),
@@ -64,82 +110,66 @@ class _TmpState extends State<Tmp> {
     //   await firestore.collection('recommend').add(item);
     // }
 
-    //   List<Map<String, dynamic>> bucketListItems = [
-    //     {
-    //       'id': 'dh',
-    //       'name': 'in 20대',
-    //       'image': '',
-    //       'achievementRate': 0.2,
-    //       'isShared': false,
-    //       'users': ['dh'],
-    //       'createdAt': DateTime(2023, 1, 1),
-    //       'updatedAt': DateTime(2023, 1, 2)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'frieds',
-    //       'image': '',
-    //       'achievementRate': 0.72,
-    //       'isShared': true,
-    //       'users': ['dh', 'sj'],
-    //       'createdAt': DateTime(2023, 4, 2),
-    //       'updatedAt': DateTime(2023, 5, 2)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'family',
-    //       'image': '',
-    //       'achievementRate': 0.52,
-    //       'isShared': true,
-    //       'users': ['dh', 'sj'],
-    //       'createdAt': DateTime(2023, 1, 23),
-    //       'updatedAt': DateTime(2023, 3, 2)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'school',
-    //       'image': '',
-    //       'achievementRate': 0.34,
-    //       'isShared': true,
-    //       'users': ['dh', 'sj'],
-    //       'createdAt': DateTime(2023, 5, 5),
-    //       'updatedAt': DateTime(2023, 6, 2)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'in 20대',
-    //       'image': '',
-    //       'achievementRate': 0.3,
-    //       'isShared': false,
-    //       'users': ['dh', 'sj'],
-    //       'createdAt': DateTime(2023, 5, 1),
-    //       'updatedAt': DateTime(2023, 7, 8)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'in 20대',
-    //       'image': '',
-    //       'achievementRate': 0.44,
-    //       'isShared': false,
-    //       'users': ['dh'],
-    //       'createdAt': DateTime(2023, 1, 1),
-    //       'updatedAt': DateTime(2023, 1, 6)
-    //     },
-    //     {
-    //       'id': 'dh',
-    //       'name': 'in 20대',
-    //       'image': '',
-    //       'achievementRate': 0.55,
-    //       'isShared': false,
-    //       'users': ['dh', 'sj'],
-    //       'createdAt': DateTime(2023, 2, 1),
-    //       'updatedAt': DateTime(2023, 4, 2)
-    //     },
-    //   ];
-    //   for (var item in bucketListItems) {
-    //     await firestore.collection('bucket_list').add(item);
-    //   }
-    // }
+    List<Map<String, dynamic>> bucketListItems = [
+      {
+        'id': 'dh',
+        'name': 'in 20대',
+        'image': '',
+        'achievementRate': 0.2,
+        'isShared': false,
+        'users': ['dh'],
+        'createdAt': DateTime(2023, 1, 1),
+        'updatedAt': DateTime(2023, 1, 2),
+        'completedCustomItemList': [],
+        'completedRecommendItemList': [],
+        'customItemList': [],
+        'recommendItemList': [],
+      },
+      {
+        'id': 'dh',
+        'name': 'frieds',
+        'image': '',
+        'achievementRate': 0.72,
+        'isShared': false,
+        'users': ['dh', 'sj'],
+        'createdAt': DateTime(2023, 4, 2),
+        'updatedAt': DateTime(2023, 5, 2),
+        'completedCustomItemList': [],
+        'completedRecommendItemList': [],
+        'customItemList': [],
+        'recommendItemList': [],
+      },
+      {
+        'id': 'dh',
+        'name': 'family',
+        'image': '',
+        'achievementRate': 0.52,
+        'isShared': false,
+        'users': ['dh', 'sj'],
+        'createdAt': DateTime(2023, 1, 23),
+        'updatedAt': DateTime(2023, 3, 2),
+        'completedCustomItemList': [],
+        'completedRecommendItemList': [],
+        'customItemList': [],
+        'recommendItemList': [],
+      },
+    ];
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+
+    for (var item in bucketListItems) {
+      // Create a new document reference
+      DocumentReference ref =
+          FirebaseFirestore.instance.collection('bucket_list').doc();
+      // Add this item to the batch
+      batch.set(ref, item);
+    }
+
+// Commit the batch
+    await batch.commit().then((value) {
+      print('Batch write completed successfully.');
+    }).catchError((error) {
+      print('Error in batch write: $error');
+    });
 
     // print(result);
     // }
@@ -188,49 +218,32 @@ class _TmpState extends State<Tmp> {
     // }
   }
 
-  Future<void> testReference(String bucketListId) async {
-    // Get the bucket list document.
-    DocumentSnapshot bucketListDoc = await FirebaseFirestore.instance
-        .collection('bucket_list')
-        .doc(bucketListId)
+  Future<void> testReference(String bucketListItem) async {
+    DocumentReference docRef =
+        firestore.collection('bucket_list_item').doc(bucketListItem);
+    DocumentSnapshot bucketListItemDoc = await docRef.get();
+
+    List<String> customItemList =
+        List<String>.from(bucketListItemDoc['customItemList']);
+    List<String> recommendItemList =
+        List<String>.from(bucketListItemDoc['recommendItemList']);
+
+    // customItemList를 불러옵니다.
+    QuerySnapshot customItemDocs = await firestore
+        .collection('custom')
+        .where(FieldPath.documentId, whereIn: customItemList)
         .get();
-
-    // Read the bucket list item reference.
-    DocumentReference bucketListItemRef = bucketListDoc['bucket_list_item'];
-
-    // Fetch the bucket list item data.
-    DocumentSnapshot bucketListItemDoc = await bucketListItemRef.get();
-
-    // Get the customItemList and recommendItemList arrays.
-    List<DocumentReference> customItemListRefs =
-        List<DocumentReference>.from(bucketListItemDoc['customItemList']);
-    List<DocumentReference> recommendItemListRefs =
-        List<DocumentReference>.from(bucketListItemDoc['recommendItemList']);
-
-    // Load the data for each custom item and recommend item.
-    List<DocumentSnapshot> customItemList = [];
-    List<DocumentSnapshot> recommendItemList = [];
-
-    for (DocumentReference itemRef in customItemListRefs) {
-      DocumentSnapshot itemDoc = await itemRef.get();
-      customItemList.add(itemDoc);
+    for (DocumentSnapshot customItemDoc in customItemDocs.docs) {
+      print('Custom content: ${customItemDoc['content']}');
     }
 
-    for (DocumentReference itemRef in recommendItemListRefs) {
-      DocumentSnapshot itemDoc = await itemRef.get();
-      recommendItemList.add(itemDoc);
+    // recommendItemList를 불러옵니다.
+    QuerySnapshot recommendItemDocs = await firestore
+        .collection('recommend')
+        .where(FieldPath.documentId, whereIn: recommendItemList)
+        .get();
+    for (DocumentSnapshot recommendItemDoc in recommendItemDocs.docs) {
+      print('Recommend content: ${recommendItemDoc['content']}');
     }
-
-// Print data of each item in the customItemList
-    for (var item in customItemList) {
-      print(item.data());
-    }
-
-// Print data of each item in the recommendItemList
-    for (var item in recommendItemList) {
-      print(item.data());
-    }
-    // Now, customItemList and recommendItemList contain the data for each item.
-    // You can process this data as needed.
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/bucket_list_card.dart';
 import 'package:keyket/bucket/const/text_style.dart';
+import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
@@ -50,7 +51,7 @@ class _BucketListListScreenScreenState
                         });
                         ref
                             .read(sharedBucketListListProvider.notifier)
-                            .getSharedBucketListdData();
+                            .getBucketList(isShared);
                       },
                       isShared: !isShared)
                 ],
@@ -79,7 +80,8 @@ class _MyBucketListList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final myBucketListList = ref.watch(myBucketListListProvider);
+    final List<BucketListModel> myBucketListList =
+        ref.watch(myBucketListListProvider);
     return _BucketListList(bucketListList: myBucketListList);
   }
 }
@@ -89,13 +91,15 @@ class _SharedBucketListList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final sharedBucketListList = ref.watch(sharedBucketListListProvider);
+    final List<BucketListModel> sharedBucketListList =
+        ref.watch(sharedBucketListListProvider);
     return _BucketListList(bucketListList: sharedBucketListList);
   }
 }
 
 class _BucketListList extends StatelessWidget {
-  final bucketListList;
+  final List<BucketListModel> bucketListList;
+
   const _BucketListList({super.key, required this.bucketListList});
 
   @override

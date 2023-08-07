@@ -1,5 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/view/login_screen.dart';
 import 'package:keyket/common/view/root_tab.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -11,36 +13,32 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   @override
-  void initState() {
-    super.initState();
-    checkToken();
-  }
-
-  void checkToken() async {
-    await Future.delayed(const Duration(seconds: 0)); // 임시 3초 delay
-    if (true) {
-      // 로그인 정보 있을 시
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const RootTab()), (route) => false);
-    } else {
-      // 로그인 정보 만료 시
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return const DefaultLayout(
-      child: Center(
-          child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            '로딩 화면',
-            style: TextStyle(fontFamily: 'SCDream', fontSize: 25),
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.active) {
+          User? user = snapshot.data;
+          if (user != null) {
+            return const RootTab(); // 사용자가 로그인한 상태
+          }
+          return const LoginScreen(); // 사용자가 로그아웃한 상태 또는 토큰 만료
+        }
+        return const DefaultLayout(
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '로딩 화면',
+                  style: TextStyle(fontFamily: 'SCDream', fontSize: 25),
+                ),
+                CircularProgressIndicator()
+              ],
+            ),
           ),
-          CircularProgressIndicator()
-        ],
-      )),
+        );
+      },
     );
   }
 }
