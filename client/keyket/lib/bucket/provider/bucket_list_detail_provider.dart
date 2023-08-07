@@ -27,6 +27,13 @@ class BucketListUserNotifier
     }
     state = {...state};
   }
+
+  void removeUsersNotInIdList(String key, List<String> userIds) {
+    if (state.containsKey(key)) {
+      state[key]!.removeWhere((user) => !userIds.contains(user.id));
+      state = {...state};
+    }
+  }
 }
 
 final customBucketListItemProvider = StateNotifierProvider<
