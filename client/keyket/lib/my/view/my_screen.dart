@@ -18,6 +18,7 @@ class MyScreen extends StatefulWidget {
 class _MyScreenState extends State<MyScreen> {
   @override
   Widget build(BuildContext context) {
+    print('main build');
     return DefaultLayout(
       title: '내 정보',
       actions: getActions(context),
@@ -37,12 +38,7 @@ class _MyScreenState extends State<MyScreen> {
     return [
       IconButton(
         onPressed: () {
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => _Message(),
-          //   ),
-          // );
+          Logout(context);
         },
         icon: const Icon(
           Remix.lock_unlock_line,
@@ -68,16 +64,78 @@ class _MyScreenState extends State<MyScreen> {
       SizedBox(width: 20)
     ];
   }
+
+  Logout(context) {
+    // 팝업창 구현
+    return showDialog(
+        barrierColor: const Color(0xff616161).withOpacity(0.2), // 팝업창 뒷배경 색깔
+        context: context,
+        builder: (context) {
+          return SimpleDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8)), // 테두리 둥글게
+            backgroundColor: const Color(0xff616161), // 팝업창 바탕색
+            title: const Text(
+              '로그아웃 하시겠습니까?',
+              style: TextStyle(
+                fontFamily: 'SCDream',
+                color: Colors.white,
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SimpleDialogOption(
+                    child: const Text(
+                      '예',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                  SimpleDialogOption(
+                    child: const Text(
+                      '아니요',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        color: Colors.white,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          );
+        });
+  }
 }
 
-class _Top extends StatelessWidget {
+class _Top extends StatefulWidget {
   const _Top({super.key});
 
   @override
+  State<_Top> createState() => _TopState();
+}
+
+class _TopState extends State<_Top> {
+  @override
   Widget build(BuildContext context) {
+    // print('top build');
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Row(
@@ -88,60 +146,127 @@ class _Top extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Text(
+                    const Text(
                       '강수진',
-                      style: TextStyle(fontSize: 24),
+                      style: TextStyle(fontFamily: 'SCDream', fontSize: 24),
                     ),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        // _ChangeNickname();
+                      },
                       icon: Icon(Remix.edit_line),
                       iconSize: 25, // 아이콘 사이즈 수정
                     ),
                   ],
                 ),
-                Container(
-                  width: 210,
-                  height: 35,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: Color(0xFFFF616161),
-                      width: 1,
-                    ),
-                    borderRadius: BorderRadius.circular(50),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        "초대코드",
-                        style: TextStyle(
-                          fontSize: 16,
+                Row(
+                  children: [
+                    Container(
+                      height: 35,
+                      width: 99,
+                      decoration: const BoxDecoration(
+                        color: Color(0XFFC4E4FA),
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.horizontal(
+                          left: Radius.circular(20.0),
                         ),
                       ),
-                      VerticalDivider(
-                          thickness: 1,
-                          width: 1,
-                          color: Color(0xFFFF616161)), // 가운데 나누는 선
-                      Text(
-                        "123456",
-                        style: TextStyle(fontSize: 16),
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "초대코드",
+                            style: TextStyle(
+                              fontFamily: 'SCDream',
+                              fontSize: 16,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        onPressed: () {
-                          Clipboard.setData(
-                              ClipboardData(text: '123456')); // 클립보드 복사
-                        },
-                        icon: Icon(Remix.file_copy_line),
-                        iconSize: 20,
+                    ),
+                    Container(
+                      height: 35,
+                      width: 122,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.rectangle,
+                        borderRadius: const BorderRadius.horizontal(
+                          right: Radius.circular(20.0),
+                        ),
+                        border: Border.all(
+                            color: const Color(0XFF616161), width: 0.5),
                       ),
-                    ],
-                  ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            "123456",
+                            style: TextStyle(
+                                fontFamily: 'SCDream',
+                                fontSize: 16,
+                                color: Colors.black),
+                          ),
+                          IconButton(
+                            onPressed: () {
+                              Clipboard.setData(
+                                ClipboardData(text: '123456'),
+                              ); // 클립보드 복사
+                              _InviteMessage(context);
+                            },
+                            icon: Icon(Remix.file_copy_line),
+                            iconSize: 20,
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
       ],
+    );
+  }
+
+  _ChangeNickname() async {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text('|'),
+          ],
+        )
+      ],
+    );
+  }
+
+  _InviteMessage(context) async {
+    return showDialog(
+      context: context,
+      barrierColor: const Color(0xff616161).withOpacity(0.2),
+      builder: (BuildContext) {
+        Future.delayed(Duration(seconds: 1), () {
+          // 1초 후에 사라짐
+          Navigator.of(context).pop(true);
+        });
+        return AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          backgroundColor: const Color(0xff616161),
+          elevation: 0,
+          content: const Text(
+            '초대코드가 복사되었습니다.',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w200,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        );
+      },
     );
   }
 }
@@ -158,7 +283,8 @@ class _MyProfileState extends State<MyProfile> {
   final ImagePicker picker = ImagePicker();
 
   Future pickImage(ImageSource imageSource) async {
-    final XFile? pickedFile = await picker.pickImage(source: imageSource);
+    final XFile? pickedFile = await picker.pickImage(
+        source: imageSource, maxWidth: 100, maxHeight: 100);
     if (pickedFile != null) {
       setState(() {
         _image = XFile(pickedFile.path);
@@ -168,28 +294,10 @@ class _MyProfileState extends State<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
+    print('image: ' + _image.toString());
     return Stack(
       children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: Color(0XFF616161).withOpacity(0.2),
-            ),
-            child: GestureDetector(
-              onTap: () {
-                takeImage(context);
-              },
-              child: Icon(
-                Remix.user_fill,
-                size: 60,
-                color: Color(0XFF3498DB).withOpacity(0.8),
-              ),
-            ),
-          ),
-        ),
+        ImageCircle(),
         Positioned(
           top: 0,
           right: 0,
@@ -198,11 +306,11 @@ class _MyProfileState extends State<MyProfile> {
             height: 28,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Color(0XFF616161).withOpacity(0.2),
+              color: const Color(0XFF616161).withOpacity(0.2),
             ),
             child: Icon(
               Remix.image_edit_line,
-              color: Color(0XFF3498DB).withOpacity(0.8),
+              color: const Color(0XFF3498DB).withOpacity(0.8),
               size: 23,
             ),
           ),
@@ -211,52 +319,168 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
+  // 이미지 가져오는 부분
   takeImage(mContext) {
-    return showDialog(
-        context: mContext,
-        builder: (context) {
-          return SimpleDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-            title: Text(
-              '프로필 사진 설정',
-              style: TextStyle(
-                color: Colors.black,
-              ),
-            ),
-            children: [
-              SimpleDialogOption(
-                child: Text(
-                  '앨범에서 사진 선택하기',
-                  style: TextStyle(
-                    color: Colors.black,
+    return _image == null
+        ? showDialog(
+            barrierColor: const Color(0xff616161).withOpacity(0.2),
+            context: mContext,
+            builder: (context) {
+              return SimpleDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: const Color(0xff616161),
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const SimpleDialogOption(
+                        child: Text(
+                          '프로필 사진 설정',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '앨범에서 사진 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        onPressed: () {
+                          pickImage(ImageSource.gallery);
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
+                ],
+              );
+            })
+        : showDialog(
+            barrierColor: const Color(0xff616161).withOpacity(0.2),
+            context: mContext,
+            builder: (context) {
+              return SimpleDialog(
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8)),
+                backgroundColor: const Color(0xff616161),
+                title: const Text(
+                  '프로필 사진 설정',
+                  style: TextStyle(
+                    fontFamily: 'SCDream',
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                onPressed: () {
-                  pickImage(ImageSource.gallery);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          );
-        });
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '앨범에서 사진 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onPressed: () {
+                          pickImage(ImageSource.gallery);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const Divider(
+                        // 구분선
+                        color: Colors.white,
+                        thickness: 1,
+                        height: 0,
+                      ),
+                      SimpleDialogOption(
+                        child: const Text(
+                          '기본 이미지로 선택하기',
+                          style: TextStyle(
+                            fontFamily: 'SCDream',
+                            color: Colors.white,
+                            fontSize: 16,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _image = null;
+                            // File(_image!.path).delete(); ////////// 이 부분 덜함
+                          });
+
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+              );
+            });
   }
 
-  // PickImage() {
-  //   return _image != null
-  //       ? Container(
-  //           width: 100,
-  //           height: 100,
-  //           child: Image.file(File(_image!.path)),
-  //         )
-  //       : Container(
-  //           width: 100,
-  //           height: 100,
-  //           color: Colors.grey,
-  //         );
-  // }
+  // 사진 띄우는 부분
+  ImageCircle() {
+    return _image == null
+        ? SizedBox(
+            width: 100,
+            height: 100,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color: const Color(0XFF616161).withOpacity(0.2),
+              ),
+              child: GestureDetector(
+                onTap: () {
+                  takeImage(context);
+                },
+                child: Icon(
+                  Remix.user_fill,
+                  size: 60,
+                  color: const Color(0XFF3498DB).withOpacity(0.8),
+                ),
+              ),
+            ),
+          )
+        : CircleAvatar(
+            radius: 50,
+            backgroundImage: Image.file(File(_image!.path)).image,
+            child: GestureDetector(
+              onTap: () {
+                takeImage(context);
+              },
+            ),
+          );
+  }
 }
+
+// imageProvider --> Imageasset, Imagememory, Imagenetwork
+// image --> image.asset, imgae.network
 
 class _Middle extends StatelessWidget {
   const _Middle({super.key});
@@ -273,12 +497,12 @@ class _Middle extends StatelessWidget {
             children: [
               Text(
                 'MY BUCKET',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontFamily: 'SCDream', fontSize: 16),
               ),
               Icon(
                 Remix.shopping_cart_line,
                 size: 18,
-              ), // 아이콘 바꾸기
+              ),
             ],
           ),
         ),
@@ -288,7 +512,7 @@ class _Middle extends StatelessWidget {
           decoration: BoxDecoration(
             border: Border.all(
               color: PRIMARY_COLOR,
-              width: 1,
+              width: 2,
             ),
             borderRadius: BorderRadius.circular(10),
           ),
@@ -300,20 +524,34 @@ class _Middle extends StatelessWidget {
                 children: [
                   const Text(
                     "완성된 버킷",
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'SCDream',
+                    ),
                   ),
-                  Text(
-                    "0개",
-                  ),
-                  Container(
-                    height: 1,
-                    width: 76,
-                    color: Colors.black,
+                  Column(
+                    children: [
+                      const Text(
+                        "0개",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'SCDream',
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Container(
+                          height: 1,
+                          width: 76,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              VerticalDivider(
-                thickness: 1,
+              const VerticalDivider(
+                thickness: 2,
                 width: 1,
                 color: PRIMARY_COLOR,
               ),
@@ -322,15 +560,29 @@ class _Middle extends StatelessWidget {
                 children: [
                   const Text(
                     "진행중 버킷",
-                    style: TextStyle(fontSize: 12),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontFamily: 'SCDream',
+                    ),
                   ),
-                  Text(
-                    "5개",
-                  ),
-                  Container(
-                    height: 1,
-                    width: 76,
-                    color: Colors.black,
+                  Column(
+                    children: [
+                      const Text(
+                        "5개",
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontFamily: 'SCDream',
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Container(
+                          height: 1,
+                          width: 76,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -356,7 +608,7 @@ class _Bottom extends StatelessWidget {
               Remix.customer_service_2_line,
               color: BLACK_COLOR,
             ),
-            title: Text(
+            title: const Text(
               '고객센터',
             ),
             onTap: () {
@@ -368,17 +620,17 @@ class _Bottom extends StatelessWidget {
               Remix.gift_line,
               color: BLACK_COLOR,
             ),
-            title: Text('이벤트'),
+            title: const Text('이벤트'),
             onTap: () {
               _Message(context);
             },
           ),
           ListTile(
-            leading: Icon(
+            leading: const Icon(
               Remix.footprint_line,
               color: BLACK_COLOR,
             ),
-            title: Text('여행 유형테스트'),
+            title: const Text('여행 유형테스트'),
             onTap: () {
               _Message(context);
             },
@@ -391,17 +643,19 @@ class _Bottom extends StatelessWidget {
   _Message(context) async {
     return showDialog(
       context: context,
+      barrierColor: const Color(0xff616161).withOpacity(0.2),
       builder: (BuildContext) {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-          backgroundColor: Color(0XFF616161).withOpacity(0.2),
+          backgroundColor: const Color(0xff616161),
           elevation: 0,
-          content: Text(
+          content: const Text(
             '준비중입니다',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
+              color: Colors.white,
             ),
             textAlign: TextAlign.center,
           ),
@@ -418,15 +672,15 @@ class _Divide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 30,
         ),
         Container(
           height: 1,
           width: 350,
-          color: Color(0XFF616161).withOpacity(0.8),
+          color: const Color(0XFF616161),
         ),
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
       ],
