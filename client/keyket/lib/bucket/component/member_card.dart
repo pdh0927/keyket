@@ -9,7 +9,7 @@ import 'package:remixicon/remixicon.dart';
 class MemberCard extends ConsumerWidget {
   final String userId;
   final String nickname;
-  final Widget image;
+  final Widget? image;
   final bool isHost;
   final String bucketListId;
   final Function(String) removeUser;
@@ -18,7 +18,7 @@ class MemberCard extends ConsumerWidget {
     super.key,
     required this.userId,
     required this.nickname,
-    required this.image,
+    this.image,
     required this.isHost,
     required this.bucketListId,
     required this.removeUser,
@@ -57,7 +57,9 @@ class MemberCard extends ConsumerWidget {
       padding: const EdgeInsets.all(10.0), // 외부 간격을 위한 패딩
       child: Row(
         children: [
-          image, // CircleAvatar
+          image ??
+              CircleAvatar(
+                  radius: 15, child: Icon(Remix.question_mark)), // CircleAvatar
           SizedBox(width: 10), // 간격 설정
           Text(nickname),
           SizedBox(width: 5), // 간격 설정
@@ -73,6 +75,7 @@ class MemberCard extends ConsumerWidget {
             _MoreButton(
               removeUser: removeUser,
               userId: userId,
+              isMember: image != null,
             )
         ],
       ),
@@ -83,10 +86,12 @@ class MemberCard extends ConsumerWidget {
 class _MoreButton extends StatelessWidget {
   final String userId;
   final Function(String) removeUser;
+  final bool isMember;
 
   const _MoreButton({
     required this.userId,
     required this.removeUser,
+    required this.isMember,
   });
 
   @override
@@ -135,8 +140,8 @@ class _MoreButton extends StatelessWidget {
                       removeUser(userId);
                       moreButtonOverlay.remove();
                     },
-                    child: const Text(
-                      '강퇴',
+                    child: Text(
+                      isMember ? '강퇴' : '취소',
                       style: TextStyle(
                           fontFamily: 'SCDream',
                           color: BLACK_COLOR,
