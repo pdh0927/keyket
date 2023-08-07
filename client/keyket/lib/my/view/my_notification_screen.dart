@@ -11,7 +11,7 @@ class MyNotification extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Colors.transparent, // 배경색 투명하게
         elevation: 0,
-        title: Text(
+        title: const Text(
           '공지사항',
           style: TextStyle(
             color: Colors.black,
@@ -24,7 +24,7 @@ class MyNotification extends StatelessWidget {
           },
           // visualDensity: VisualDensity(horizontal: -2, vertical: -2), 아이콘 간격
           color: Colors.black,
-          icon: Icon(
+          icon: const Icon(
             Remix.arrow_left_s_line,
             size: 35,
           ),
@@ -35,7 +35,7 @@ class MyNotification extends StatelessWidget {
         child: ListView(
           children: [
             Container(
-              color: Color(0xFF616161),
+              color: const Color(0xFF616161),
               width: 10,
               height: 1,
             ),
@@ -54,7 +54,7 @@ class MyNotification extends StatelessWidget {
               ],
             ),
             Container(
-              color: Color(0xFF616161),
+              color: const Color(0xFF616161),
               width: 350,
               height: 1,
             ),
@@ -73,7 +73,7 @@ class MyNotification extends StatelessWidget {
               ],
             ),
             Container(
-              color: Color(0xFF616161),
+              color: const Color(0xFF616161),
               width: 350,
               height: 1,
             ),
@@ -88,8 +88,9 @@ class MyNotification extends StatelessWidget {
               children: [
                 ListTile(
                   title: Container(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                    // ignore: sort_child_properties_last
+                    child: const Padding(
+                      padding: EdgeInsets.all(16.0),
                       child: Text(
                         '안녕하세요 여행을 여는 열쇠, 키킷입니다. \n'
                         '키킷 앱은 버킷리스트를 작성하는 것 뿐만 아니라 버킷리스트를 추천해주는 어플입니다. \n'
@@ -104,8 +105,8 @@ class MyNotification extends StatelessWidget {
                       ),
                     ),
                     decoration: BoxDecoration(
-                      color: Color(0XFF3498DB).withOpacity(0.2),
-                      borderRadius: BorderRadius.all(
+                      color: const Color(0XFF3498DB).withOpacity(0.2),
+                      borderRadius: const BorderRadius.all(
                         Radius.circular(10),
                       ),
                     ),
