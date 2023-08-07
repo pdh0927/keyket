@@ -50,24 +50,6 @@ class _TmpState extends ConsumerState<Tmp> {
               },
               child: Text('testreference call function'),
             ),
-            // StreamBuilder<User?>(
-            //     stream: FirebaseAuth.instance.authStateChanges(),
-            //     builder: (context, snapshot) {
-            //       if (!snapshot.hasData) {
-            //         return ElevatedButton(
-            //           onPressed: () async {
-            //             await viewModel.logout();
-            //           },
-            //           child: Text('logout'),
-            //         );
-            //       } else {
-            //         return ElevatedButton(
-            //             onPressed: () async {
-            //               await viewModel.login();
-            //             },
-            //             child: Text('login'));
-            //       }
-            //     })
             ElevatedButton(
                 onPressed: () async {
                   await viewModel.login();
@@ -86,100 +68,64 @@ class _TmpState extends ConsumerState<Tmp> {
                     ref.watch(selectedThemeFilterListProvider));
               },
               child: Text('추천 가져오기'),
-            )
+            ),
+            ElevatedButton(
+                onPressed: () async {
+                  getNotification();
+                },
+                child: Text('공지 가져오기')),
           ],
         ),
       ),
     );
   }
 
-  saveData() async {
-    // List<Map<String, dynamic>> recommendedItems = [
-    //   {
-    //     'content': 'tes123t',
-    //     'region': 'seoul',
-    //     'theme': ['healing', 'activity']
-    //   },
-    //   {
-    //     'content': 'test1123',
-    //     'region': 'daegu',
-    //     'theme': ['healing']
-    //   }
-    // ];
-    // for (var item in recommendedItems) {
-    //   await firestore.collection('recommend').add(item);
-    // }
+  getNotification() async {
+    Query<Map<String, dynamic>> query = firestore.collection('notification');
+    QuerySnapshot<Map<String, dynamic>> docList = await query.get();
+    print(docList);
+    for (var doc in docList.docs) {
+      print(doc.id);
+      Map<String, dynamic> data = doc.data();
+      // data['id'] = doc.id;
+      print(data);
+    }
+  }
 
-    List<Map<String, dynamic>> bucketListItems = [
+  saveData() async {
+    List<Map<String, dynamic>> notifications = [
       {
-        'id': 'dh',
-        'name': 'in 20대',
-        'image': '',
-        'achievementRate': 0.2,
-        'isShared': false,
-        'users': ['dh'],
-        'createdAt': DateTime(2023, 1, 1),
-        'updatedAt': DateTime(2023, 1, 2),
-        'completedCustomItemList': [],
-        'completedRecommendItemList': [],
-        'customItemList': [],
-        'recommendItemList': [],
+        'title': '공지1',
+        'contend': '하이',
+        'updatedAt': DateTime(2023, 5, 3),
       },
       {
-        'id': 'dh',
-        'name': 'frieds',
-        'image': '',
-        'achievementRate': 0.72,
-        'isShared': false,
-        'users': ['dh', 'sj'],
-        'createdAt': DateTime(2023, 4, 2),
-        'updatedAt': DateTime(2023, 5, 2),
-        'completedCustomItemList': [],
-        'completedRecommendItemList': [],
-        'customItemList': [],
-        'recommendItemList': [],
+        'title': '공지1',
+        'contend': '허티머터브래드',
+        'updatedAt': DateTime(2023, 4, 2),
       },
       {
-        'id': 'dh',
-        'name': 'family',
-        'image': '',
-        'achievementRate': 0.52,
-        'isShared': false,
-        'users': ['dh', 'sj'],
-        'createdAt': DateTime(2023, 1, 23),
-        'updatedAt': DateTime(2023, 3, 2),
-        'completedCustomItemList': [],
-        'completedRecommendItemList': [],
-        'customItemList': [],
-        'recommendItemList': [],
+        'title': '공지3',
+        'contend': '진이',
+        'updatedAt': DateTime(2022, 8, 2),
       },
     ];
     WriteBatch batch = FirebaseFirestore.instance.batch();
 
-    for (var item in bucketListItems) {
+    for (var item in notifications) {
       // Create a new document reference
       DocumentReference ref =
-          FirebaseFirestore.instance.collection('bucket_list').doc();
+          FirebaseFirestore.instance.collection('notification').doc();
       // Add this item to the batch
       batch.set(ref, item);
     }
 
-// Commit the batch
+    // Commit the batch
     await batch.commit().then((value) {
       print('Batch write completed successfully.');
     }).catchError((error) {
       print('Error in batch write: $error');
     });
-
-    // print(result);
-    // }
-
-    // updateData() async {
-    //   var result = await firestore.collection('recommend').doc({id}).update({});
-    // }
-
-    // deleteData() async {
-    //   var result = await firestore.collection('recommend').doc({id}).delete();
   }
 
   getRecommendData() async {
