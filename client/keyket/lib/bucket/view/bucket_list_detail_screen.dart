@@ -93,6 +93,7 @@ class _BucketListDetailScreenState
   List<CustomItemModel> uncompleteCustomItemList = [];
   List<RecommendItemModel> completeRecommendItemList = [];
   List<RecommendItemModel> uncompleteRecommendItemList = [];
+  List<UserModel> userModelList = [];
 
   @override
   void initState() {
@@ -128,6 +129,10 @@ class _BucketListDetailScreenState
       ref.read(bucketListUserProvider.notifier).addBucketListUsers(
           widget.bucketListId, await getUsers(modifiedBucketListModel.users));
     }
+    userModelList = List<UserModel>.from(ref
+        .read(bucketListUserProvider)[widget.bucketListId]!
+        .map((user) => UserModel.copy(user))
+        .toList());
   }
 
   // Firestore에서 사용자들을 가져오는 함수
@@ -166,17 +171,6 @@ class _BucketListDetailScreenState
 
   @override
   Widget build(BuildContext context) {
-    // var customItemBucket =
-    //     ref.watch(customBucketListItemProvider)[widget.bucketListId];
-    // var recommendItemBucket =
-    //     ref.watch(recommendBucketListItemProvider)[widget.bucketListId];
-
-    // completeCustomItemList = customItemBucket?.completeItems ?? [];
-    // uncompleteCustomItemList = customItemBucket?.uncompleteItems ?? [];
-
-    // completeRecommendItemList = recommendItemBucket?.uncompleteItems ?? [];
-    // uncompleteRecommendItemList = recommendItemBucket?.completeItems ?? [];
-
     return Stack(children: [
       Scaffold(
         appBar: buildAppBar(context),
@@ -191,7 +185,11 @@ class _BucketListDetailScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  _MemberSection(tmpUserList: tmp_user_list),
+                  _MemberSection(
+                    bucketListId: widget.bucketListId,
+                    userModelList: userModelList,
+                    removeUser: removeUser,
+                  ),
                   _InviteSection(
                       inviteFlag: inviteFlag,
                       setStateCallback: () {
@@ -256,6 +254,14 @@ class _BucketListDetailScreenState
           ),
         ),
     ]);
+  }
+
+  void removeUser(String userId) {
+    setState(() {
+      modifiedBucketListModel.users.remove(userId);
+      userModelList.removeWhere((user) => user.id == userId);
+      isChanged = true;
+    });
   }
 
   void nameChange(newName) {
@@ -1303,6 +1309,13 @@ class _BucketListDetailScreenState
     if (originalBucketListModel.name != modifiedBucketListModel.name) {
       updates['name'] = modifiedBucketListModel.name;
     }
+
+    // users 필드가 변경되었는지 확인
+    if (!listEquals(
+        originalBucketListModel.users, modifiedBucketListModel.users)) {
+      updates['users'] = modifiedBucketListModel.users;
+    }
+
     // 이미지가 변경되었는지 확인
     if (tmpImage != null) {
       // 기존의 이미지가 있으면 삭제합니다.
@@ -1321,7 +1334,7 @@ class _BucketListDetailScreenState
       updates['image'] = imageUrl; // 변경된 URL을 업데이트에 추가
     } else if (originalBucketListModel.image != modifiedBucketListModel.image) {
       // tmpImage가 null이지만 original image와 modified image가 다른 경우
-      // 사용자가 이미지를 삭제한 것으로 간주하고 Firestore를 업데이트합니다.
+      // 사용자가 이미지를 삭제한 것으로 간주하고 Firestore를 업데이트
       if (originalBucketListModel.image != '') {
         // 기존 이미지가 있다면 Storage에서 삭제합니다.
         Reference photoRef =
@@ -1331,34 +1344,6 @@ class _BucketListDetailScreenState
       updates['image'] =
           modifiedBucketListModel.image; // 변경된 URL(여기서는 '')을 업데이트에 추가
     }
-    // // 이미지가 변경되었는지 확인
-    // if (tmpImage != null) {
-    //   // 기존의 이미지가 있으면 삭제합니다.
-    //   if (originalBucketListModel.image != '') {
-    //     Reference photoRef =
-    //         FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
-    //     await photoRef.delete();
-    //   }
-
-    //   // 이미지를 Firebase Storage에 업로드하고 Firestore에 이미지 URL을 저장합니다.
-    //   String imageUrl = await _uploadImageToFirebase(tmpImage!.path, storage);
-
-    //   // 변경된 이미지 URL을 modifiedBucketListModel의 이미지로 설정합니다.
-    //   modifiedBucketListModel =
-    //       modifiedBucketListModel.copyWith(image: imageUrl);
-    // }
-
-    // // image가 변경되었는지 확인
-    // if (originalBucketListModel.image != modifiedBucketListModel.image) {
-    //   // 이미지를 없앨떄도 기존 이미지가 있다면 삭제
-    //   if (originalBucketListModel.image != '') {
-    //     Reference photoRef =
-    //         FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
-    //     await photoRef.delete();
-    //   }
-
-    //   updates['image'] = modifiedBucketListModel.image;
-    // }
 
     // 다른 변경사항이 있을 시
     if (originalBucketListModel.updatedAt !=
@@ -1393,6 +1378,9 @@ class _BucketListDetailScreenState
               RecommendItems(
                   completeItems: completeRecommendItemList,
                   uncompleteItems: uncompleteRecommendItemList));
+
+      ref.read(bucketListUserProvider.notifier).removeUsersNotInIdList(
+          widget.bucketListId, modifiedBucketListModel.users);
     }
   }
 
@@ -1555,13 +1543,18 @@ class _BackgroundEditButton extends StatelessWidget {
   }
 }
 
-class _MemberSection extends StatelessWidget {
-  final List<UserModel> tmpUserList;
-
-  const _MemberSection({required this.tmpUserList});
+class _MemberSection extends ConsumerWidget {
+  final String bucketListId;
+  final List<UserModel> userModelList;
+  final Function(String) removeUser;
+  const _MemberSection({
+    required this.bucketListId,
+    required this.userModelList,
+    required this.removeUser,
+  });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1585,16 +1578,19 @@ class _MemberSection extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: tmpUserList.length <= 5 ? tmpUserList.length * 50.0 : 200.0,
+          height:
+              userModelList.length <= 5 ? userModelList.length * 50.0 : 200.0,
           child: SingleChildScrollView(
             physics: tmp_user_list.length <= 5
                 ? const NeverScrollableScrollPhysics()
                 : const ScrollPhysics(),
             child: Column(
-              children: tmpUserList.map((user) {
+              children: userModelList.map((user) {
                 return MemberCard.fromModel(
                   model: user,
-                  isHost: tmpUserList.indexOf(user) == 0,
+                  isHost: userModelList.indexOf(user) == 0,
+                  bucketListId: bucketListId,
+                  removeUser: removeUser,
                 );
               }).toList(),
             ),
