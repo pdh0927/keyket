@@ -805,7 +805,7 @@ class _BucketListDetailScreenState
 
   Future<void> getItems(
       String id,
-      List<String> uncompletedcustomItemList,
+      List<String> uncompletedCustomItemList,
       List<String> uncompletedRecommendItemList,
       List<String> completedCustomItemList,
       List<String> completedRecommendItemList) async {
@@ -818,46 +818,60 @@ class _BucketListDetailScreenState
         !bucketListRecommendItemState.containsKey(id)) {
       final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      List<String> tmpCustomItemsList = List.from(uncompletedcustomItemList)
+      List<String> tmpCustomItemsList = List.from(uncompletedCustomItemList)
         ..addAll(completedCustomItemList);
       List<String> tmpRecommendItemsList =
           List.from(uncompletedRecommendItemList)
             ..addAll(completedRecommendItemList);
 
       // Firestore에서 해당하는 item 불러오기
-      final List<CustomItemModel> customItems =
+      final List<CustomItemModel> fetchedCustomItems =
           (await _fetchItems(firestore, 'custom', tmpCustomItemsList))
               .map((item) => item as CustomItemModel)
               .toList();
 
-      final List<RecommendItemModel> recommendItems =
+      // 재정렬을 위해 id를 key로 가진 Map 생성
+      final Map<String, CustomItemModel> idToItem = {
+        for (var item in fetchedCustomItems) item.id: item
+      };
+
+      // 기존 순서(uncomplete앞, complete뒤)에 맞게 재정렬
+      final List<CustomItemModel> customItems =
+          tmpCustomItemsList.map((id) => idToItem[id]!).toList();
+
+      final List<RecommendItemModel> fetchedRecommendItems =
           (await _fetchItems(firestore, 'recommend', tmpRecommendItemsList))
               .map((item) => item as RecommendItemModel)
               .toList();
+
+      final Map<String, RecommendItemModel> idToRecommendItem = {
+        for (var item in fetchedRecommendItems) item.id: item
+      };
+
+      final List<RecommendItemModel> recommendItems =
+          tmpRecommendItemsList.map((id) => idToRecommendItem[id]!).toList();
 
       // Firestore에서 가져온 customItems id 목록
       Set<String> fetchedCustomItemsIds =
           Set.from(customItems.map((item) => item.id));
 
       // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
-      int targetRemoveCount = uncompletedcustomItemList.length +
+      int targetRemoveCount = uncompletedCustomItemList.length +
           completedCustomItemList.length -
           fetchedCustomItemsIds.length;
-      int customItemListRemovedCount = _removeNonExistentItems(
-          uncompletedcustomItemList, fetchedCustomItemsIds, targetRemoveCount);
+      int uncustomItemListRemovedCount = _removeNonExistentItems(
+          uncompletedCustomItemList, fetchedCustomItemsIds, targetRemoveCount);
       int completedCustomItemListRemovedCount = 0;
-      if (customItemListRemovedCount < targetRemoveCount) {
+      if (uncustomItemListRemovedCount < targetRemoveCount) {
         completedCustomItemListRemovedCount = _removeNonExistentItems(
             completedCustomItemList,
             fetchedCustomItemsIds,
-            targetRemoveCount - customItemListRemovedCount);
+            targetRemoveCount - uncustomItemListRemovedCount);
       }
 
       // 나눠 담기 위해 index 수정
-      int uncompletedCustomItemsCount =
-          uncompletedcustomItemList.length - customItemListRemovedCount;
-      int completedCustomItemsCount =
-          completedCustomItemList.length - completedCustomItemListRemovedCount;
+      int uncompletedCustomItemsCount = uncompletedCustomItemList.length;
+      int completedCustomItemsCount = completedCustomItemList.length;
 
       // 나눠 담기
       ref
@@ -866,13 +880,13 @@ class _BucketListDetailScreenState
               id,
               CustomItems(
                   completeItems: customItems
-                      .getRange(0, completedCustomItemsCount)
+                      .getRange(
+                          uncompletedCustomItemsCount,
+                          uncompletedCustomItemsCount +
+                              completedCustomItemsCount)
                       .toList(),
                   uncompleteItems: customItems
-                      .getRange(
-                          completedCustomItemsCount,
-                          completedCustomItemsCount +
-                              uncompletedCustomItemsCount)
+                      .getRange(0, uncompletedCustomItemsCount)
                       .toList()));
 
       ref
@@ -881,21 +895,21 @@ class _BucketListDetailScreenState
               id,
               RecommendItems(
                 completeItems: recommendItems
-                    .getRange(0, completedRecommendItemList.length)
+                    .getRange(
+                        uncompletedRecommendItemList.length,
+                        uncompletedRecommendItemList.length +
+                            completedRecommendItemList.length)
                     .toList(),
                 uncompleteItems: recommendItems
-                    .getRange(
-                        completedRecommendItemList.length,
-                        completedRecommendItemList.length +
-                            uncompletedRecommendItemList.length)
+                    .getRange(0, uncompletedRecommendItemList.length)
                     .toList(),
               ));
 
       Map<String, dynamic> updates = {};
 
       // custom_item_list가 변경되었으면 updates에 추가
-      if (customItemListRemovedCount > 0) {
-        updates['customItemList'] = uncompletedcustomItemList;
+      if (uncustomItemListRemovedCount > 0) {
+        updates['uncompletedCustomItemList'] = uncompletedCustomItemList;
       }
 
       // completed_custom_item_list가 변경되었으면 updates에 추가
@@ -908,20 +922,26 @@ class _BucketListDetailScreenState
         await firestore.collection('bucket_list').doc(id).update(updates);
 
         // 기존 BucketListModel 찾기
-        final existingBucketList = ref
-            .read(myBucketListListProvider)
-            .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+        final existingBucketList = widget.isShared
+            ? ref.read(sharedBucketListListProvider).firstWhere(
+                (bucketList) => bucketList.id == widget.bucketListId)
+            : ref.read(myBucketListListProvider).firstWhere(
+                (bucketList) => bucketList.id == widget.bucketListId);
 
         // 새로운 itemList로 BucketListModel 업데이트
         final updatedBucketList = existingBucketList.copyWith(
-          customItemList: uncompletedcustomItemList,
+          customItemList: uncompletedCustomItemList,
           completedCustomItemList: completedCustomItemList,
         );
 
         // StateNotifier를 통해 상태 업데이트
-        ref
-            .read(myBucketListListProvider.notifier)
-            .updateBucketList(updatedBucketList);
+        widget.isShared
+            ? ref
+                .read(sharedBucketListListProvider.notifier)
+                .updateBucketList(updatedBucketList)
+            : ref
+                .read(myBucketListListProvider.notifier)
+                .updateBucketList(updatedBucketList);
       }
     }
 
@@ -1007,11 +1027,8 @@ class _BucketListDetailScreenState
   // 새로 추가된 cusotom item
   void addNewCustomItem(String content) {
     if (content != '') {
-      ref.read(customBucketListItemProvider.notifier).addCustomItemToBucketList(
-          widget.bucketListId,
-          CustomItemModel(content: content, id: ''),
-          false);
       setState(() {
+        uncompleteCustomItemList.add(CustomItemModel(content: content, id: ''));
         newCustomItemList.add(content);
       });
     }
@@ -1458,9 +1475,13 @@ class _BucketListDetailScreenState
           .update(updates);
 
       // 변경된 버킷 리스트 모델을 로컬에 업데이트
-      ref
-          .read(myBucketListListProvider.notifier)
-          .changeBucketListModel(widget.bucketListId, modifiedBucketListModel);
+      widget.isShared
+          ? ref
+              .read(sharedBucketListListProvider.notifier)
+              .changeBucketListModel(
+                  widget.bucketListId, modifiedBucketListModel)
+          : ref.read(myBucketListListProvider.notifier).changeBucketListModel(
+              widget.bucketListId, modifiedBucketListModel);
 
       ref
           .read(customBucketListItemProvider.notifier)
