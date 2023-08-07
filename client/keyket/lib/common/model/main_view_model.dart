@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
 import 'package:keyket/common/model/firebase_auth_remote_data_source.dart';
 import 'package:keyket/common/model/social_login.dart';
-import 'package:keyket/common/model/user_model.dart';
 
 class MainViewModel {
   final _firebaseAuthDataSource = FirebaseAuthRemoteDataSource();
