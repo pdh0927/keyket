@@ -16,6 +16,13 @@ class UserModel {
     required this.inviteCode,
   });
 
+  // 복사 생성자
+  UserModel.copy(UserModel other)
+      : id = other.id,
+        nickname = other.nickname,
+        image = other.image,
+        inviteCode = other.inviteCode;
+
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
