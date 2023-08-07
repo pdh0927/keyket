@@ -18,6 +18,7 @@ class MyScreen extends StatefulWidget {
 class _MyScreenState extends State<MyScreen> {
   @override
   Widget build(BuildContext context) {
+    print('main build');
     return DefaultLayout(
       title: '내 정보',
       actions: getActions(context),
@@ -37,7 +38,7 @@ class _MyScreenState extends State<MyScreen> {
     return [
       IconButton(
         onPressed: () {
-          PopUp(context);
+          Logout(context);
         },
         icon: const Icon(
           Remix.lock_unlock_line,
@@ -64,15 +65,16 @@ class _MyScreenState extends State<MyScreen> {
     ];
   }
 
-  PopUp(context) {
+  Logout(context) {
+    // 팝업창 구현
     return showDialog(
-        barrierColor: const Color(0xff616161).withOpacity(0.2),
+        barrierColor: const Color(0xff616161).withOpacity(0.2), // 팝업창 뒷배경 색깔
         context: context,
         builder: (context) {
           return SimpleDialog(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            backgroundColor: const Color(0xff616161),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8)), // 테두리 둥글게
+            backgroundColor: const Color(0xff616161), // 팝업창 바탕색
             title: const Text(
               '로그아웃 하시겠습니까?',
               style: TextStyle(
@@ -120,14 +122,20 @@ class _MyScreenState extends State<MyScreen> {
   }
 }
 
-class _Top extends StatelessWidget {
+class _Top extends StatefulWidget {
   const _Top({super.key});
 
   @override
+  State<_Top> createState() => _TopState();
+}
+
+class _TopState extends State<_Top> {
+  @override
   Widget build(BuildContext context) {
+    // print('top build');
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Row(
@@ -222,9 +230,17 @@ class _Top extends StatelessWidget {
     );
   }
 
-  // _ChangeNickname() async {
-  //   return Text('정혜린');
-  // }
+  _ChangeNickname() async {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Text('|'),
+          ],
+        )
+      ],
+    );
+  }
 
   _InviteMessage(context) async {
     return showDialog(
@@ -278,6 +294,7 @@ class _MyProfileState extends State<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
+    print('image: ' + _image.toString());
     return Stack(
       children: [
         ImageCircle(),
@@ -412,7 +429,11 @@ class _MyProfileState extends State<MyProfile> {
                           ),
                         ),
                         onPressed: () {
-                          File(_image!.path).delete(); ////////// 이 부분 덜함
+                          setState(() {
+                            _image = null;
+                            // File(_image!.path).delete(); ////////// 이 부분 덜함
+                          });
+
                           Navigator.pop(context);
                         },
                       ),
