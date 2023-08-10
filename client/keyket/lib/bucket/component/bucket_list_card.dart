@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
-import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
+import 'package:keyket/common/const/colors.dart';
+
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
 class BucketListCard extends ConsumerWidget {
   final String id;
   final String name;
-  final Widget image;
+  final Image image;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<String> completedCustomItemList;
@@ -56,47 +58,57 @@ class BucketListCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return InkWell(
-      onTap: () {
-        Navigator.of(context).push(MaterialPageRoute(
-            builder: (_) => BucketListDetailScreen(
-                  bucketListId: id,
-                  isShared: isShared,
-                )));
-      },
-      child: IntrinsicHeight(
-        child: Row(children: [
-          ClipRRect(borderRadius: BorderRadius.circular(5.0), child: image),
-          const SizedBox(width: 25),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Row(
-                children: [
-                  const Icon(Remix.arrow_right_s_line),
-                  Text(
-                    name,
-                    style: popupMenuTextStlye,
-                  )
-                ],
-              ),
-              CustomProgressBar(
-                achievementRate: getAchievementRate(),
-                height: 17,
-                width: 160,
-              ),
-              Text(
-                '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
-                style: const TextStyle(
-                    fontFamily: 'SCDream',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400),
-              )
-            ],
-          )
-        ]),
-      ),
+    return Stack(
+      children: [
+        IntrinsicHeight(
+          child: Row(children: [
+            ClipRRect(borderRadius: BorderRadius.circular(5.0), child: image),
+            const SizedBox(width: 25),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Remix.arrow_right_s_line),
+                    Text(
+                      name,
+                      style: popupMenuTextStlye,
+                    )
+                  ],
+                ),
+                CustomProgressBar(
+                  achievementRate: getAchievementRate(),
+                  height: 17,
+                  width: 160,
+                ),
+                Text(
+                  '최근 수정 : ${updatedAt.year.toString().substring(2)}.${updatedAt.month.toString().padLeft(2, '0')}.${updatedAt.day.toString().padLeft(2, '0')}',
+                  style: const TextStyle(
+                      fontFamily: 'SCDream',
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400),
+                )
+              ],
+            )
+          ]),
+        ),
+        Positioned(
+          top: 5,
+          left: image.width! - 25,
+          child: InkWell(
+            onTap: () {
+              ref.read(myInformationProvider.notifier).setFixedBucket(
+                  ref.read(myInformationProvider)!.fixedBucket == id ? '' : id);
+            },
+            child: Icon(Icons.push_pin,
+                size: 25,
+                color: ref.read(myInformationProvider)!.fixedBucket == id
+                    ? PRIMARY_COLOR
+                    : Colors.white), // 여기에 원하는 아이콘을 설정하세요.
+          ),
+        ),
+      ],
     );
   }
 
