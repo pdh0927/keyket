@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/common/view/login_screen.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
@@ -74,6 +75,11 @@ class _TmpState extends ConsumerState<Tmp> {
                   getNotification();
                 },
                 child: Text('공지 가져오기')),
+            ElevatedButton(
+                onPressed: () {
+                  myInformationTest();
+                },
+                child: Text('내 정보 테스트')),
           ],
         ),
       ),
@@ -191,5 +197,9 @@ class _TmpState extends ConsumerState<Tmp> {
     for (DocumentSnapshot recommendItemDoc in recommendItemDocs.docs) {
       print('Recommend content: ${recommendItemDoc['content']}');
     }
+  }
+
+  myInformationTest() async {
+    await ref.read(myInformationProvider.notifier).loadUserInfo();
   }
 }
