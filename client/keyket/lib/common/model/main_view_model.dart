@@ -26,10 +26,10 @@ class MainViewModel {
 
       // JSON에서 필요한 정보 추출
       String kakaoId = user!.id.toString();
-      String name = user!.kakaoAccount!.profile!.nickname!;
+      String nickname = user!.kakaoAccount!.profile!.nickname!;
 
       // Firestore에 사용자 데이터 저장
-      await _createUserInFirestore(kakaoId, name);
+      await _createUserInFirestore(kakaoId, nickname);
 
       return true;
     }
@@ -44,32 +44,22 @@ class MainViewModel {
   }
 }
 
-Future<void> _createUserInFirestore(String id, String name) async {
-  var counterRef =
-      FirebaseFirestore.instance.collection('user_count').doc('userCounter');
-  var userRef = FirebaseFirestore.instance.collection('user');
+Future<void> _createUserInFirestore(String id, String nickname) async {
+  final firestore = FirebaseFirestore.instance;
+  final userRef = firestore.collection('user').doc(id);
 
-  DocumentSnapshot userSnapshot = await userRef.doc(id).get();
+  await firestore.runTransaction((transaction) async {
+    final userSnapshot = await transaction.get(userRef);
 
-  if (userSnapshot.exists) {
-    // 이미 존재하는 사용자인 경우 종료
-    print('User already exists.');
-    return;
-  }
-
-  FirebaseFirestore.instance.runTransaction((transaction) async {
-    DocumentSnapshot counterSnapshot = await transaction.get(counterRef);
-
-    if (!counterSnapshot.exists) {
-      throw Exception('User counter does not exist');
+    if (!userSnapshot.exists) {
+      transaction.set(userRef, {
+        'nickname': nickname,
+        'image': '',
+        'fixedBucket': '',
+      });
+      print('User added to Firestore.');
     } else {
-      Map<String, dynamic> counterData =
-          counterSnapshot.data() as Map<String, dynamic>;
-      int updatedCount = counterData['count'] + 1;
-      transaction.update(counterRef, {'count': updatedCount});
-
-      transaction.set(userRef.doc(id),
-          {'nickname': name, 'image': '', 'inviteCode': updatedCount});
+      print('User already exists.');
     }
   });
 }
