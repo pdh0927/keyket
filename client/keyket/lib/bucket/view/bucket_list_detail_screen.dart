@@ -12,7 +12,6 @@ import 'package:keyket/bucket/component/custom_progressbar.dart';
 import 'package:keyket/bucket/component/input_box.dart';
 import 'package:keyket/bucket/component/member_card.dart';
 import 'package:keyket/bucket/const/text_style.dart';
-import 'package:keyket/bucket/const/tmp_data.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
@@ -1694,7 +1693,7 @@ class _MemberSection extends ConsumerWidget {
           height:
               userModelList.length <= 5 ? userModelList.length * 50.0 : 200.0,
           child: SingleChildScrollView(
-            physics: tmp_user_list.length <= 5
+            physics: userModelList.length <= 5
                 ? const NeverScrollableScrollPhysics()
                 : const ScrollPhysics(),
             child: Column(
