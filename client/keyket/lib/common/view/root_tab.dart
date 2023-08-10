@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/view/bucket_list_screen.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/common/provider/root_tab_index_provider.dart';
 import 'package:keyket/my/view/my_screen.dart';
 import 'package:keyket/recommend/view/recommend_screen.dart';
@@ -28,6 +29,7 @@ class _RootTabState extends ConsumerState<RootTab>
     controller = TabController(length: 4, vsync: this);
     controller.addListener(
         tabListener); // controller의 변경사항이 감지될 때마다 tabListener 함수 실행
+    ref.read(myInformationProvider.notifier).loadUserInfo();
   }
 
   @override
