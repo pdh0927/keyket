@@ -12,6 +12,7 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
   MyInformationNotifer() : super(null);
 
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
   Future<void> loadUserInfo() async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -25,5 +26,9 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
         state = UserModel.fromJson(data);
       }
     }
+  }
+
+  void setFixedBucket(String newBucketId) {
+    state = state!.copyWith(fixedBucket: newBucketId);
   }
 }
