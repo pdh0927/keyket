@@ -71,7 +71,7 @@ class MemberCard extends ConsumerWidget {
           Spacer(), // 이 부분은 메뉴 버튼을 끝으로 밀어냅니다.
           if (!isHost &&
               (ref.read(bucketListUserProvider)[bucketListId]![0].id ==
-                  ref.read(myInformationProvider)!.uid))
+                  ref.read(myInformationProvider)!.id))
             _MoreButton(
               removeUser: removeUser,
               userId: userId,

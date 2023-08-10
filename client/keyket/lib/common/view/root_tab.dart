@@ -1,23 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/view/bucket_list_screen.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/provider/root_tab_index_provider.dart';
 import 'package:keyket/my/view/my_screen.dart';
 import 'package:keyket/recommend/view/recommend_screen.dart';
 import 'package:keyket/recommend/view/tmp.dart';
 import 'package:remixicon/remixicon.dart';
 
-class RootTab extends StatefulWidget {
+class RootTab extends ConsumerStatefulWidget {
   const RootTab({super.key});
 
   @override
-  State<RootTab> createState() => _RootTabState();
+  ConsumerState<RootTab> createState() => _RootTabState();
 }
 
-class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
+class _RootTabState extends ConsumerState<RootTab>
+    with SingleTickerProviderStateMixin {
   late TabController
       controller; // late : 나중에 무조건 null이 아니라 controller 사용전에 세팅 한다
-  int index = 0;
 
   @override
   void initState() {
@@ -35,9 +37,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
   }
 
   void tabListener() {
-    setState(() {
-      index = controller.index;
-    });
+    ref.read(rootTabIndexProvider.notifier).state = controller.index;
   }
 
   @override
@@ -55,7 +55,7 @@ class _RootTabState extends State<RootTab> with SingleTickerProviderStateMixin {
             controller
                 .animateTo((index)); // 현재 탭과 인덱스가 다를 경우, 애니메이션을 사용하여 탭을 부드럽게 전환
           },
-          currentIndex: index,
+          currentIndex: ref.watch(rootTabIndexProvider),
           items: const [
             BottomNavigationBarItem(icon: Icon(Remix.home_line), label: 'HOME'),
             BottomNavigationBarItem(

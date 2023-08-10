@@ -282,7 +282,8 @@ class _BucketListDetailScreenState
   // AppBar 구성
   PreferredSize buildAppBar(BuildContext context) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+      // preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+      preferredSize: const Size.fromHeight(140),
       child: AppBar(
         leading: buildAppBarLeading(context),
         backgroundColor:
@@ -713,102 +714,13 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  // FireStore에서 item의 content 가져와서 넣기
-  // Future<void> getItems(
-  //     String id,
-  //     List<String> uncompletedcustomItemList,
-  //     List<String> uncompletedrecommendItemList,
-  //     List<String> completedCustomItemList,
-  //     List<String> completedRecommendItemList) async {
-  //   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  //   // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
-  //   List<String> tmpCustomItemsList = List.from(uncompletedcustomItemList)
-  //     ..addAll(completedCustomItemList);
-  //   List<String> tmpRecommendItemsList = List.from(uncompletedrecommendItemList)
-  //     ..addAll(completedRecommendItemList);
-
-  //   // Firestore에서 해당하는 item 불러오기
-  //   final List<ItemModel> customItems =
-  //       await _fetchItems(firestore, 'custom', tmpCustomItemsList);
-  //   final List<ItemModel> recommendItems =
-  //       await _fetchItems(firestore, 'recommend', tmpRecommendItemsList);
-
-  //   // Firestore에서 가져온 customItems id 목록
-  //   Set<String> fetchedCustomItemsIds =
-  //       Set.from(customItems.map((item) => item.id));
-
-  //   // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
-  //   int targetRemoveCount = uncompletedcustomItemList.length +
-  //       completedCustomItemList.length -
-  //       fetchedCustomItemsIds.length;
-  //   int customItemListRemovedCount = _removeNonExistentItems(
-  //       uncompletedcustomItemList, fetchedCustomItemsIds, targetRemoveCount);
-  //   int completedCustomItemListRemovedCount = 0;
-  //   if (customItemListRemovedCount < targetRemoveCount) {
-  //     completedCustomItemListRemovedCount = _removeNonExistentItems(
-  //         completedCustomItemList,
-  //         fetchedCustomItemsIds,
-  //         targetRemoveCount - customItemListRemovedCount);
-  //   }
-
-  //   Map<String, dynamic> updates = {};
-
-  //   // custom_item_list가 변경되었으면 updates에 추가
-  //   if (customItemListRemovedCount > 0) {
-  //     updates['customItemList'] = uncompletedcustomItemList;
-  //   }
-
-  //   // completed_custom_item_list가 변경되었으면 updates에 추가
-  //   if (completedCustomItemListRemovedCount > 0) {
-  //     updates['completedCustomItemList'] = completedCustomItemList;
-  //   }
-
-  //   // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
-  //   if (updates.isNotEmpty) {
-  //     await firestore.collection('bucket_list').doc(id).update(updates);
-  //   }
-
-  //   // 기존 BucketListModel 찾기
-  //   final existingBucketList = ref
-  //       .read(widget.isShared
-  //           ? sharedBucketListListProvider
-  //           : myBucketListListProvider)
-  //       .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
-
-  //   // 새로운 itemList로 BucketListModel 업데이트
-  //   final updatedBucketList = existingBucketList.copyWith(
-  //     customItemList: uncompletedcustomItemList,
-  //     completedCustomItemList: completedCustomItemList,
-  //   );
-
-  //   // StateNotifier를 통해 상태 업데이트
-  //   ref
-  //       .read(myBucketListListProvider.notifier)
-  //       .updateBucketList(updatedBucketList);
-
-  //   // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
-  //   final List<ItemModel> uncompletedItems = List.from(
-  //       customItems.getRange(0, uncompletedcustomItemList.length))
-  //     ..addAll(recommendItems.getRange(0, uncompletedrecommendItemList.length));
-  //   final List<ItemModel> completedItems = List.from(customItems.getRange(
-  //       uncompletedcustomItemList.length, customItems.length))
-  //     ..addAll(recommendItems.getRange(
-  //         uncompletedrecommendItemList.length, recommendItems.length));
-
-  //   // 상태 업데이트
-  //   setState(() {
-  //     uncompletedBucketListItemList = uncompletedItems;
-  //     completedBucketListItemList = completedItems;
-  //   });
-  // }
-
   Future<void> getItems(
-      String id,
-      List<String> uncompletedCustomItemList,
-      List<String> uncompletedRecommendItemList,
-      List<String> completedCustomItemList,
-      List<String> completedRecommendItemList) async {
+    String id,
+    List<String> uncompletedCustomItemList,
+    List<String> uncompletedRecommendItemList,
+    List<String> completedCustomItemList,
+    List<String> completedRecommendItemList,
+  ) async {
     final bucketListCustomItemState = ref.read(customBucketListItemProvider);
     final bucketListRecommendItemState =
         ref.read(recommendBucketListItemProvider);
@@ -816,132 +728,54 @@ class _BucketListDetailScreenState
     // ID를 로컬에서 찾을 수 있는 경우 Firestore에 접근하지 않음
     if (!bucketListCustomItemState.containsKey(id) ||
         !bucketListRecommendItemState.containsKey(id)) {
-      final FirebaseFirestore firestore = FirebaseFirestore.instance;
+      await _fetchAndUpdate(
+        id,
+        uncompletedCustomItemList,
+        uncompletedRecommendItemList,
+        completedCustomItemList,
+        completedRecommendItemList,
+      );
+    } else {
+      Set<String> currentCustomBucketUncompleteItemIdsSet = Set.from(
+          bucketListCustomItemState[id]
+                  ?.uncompleteItems
+                  .map((item) => item.id) ??
+              []);
+      Set<String> currentCustomBucketCompleteItemIdsSet = Set.from(
+          bucketListCustomItemState[id]?.completeItems.map((item) => item.id) ??
+              []);
+      Set<String> currentRecommendBucketUncompleteItemIdsSet = Set.from(
+          bucketListRecommendItemState[id]
+                  ?.uncompleteItems
+                  .map((item) => item.id) ??
+              []);
+      Set<String> currentRecommendBucketCompleteItemIdsSet = Set.from(
+          bucketListRecommendItemState[id]
+                  ?.completeItems
+                  .map((item) => item.id) ??
+              []);
 
-      List<String> tmpCustomItemsList = List.from(uncompletedCustomItemList)
-        ..addAll(completedCustomItemList);
-      List<String> tmpRecommendItemsList =
-          List.from(uncompletedRecommendItemList)
-            ..addAll(completedRecommendItemList);
+      bool isCustomUncompleteItemsChanged = itemsChanged(
+          currentCustomBucketUncompleteItemIdsSet, uncompletedCustomItemList);
+      bool isCustomCompleteItemsChanged = itemsChanged(
+          currentCustomBucketCompleteItemIdsSet, completedCustomItemList);
+      bool isRecommendUncompleteItemsChanged = itemsChanged(
+          currentRecommendBucketUncompleteItemIdsSet,
+          uncompletedRecommendItemList);
+      bool isRecommendCompleteItemsChanged = itemsChanged(
+          currentRecommendBucketCompleteItemIdsSet, completedRecommendItemList);
 
-      // Firestore에서 해당하는 item 불러오기
-      final List<CustomItemModel> fetchedCustomItems =
-          (await _fetchItems(firestore, 'custom', tmpCustomItemsList))
-              .map((item) => item as CustomItemModel)
-              .toList();
-
-      // 재정렬을 위해 id를 key로 가진 Map 생성
-      final Map<String, CustomItemModel> idToItem = {
-        for (var item in fetchedCustomItems) item.id: item
-      };
-
-      // 기존 순서(uncomplete앞, complete뒤)에 맞게 재정렬
-      final List<CustomItemModel> customItems =
-          tmpCustomItemsList.map((id) => idToItem[id]!).toList();
-
-      final List<RecommendItemModel> fetchedRecommendItems =
-          (await _fetchItems(firestore, 'recommend', tmpRecommendItemsList))
-              .map((item) => item as RecommendItemModel)
-              .toList();
-
-      final Map<String, RecommendItemModel> idToRecommendItem = {
-        for (var item in fetchedRecommendItems) item.id: item
-      };
-
-      final List<RecommendItemModel> recommendItems =
-          tmpRecommendItemsList.map((id) => idToRecommendItem[id]!).toList();
-
-      // Firestore에서 가져온 customItems id 목록
-      Set<String> fetchedCustomItemsIds =
-          Set.from(customItems.map((item) => item.id));
-
-      // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
-      int targetRemoveCount = uncompletedCustomItemList.length +
-          completedCustomItemList.length -
-          fetchedCustomItemsIds.length;
-      int uncustomItemListRemovedCount = _removeNonExistentItems(
-          uncompletedCustomItemList, fetchedCustomItemsIds, targetRemoveCount);
-      int completedCustomItemListRemovedCount = 0;
-      if (uncustomItemListRemovedCount < targetRemoveCount) {
-        completedCustomItemListRemovedCount = _removeNonExistentItems(
-            completedCustomItemList,
-            fetchedCustomItemsIds,
-            targetRemoveCount - uncustomItemListRemovedCount);
-      }
-
-      // 나눠 담기 위해 index 수정
-      int uncompletedCustomItemsCount = uncompletedCustomItemList.length;
-      int completedCustomItemsCount = completedCustomItemList.length;
-
-      // 나눠 담기
-      ref
-          .read(customBucketListItemProvider.notifier)
-          .addCustomItemsToBucketList(
-              id,
-              CustomItems(
-                  completeItems: customItems
-                      .getRange(
-                          uncompletedCustomItemsCount,
-                          uncompletedCustomItemsCount +
-                              completedCustomItemsCount)
-                      .toList(),
-                  uncompleteItems: customItems
-                      .getRange(0, uncompletedCustomItemsCount)
-                      .toList()));
-
-      ref
-          .read(recommendBucketListItemProvider.notifier)
-          .addRecommendItemsToBucketList(
-              id,
-              RecommendItems(
-                completeItems: recommendItems
-                    .getRange(
-                        uncompletedRecommendItemList.length,
-                        uncompletedRecommendItemList.length +
-                            completedRecommendItemList.length)
-                    .toList(),
-                uncompleteItems: recommendItems
-                    .getRange(0, uncompletedRecommendItemList.length)
-                    .toList(),
-              ));
-
-      Map<String, dynamic> updates = {};
-
-      // custom_item_list가 변경되었으면 updates에 추가
-      if (uncustomItemListRemovedCount > 0) {
-        updates['uncompletedCustomItemList'] = uncompletedCustomItemList;
-      }
-
-      // completed_custom_item_list가 변경되었으면 updates에 추가
-      if (completedCustomItemListRemovedCount > 0) {
-        updates['completedCustomItemList'] = completedCustomItemList;
-      }
-
-      // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
-      if (updates.isNotEmpty) {
-        await firestore.collection('bucket_list').doc(id).update(updates);
-
-        // 기존 BucketListModel 찾기
-        final existingBucketList = widget.isShared
-            ? ref.read(sharedBucketListListProvider).firstWhere(
-                (bucketList) => bucketList.id == widget.bucketListId)
-            : ref.read(myBucketListListProvider).firstWhere(
-                (bucketList) => bucketList.id == widget.bucketListId);
-
-        // 새로운 itemList로 BucketListModel 업데이트
-        final updatedBucketList = existingBucketList.copyWith(
-          customItemList: uncompletedCustomItemList,
-          completedCustomItemList: completedCustomItemList,
+      if (isCustomUncompleteItemsChanged ||
+          isCustomCompleteItemsChanged ||
+          isRecommendUncompleteItemsChanged ||
+          isRecommendCompleteItemsChanged) {
+        await _fetchAndUpdate(
+          id,
+          uncompletedCustomItemList,
+          uncompletedRecommendItemList,
+          completedCustomItemList,
+          completedRecommendItemList,
         );
-
-        // StateNotifier를 통해 상태 업데이트
-        widget.isShared
-            ? ref
-                .read(sharedBucketListListProvider.notifier)
-                .updateBucketList(updatedBucketList)
-            : ref
-                .read(myBucketListListProvider.notifier)
-                .updateBucketList(updatedBucketList);
       }
     }
 
@@ -957,6 +791,143 @@ class _BucketListDetailScreenState
       completeRecommendItemList = tmpRecommendsItems.completeItems;
       uncompleteRecommendItemList = tmpRecommendsItems.uncompleteItems;
     });
+  }
+
+  bool itemsChanged(Set<String> current, List<String> newItems) {
+    Set<String> newItemSet = Set.from(newItems);
+    return current.difference(newItemSet).isNotEmpty ||
+        newItemSet.difference(current).isNotEmpty;
+  }
+
+  _fetchAndUpdate(
+      String id,
+      List<String> uncompletedCustomItemList,
+      List<String> uncompletedRecommendItemList,
+      List<String> completedCustomItemList,
+      List<String> completedRecommendItemList) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    List<String> tmpCustomItemsList = List.from(uncompletedCustomItemList)
+      ..addAll(completedCustomItemList);
+    List<String> tmpRecommendItemsList = List.from(uncompletedRecommendItemList)
+      ..addAll(completedRecommendItemList);
+
+    // Firestore에서 해당하는 item 불러오기
+    final List<CustomItemModel> fetchedCustomItems =
+        (await _fetchItems(firestore, 'custom', tmpCustomItemsList))
+            .map((item) => item as CustomItemModel)
+            .toList();
+
+    // 재정렬을 위해 id를 key로 가진 Map 생성
+    final Map<String, CustomItemModel> idToItem = {
+      for (var item in fetchedCustomItems) item.id: item
+    };
+
+    // 기존 순서(uncomplete앞, complete뒤)에 맞게 재정렬
+    final List<CustomItemModel> customItems =
+        tmpCustomItemsList.map((id) => idToItem[id]!).toList();
+
+    final List<RecommendItemModel> fetchedRecommendItems =
+        (await _fetchItems(firestore, 'recommend', tmpRecommendItemsList))
+            .map((item) => item as RecommendItemModel)
+            .toList();
+
+    final Map<String, RecommendItemModel> idToRecommendItem = {
+      for (var item in fetchedRecommendItems) item.id: item
+    };
+
+    final List<RecommendItemModel> recommendItems =
+        tmpRecommendItemsList.map((id) => idToRecommendItem[id]!).toList();
+
+    // Firestore에서 가져온 customItems id 목록
+    Set<String> fetchedCustomItemsIds =
+        Set.from(customItems.map((item) => item.id));
+
+    // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
+    int targetRemoveCount = uncompletedCustomItemList.length +
+        completedCustomItemList.length -
+        fetchedCustomItemsIds.length;
+    int uncustomItemListRemovedCount = _removeNonExistentItems(
+        uncompletedCustomItemList, fetchedCustomItemsIds, targetRemoveCount);
+    int completedCustomItemListRemovedCount = 0;
+    if (uncustomItemListRemovedCount < targetRemoveCount) {
+      completedCustomItemListRemovedCount = _removeNonExistentItems(
+          completedCustomItemList,
+          fetchedCustomItemsIds,
+          targetRemoveCount - uncustomItemListRemovedCount);
+    }
+
+    // 나눠 담기 위해 index 수정
+    int uncompletedCustomItemsCount = uncompletedCustomItemList.length;
+    int completedCustomItemsCount = completedCustomItemList.length;
+
+    // 나눠 담기
+    ref.read(customBucketListItemProvider.notifier).addCustomItemsToBucketList(
+        id,
+        CustomItems(
+            completeItems: customItems
+                .getRange(uncompletedCustomItemsCount,
+                    uncompletedCustomItemsCount + completedCustomItemsCount)
+                .toList(),
+            uncompleteItems:
+                customItems.getRange(0, uncompletedCustomItemsCount).toList()));
+
+    ref
+        .read(recommendBucketListItemProvider.notifier)
+        .addRecommendItemsToBucketList(
+            id,
+            RecommendItems(
+              completeItems: recommendItems
+                  .getRange(
+                      uncompletedRecommendItemList.length,
+                      uncompletedRecommendItemList.length +
+                          completedRecommendItemList.length)
+                  .toList(),
+              uncompleteItems: recommendItems
+                  .getRange(0, uncompletedRecommendItemList.length)
+                  .toList(),
+            ));
+
+    Map<String, dynamic> updates = {};
+
+    // custom_item_list가 변경되었으면 updates에 추가
+    if (uncustomItemListRemovedCount > 0) {
+      updates['uncompletedCustomItemList'] = uncompletedCustomItemList;
+    }
+
+    // completed_custom_item_list가 변경되었으면 updates에 추가
+    if (completedCustomItemListRemovedCount > 0) {
+      updates['completedCustomItemList'] = completedCustomItemList;
+    }
+
+    // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
+    if (updates.isNotEmpty) {
+      await firestore.collection('bucket_list').doc(id).update(updates);
+
+      // 기존 BucketListModel 찾기
+      final existingBucketList = widget.isShared
+          ? ref
+              .read(sharedBucketListListProvider)
+              .firstWhere((bucketList) => bucketList.id == widget.bucketListId)
+          : ref
+              .read(myBucketListListProvider)
+              .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+
+      // 새로운 itemList로 BucketListModel 업데이트
+      final updatedBucketList = existingBucketList.copyWith(
+        customItemList: uncompletedCustomItemList,
+        completedCustomItemList: completedCustomItemList,
+      );
+
+      // StateNotifier를 통해 상태 업데이트
+      widget.isShared
+          ? ref
+              .read(sharedBucketListListProvider.notifier)
+              .updateBucketList(updatedBucketList)
+          : ref
+              .read(myBucketListListProvider.notifier)
+              .updateBucketList(updatedBucketList);
+    }
   }
 
   // FireStore에 접근해서 item 가져오기
@@ -1002,6 +973,7 @@ class _BucketListDetailScreenState
     while (currentIndex < itemList.length && removedCount < targetRemoveCount) {
       if (!existingItemsIds.contains(itemList[currentIndex])) {
         itemList.removeAt(currentIndex);
+
         removedCount++;
       } else {
         currentIndex++;
