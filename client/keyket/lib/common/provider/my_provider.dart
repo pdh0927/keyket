@@ -28,7 +28,18 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
     }
   }
 
-  void setFixedBucket(String newBucketId) {
+  void setFixedBucket(String newBucketId) async {
+    // 상태 업데이트
     state = state!.copyWith(fixedBucket: newBucketId);
+
+    // Firestore에 데이터 업데이트
+    try {
+      await _firestore
+          .collection('user')
+          .doc(state!.id)
+          .update({'fixedBucket': newBucketId});
+    } catch (e) {
+      print("Error updating user's fixed bucket: $e");
+    }
   }
 }
