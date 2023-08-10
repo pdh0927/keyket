@@ -282,7 +282,8 @@ class _BucketListDetailScreenState
   // AppBar 구성
   PreferredSize buildAppBar(BuildContext context) {
     return PreferredSize(
-      preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+      // preferredSize: Size.fromHeight(MediaQuery.of(context).size.height * 0.16),
+      preferredSize: const Size.fromHeight(140),
       child: AppBar(
         leading: buildAppBarLeading(context),
         backgroundColor:
@@ -713,96 +714,6 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  // FireStore에서 item의 content 가져와서 넣기
-  // Future<void> getItems(
-  //     String id,
-  //     List<String> uncompletedcustomItemList,
-  //     List<String> uncompletedrecommendItemList,
-  //     List<String> completedCustomItemList,
-  //     List<String> completedRecommendItemList) async {
-  //   final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  //   // custom, recommend 별로 리스트 결합(한번에 firestore 접근해서 접근 최소화 하기 위해)
-  //   List<String> tmpCustomItemsList = List.from(uncompletedcustomItemList)
-  //     ..addAll(completedCustomItemList);
-  //   List<String> tmpRecommendItemsList = List.from(uncompletedrecommendItemList)
-  //     ..addAll(completedRecommendItemList);
-
-  //   // Firestore에서 해당하는 item 불러오기
-  //   final List<ItemModel> customItems =
-  //       await _fetchItems(firestore, 'custom', tmpCustomItemsList);
-  //   final List<ItemModel> recommendItems =
-  //       await _fetchItems(firestore, 'recommend', tmpRecommendItemsList);
-
-  //   // Firestore에서 가져온 customItems id 목록
-  //   Set<String> fetchedCustomItemsIds =
-  //       Set.from(customItems.map((item) => item.id));
-
-  //   // Firestore에서 존재하지 않으면 customItemList와 completedCustomItemList에서 제거
-  //   int targetRemoveCount = uncompletedcustomItemList.length +
-  //       completedCustomItemList.length -
-  //       fetchedCustomItemsIds.length;
-  //   int customItemListRemovedCount = _removeNonExistentItems(
-  //       uncompletedcustomItemList, fetchedCustomItemsIds, targetRemoveCount);
-  //   int completedCustomItemListRemovedCount = 0;
-  //   if (customItemListRemovedCount < targetRemoveCount) {
-  //     completedCustomItemListRemovedCount = _removeNonExistentItems(
-  //         completedCustomItemList,
-  //         fetchedCustomItemsIds,
-  //         targetRemoveCount - customItemListRemovedCount);
-  //   }
-
-  //   Map<String, dynamic> updates = {};
-
-  //   // custom_item_list가 변경되었으면 updates에 추가
-  //   if (customItemListRemovedCount > 0) {
-  //     updates['customItemList'] = uncompletedcustomItemList;
-  //   }
-
-  //   // completed_custom_item_list가 변경되었으면 updates에 추가
-  //   if (completedCustomItemListRemovedCount > 0) {
-  //     updates['completedCustomItemList'] = completedCustomItemList;
-  //   }
-
-  //   // updates에 변경 사항이 있으면 Firestore에 한 번의 쓰기 작업으로 업데이트
-  //   if (updates.isNotEmpty) {
-  //     await firestore.collection('bucket_list').doc(id).update(updates);
-  //   }
-
-  //   // 기존 BucketListModel 찾기
-  //   final existingBucketList = ref
-  //       .read(widget.isShared
-  //           ? sharedBucketListListProvider
-  //           : myBucketListListProvider)
-  //       .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
-
-  //   // 새로운 itemList로 BucketListModel 업데이트
-  //   final updatedBucketList = existingBucketList.copyWith(
-  //     customItemList: uncompletedcustomItemList,
-  //     completedCustomItemList: completedCustomItemList,
-  //   );
-
-  //   // StateNotifier를 통해 상태 업데이트
-  //   ref
-  //       .read(myBucketListListProvider.notifier)
-  //       .updateBucketList(updatedBucketList);
-
-  //   // 아까 결합한 index 따라 complete, uncomplete item 분리하여 list에 넣음
-  //   final List<ItemModel> uncompletedItems = List.from(
-  //       customItems.getRange(0, uncompletedcustomItemList.length))
-  //     ..addAll(recommendItems.getRange(0, uncompletedrecommendItemList.length));
-  //   final List<ItemModel> completedItems = List.from(customItems.getRange(
-  //       uncompletedcustomItemList.length, customItems.length))
-  //     ..addAll(recommendItems.getRange(
-  //         uncompletedrecommendItemList.length, recommendItems.length));
-
-  //   // 상태 업데이트
-  //   setState(() {
-  //     uncompletedBucketListItemList = uncompletedItems;
-  //     completedBucketListItemList = completedItems;
-  //   });
-  // }
-
   Future<void> getItems(
       String id,
       List<String> uncompletedCustomItemList,
@@ -1002,6 +913,7 @@ class _BucketListDetailScreenState
     while (currentIndex < itemList.length && removedCount < targetRemoveCount) {
       if (!existingItemsIds.contains(itemList[currentIndex])) {
         itemList.removeAt(currentIndex);
+
         removedCount++;
       } else {
         currentIndex++;
