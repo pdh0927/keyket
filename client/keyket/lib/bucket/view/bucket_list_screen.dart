@@ -6,6 +6,7 @@ import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
 enum SortItem { name, latest, oldest }
@@ -49,9 +50,6 @@ class _BucketListListScreenScreenState
                         setState(() {
                           isShared = true;
                         });
-                        ref
-                            .read(sharedBucketListListProvider.notifier)
-                            .getBucketList(isShared);
                       },
                       isShared: !isShared)
                 ],
@@ -91,7 +89,9 @@ class _SharedBucketListList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    ref.read(sharedBucketListListProvider.notifier).getBucketList(true);
+    ref
+        .read(sharedBucketListListProvider.notifier)
+        .getBucketList(ref.read(myInformationProvider)!.id, true);
     final List<BucketListModel> sharedBucketListList =
         ref.watch(sharedBucketListListProvider);
     return _BucketListList(bucketListList: sharedBucketListList);
