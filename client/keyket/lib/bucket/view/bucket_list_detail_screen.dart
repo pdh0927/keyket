@@ -120,18 +120,33 @@ class _BucketListDetailScreenState
       modifiedBucketListModel.completedRecommendItemList,
     );
 
-    if (!ref.read(bucketListUserProvider).containsKey(widget.bucketListId)) {
-      ref.read(bucketListUserProvider.notifier).addBucketListUsers(
-          widget.bucketListId, await getUsers(modifiedBucketListModel.users));
-    }
-    userModelList = List<UserModel>.from(ref
-        .read(bucketListUserProvider)[widget.bucketListId]!
-        .map((user) => UserModel.copy(user))
-        .toList());
+    await getUsers(modifiedBucketListModel.users);
+    setState(() {
+      userModelList = List<UserModel>.from(ref
+          .read(bucketListUserProvider)[widget.bucketListId]!
+          .map((user) => UserModel.copy(user))
+          .toList());
+    });
   }
 
   // Firestore에서 사용자들을 가져오는 함수
-  Future<List<UserModel>> getUsers(List<String> userIds) async {
+  Future<void> getUsers(List<String> userIds) async {
+    if (!ref.read(bucketListUserProvider).containsKey(widget.bucketListId)) {
+      await _fetchUsers(userIds);
+    } else {
+      Set<String> currentUserIdsSet = Set.from(ref
+          .read(bucketListUserProvider)[widget.bucketListId]!
+          .map((userModel) => userModel.id));
+
+      bool isUserChanged = itemsChanged(currentUserIdsSet, userIds);
+
+      if (isUserChanged) {
+        await _fetchUsers(userIds);
+      }
+    }
+  }
+
+  Future<void> _fetchUsers(List<String> userIds) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     // 가져온 사용자들을 저장할 빈 리스트 생성
     List<UserModel> users = [];
@@ -160,8 +175,9 @@ class _BucketListDetailScreenState
 
       read += chunk.length;
     }
-    // 모든 사용자들을 담은 리스트를 반환
-    return users;
+    ref
+        .read(bucketListUserProvider.notifier)
+        .addBucketListUsers(widget.bucketListId, users);
   }
 
   @override
@@ -1694,7 +1710,7 @@ class _MemberSection extends ConsumerWidget {
           ),
         ),
         if (userModelList.isNotEmpty)
-          Divider(
+          const Divider(
             height: 2,
             thickness: 1,
           ),
