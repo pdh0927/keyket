@@ -91,6 +91,7 @@ class _SharedBucketListList extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.read(sharedBucketListListProvider.notifier).getBucketList(true);
     final List<BucketListModel> sharedBucketListList =
         ref.watch(sharedBucketListListProvider);
     return _BucketListList(bucketListList: sharedBucketListList);
