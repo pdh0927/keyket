@@ -9,13 +9,11 @@ final myInformationProvider =
 });
 
 class MyInformationNotifer extends StateNotifier<UserModel?> {
-  MyInformationNotifer() : super(null) {
-    loadUserInfo();
-  }
+  MyInformationNotifer() : super(null);
+
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   Future<void> loadUserInfo() async {
     final user = FirebaseAuth.instance.currentUser;
-    print('실행');
 
     if (user != null) {
       final DocumentSnapshot userDoc =
