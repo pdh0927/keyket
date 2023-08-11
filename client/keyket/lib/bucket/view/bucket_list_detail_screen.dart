@@ -1454,6 +1454,18 @@ class _BucketListDetailScreenState
       updates['updatedAt'] = DateTime.now();
     }
 
+    if (originalBucketListModel.users.length > 1 &&
+        modifiedBucketListModel.users.length == 1) {
+      updates['isShared'] = false;
+      modifiedBucketListModel =
+          modifiedBucketListModel.copyWith(isShared: updates['isShared']);
+    } else if (originalBucketListModel.users.length == 1 &&
+        modifiedBucketListModel.users.length > 1) {
+      updates['isShared'] = true;
+      modifiedBucketListModel =
+          modifiedBucketListModel.copyWith(isShared: updates['isShared']);
+    }
+
     // 변경 사항이 있으면 Firebase에 업데이트
     if (updates.isNotEmpty) {
       await firestore
@@ -1470,6 +1482,20 @@ class _BucketListDetailScreenState
           : ref.read(myBucketListListProvider.notifier).changeBucketListModel(
               widget.bucketListId, modifiedBucketListModel);
 
+      // 공유 유무가 변경되었는지 확인
+      if (updates['isShared'] != null) {
+        // itemList에서 서로 위치 이동
+        ref
+            .read(updates['isShared']
+                ? sharedBucketListListProvider.notifier
+                : myBucketListListProvider.notifier)
+            .addBucketList(modifiedBucketListModel);
+        ref
+            .read(updates['isShared']
+                ? myBucketListListProvider.notifier
+                : sharedBucketListListProvider.notifier)
+            .deleteBucketList(modifiedBucketListModel.id);
+      }
       ref
           .read(customBucketListItemProvider.notifier)
           .replaceCustomItemsInBucketList(
