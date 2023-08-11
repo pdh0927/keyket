@@ -41,6 +41,26 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
     state = bucketList;
   }
 
+  void addNewBucket(Map<String, dynamic> bucketData) async {
+    try {
+      // Firestore에 새로운 bucket 추가
+      DocumentReference<Map<String, dynamic>> documentRef =
+          await firestore.collection('bucket_list').add(bucketData);
+
+      // Firestore에서 부여된 ID를 모델에 설정
+      bucketData['id'] = documentRef.id;
+      bucketData['createdAt'] = bucketData['createdAt'].toString();
+      bucketData['updatedAt'] = bucketData['updatedAt'].toString();
+
+      BucketListModel addedBucket = BucketListModel.fromJson(bucketData);
+
+      // State에 추가된 bucket 추가
+      state = [...state, addedBucket];
+    } catch (e) {
+      print(e);
+    }
+  }
+
   // 버킷리시트 업데이트
   void updateBucketList(BucketListModel updatedBucketList) {
     state = [
