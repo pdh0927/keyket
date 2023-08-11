@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 
-showCustomInputDialog(BuildContext context, String title) async {
+Future<String?> showCustomInputDialog(
+    BuildContext context, String title) async {
   TextEditingController nameController = TextEditingController();
 
-  await showDialog<void>(
+  String? result = await showDialog<String?>(
     context: context,
     barrierDismissible: true,
     builder: (BuildContext context) {
@@ -63,10 +65,8 @@ showCustomInputDialog(BuildContext context, String title) async {
               onTap: () {
                 String bucketName = nameController.text;
                 if (bucketName.isNotEmpty) {
-                  // Perform bucket creation logic here
-                  // ...
-
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context, rootNavigator: true)
+                      .pop(bucketName); // Close the dialog
                 }
               },
               child: Container(
@@ -85,4 +85,6 @@ showCustomInputDialog(BuildContext context, String title) async {
       );
     },
   );
+
+  return result;
 }
