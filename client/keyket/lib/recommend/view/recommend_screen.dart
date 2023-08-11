@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/model/bucket_list_model.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 
 import 'package:keyket/common/component/custom_input_dialog.dart';
 import 'package:keyket/common/component/custom_underline_button.dart';
@@ -9,8 +11,10 @@ import 'package:keyket/common/component/select_box.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
+import 'package:keyket/common/provider/my_provider.dart';
+
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
-import 'package:keyket/recommend/const/data.dart';
+import 'package:keyket/recommend/model/recommend_item_model.dart';
 
 import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
@@ -27,18 +31,23 @@ class RecommendScreen extends ConsumerStatefulWidget {
 
 class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   bool selectFlag = false;
-  List<int> selectedRecommendIndexList = [];
+  bool createFlag = false;
+  List<String> selectedRecommendIds = [];
+  String? bucketName;
+  String? bucketListId;
+  bool? bucketListIsShared;
 
   @override
   void initState() {
-    selectedRecommendIndexList = [];
+    selectedRecommendIds = [];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
-
+    List<BucketListModel> bucketList = ref.watch(myBucketListListProvider) +
+        ref.watch(sharedBucketListListProvider);
     return DefaultLayout(
         title: '추천',
         actions: [
@@ -85,7 +94,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                       ),
                       // List 선택 버튼
                       ListSelectButton(onTap: () {
-                        showBottomSheet();
+                        showBottomSheet(bucketList);
                       }),
                     ],
                   )
@@ -95,7 +104,8 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                         onPressed: () {
                           setState(() {
                             selectFlag = !selectFlag;
-                            selectedRecommendIndexList = [];
+                            selectedRecommendIds = [];
+                            bucketName = null;
                           });
                         },
                         icon: Remix.close_line,
@@ -104,7 +114,45 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                     const SizedBox(width: 20),
                     // 버킷 저장 버튼
                     CustomUnderlineButton(
-                        onPressed: () {}, icon: Remix.add_line, text: '버킷 저장'),
+                      icon: Remix.add_line,
+                      text: '버킷 저장',
+                      onPressed: () {
+                        if (createFlag) {
+                          if (bucketName != null) {
+                            Map<String, dynamic> newBucketData = {
+                              'name': bucketName,
+                              'image': '',
+                              'isShared': false,
+                              'users': [ref.read(myInformationProvider)!.id],
+                              'completedCustomItemList': [],
+                              'completedRecommendItemList': [],
+                              'uncompletedCustomItemList': [],
+                              'uncompletedRecommendItemList':
+                                  selectedRecommendIds,
+                              'createdAt': DateTime.now(),
+                              'updatedAt': DateTime.now(),
+                            };
+
+                            ref
+                                .read(myBucketListListProvider.notifier)
+                                .addNewBucket(newBucketData);
+                          }
+                        } else {
+                          if (bucketListId != null) {
+                            ref
+                                .read(bucketListIsShared!
+                                    ? sharedBucketListListProvider.notifier
+                                    : myBucketListListProvider.notifier)
+                                .updateRecommendItems(
+                                    bucketListId!, selectedRecommendIds);
+                          }
+                        }
+                        setState(() {
+                          selectFlag = !selectFlag;
+                          selectedRecommendIds = [];
+                        });
+                      },
+                    ),
                   ]),
             const SizedBox(height: 30),
             Expanded(
@@ -112,7 +160,8 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                 // 추천 리스트
                 itemCount: recommendedItems.length,
                 itemBuilder: (context, index) {
-                  bool isContain = selectedRecommendIndexList.contains(index);
+                  RecommendItemModel item = recommendedItems[index];
+                  bool isContain = selectedRecommendIds.contains(item.id);
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,13 +176,13 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                           onPressed: () {
                             setState(() {
                               if (isContain) {
-                                selectedRecommendIndexList.remove(index);
+                                selectedRecommendIds.remove(item.id);
                               } else {
-                                selectedRecommendIndexList.add(index);
+                                selectedRecommendIds.add(item.id);
                               }
                             });
                           },
-                          item: recommendedItems[index]),
+                          item: item),
                       getDottedLine(
                           index, false, recommendedItems.length) // 구분 점선
                     ],
@@ -163,7 +212,21 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
     }
   }
 
-  void showBottomSheet() {
+  List<String> getSelectedRecommendIds(
+      List<RecommendItemModel> recommendedItems,
+      List<int> selectedRecommendIndexList) {
+    List<String> selectedIds = [];
+
+    for (int index in selectedRecommendIndexList) {
+      if (index >= 0 && index < recommendedItems.length) {
+        selectedIds.add(recommendedItems[index].id);
+      }
+    }
+
+    return selectedIds;
+  }
+
+  void showBottomSheet(List<BucketListModel> bucketListList) {
     showModalBottomSheet<void>(
       context: context,
       builder: (BuildContext context) {
@@ -185,25 +248,41 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: ListView.builder(
-                    itemCount: bucketList.length + 1,
+                    itemCount: bucketListList.length + 1,
                     itemBuilder: (context, index) {
                       if (index == 0) {
                         // 처음 요소를 새로운 버킷 만들기로
                         return _AddNewBucketItem(onTap: () async {
                           Navigator.pop(context);
-                          await showCustomInputDialog(context, '새로운 버킷 만들기');
-                          setState(() {
-                            selectFlag = !selectFlag;
-                          });
+                          String? tmpName = await showCustomInputDialog(
+                              context, '새로운 버킷 만들기');
+                          if (tmpName != null) {
+                            setState(() {
+                              bucketName = tmpName;
+                              selectFlag = !selectFlag;
+                              createFlag = true;
+                            });
+                          }
                         });
                       } else {
+                        BucketListModel bucketList = bucketListList[index - 1];
                         return _OrdinaryBucketItem(
-                            bucketName: bucketList[index - 1]['name'],
-                            bucketImage: bucketList[index - 1]['image'],
+                            bucketName: bucketList.name,
+                            bucketImage: bucketList.image,
                             onTap: () {
+                              setState(() {
+                                selectedRecommendIds = List.from(
+                                    bucketList.uncompletedRecommendItemList +
+                                        bucketList.completedRecommendItemList);
+                              });
+
                               Navigator.pop(context);
+
                               setState(() {
                                 selectFlag = !selectFlag;
+                                createFlag = false;
+                                bucketListId = bucketList.id;
+                                bucketListIsShared = bucketList.isShared;
                               });
                             });
                       }
@@ -298,8 +377,13 @@ class _OrdinaryBucketItem extends StatelessWidget {
                 children: [
                   ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
-                      child: bucketImage != null
-                          ? Image.asset(bucketImage!, width: 60)
+                      child: bucketImage != ''
+                          ? Image.network(
+                              bucketImage!,
+                              width: 60,
+                              height: 60,
+                              fit: BoxFit.fill,
+                            )
                           : Image.asset('asset/img/default_bucket.png',
                               width: 60)),
                   const SizedBox(width: 24),
