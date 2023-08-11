@@ -36,22 +36,24 @@ class _BucketListListScreenScreenState
                   context,
                   '새로운 버킷 만들기',
                 );
-                Map<String, dynamic> newBucketData = {
-                  'name': name,
-                  'image': '',
-                  'isShared': isShared,
-                  'users': [ref.read(myInformationProvider)!.id],
-                  'completedCustomItemList': [],
-                  'completedRecommendItemList': [],
-                  'uncompletedCustomItemList': [],
-                  'uncompletedRecommendItemList': [],
-                  'createdAt': DateTime.now(),
-                  'updatedAt': DateTime.now(),
-                };
+                if (name != null) {
+                  Map<String, dynamic> newBucketData = {
+                    'name': name,
+                    'image': '',
+                    'isShared': false,
+                    'users': [ref.read(myInformationProvider)!.id],
+                    'completedCustomItemList': [],
+                    'completedRecommendItemList': [],
+                    'uncompletedCustomItemList': [],
+                    'uncompletedRecommendItemList': [],
+                    'createdAt': DateTime.now(),
+                    'updatedAt': DateTime.now(),
+                  };
 
-                ref
-                    .read(myBucketListListProvider.notifier)
-                    .addNewBucket(newBucketData);
+                  ref
+                      .read(myBucketListListProvider.notifier)
+                      .addNewBucket(newBucketData);
+                }
               },
               icon: Icon(Remix.add_line)),
         ],
