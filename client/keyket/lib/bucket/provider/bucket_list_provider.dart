@@ -72,6 +72,57 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
     ];
   }
 
+  void updateRecommendItems(String bucketListId, List<String> ids) async {
+    final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
+
+    final Set<String> currentCompleted =
+        bucketList.completedRecommendItemList.toSet();
+    final Set<String> currentUncompleted =
+        bucketList.uncompletedRecommendItemList.toSet();
+    final Set<String> newIds = ids.toSet();
+
+    // complete에서 삭제되어야 할 항목 찾기
+    currentCompleted.retainAll(newIds);
+
+    // uncomplete에서 삭제되어야 할 항목 찾기
+    currentUncompleted.retainAll(newIds);
+
+    // 새롭게 추가되어야 할 항목 찾기
+    newIds.removeAll(currentCompleted);
+    newIds.removeAll(currentUncompleted);
+
+    currentUncompleted.addAll(newIds); // 새롭게 추가된 항목들은 uncompleted에 추가
+
+    // 업데이트된 리스트로 BucketListModel 생성
+    BucketListModel updatedBucket = BucketListModel(
+      id: bucketList.id,
+      name: bucketList.name,
+      image: bucketList.image,
+      isShared: bucketList.isShared,
+      users: bucketList.users,
+      createdAt: bucketList.createdAt,
+      updatedAt: DateTime.now(),
+      uncompletedCustomItemList: bucketList.uncompletedCustomItemList,
+      uncompletedRecommendItemList: currentUncompleted.toList(),
+      completedCustomItemList: bucketList.completedCustomItemList,
+      completedRecommendItemList: currentCompleted.toList(),
+    );
+
+    // state 업데이트
+    updateBucketList(updatedBucket);
+
+    // Firestore bucket_list에 업데이트
+    try {
+      await firestore.collection('bucket_list').doc(bucketListId).update({
+        'completedRecommendItemList': currentCompleted.toList(),
+        'uncompletedRecommendItemList': currentUncompleted.toList(),
+        'updatedAt': DateTime.now(),
+      });
+    } catch (e) {
+      print("Firestore 업데이트 에러: $e");
+    }
+  }
+
   // 버킷리스트 모델로 버킷리스트 추가
   void addBucketList(BucketListModel newBucket) async {
     // State에 추가된 bucket 아이템 추가
