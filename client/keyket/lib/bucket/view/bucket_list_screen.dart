@@ -49,13 +49,9 @@ class _BucketListListScreenScreenState
                   'updatedAt': DateTime.now(),
                 };
 
-                isShared
-                    ? ref
-                        .read(sharedBucketListListProvider.notifier)
-                        .addNewBucket(newBucketData)
-                    : ref
-                        .read(myBucketListListProvider.notifier)
-                        .addNewBucket(newBucketData);
+                ref
+                    .read(myBucketListListProvider.notifier)
+                    .addNewBucket(newBucketData);
               },
               icon: Icon(Remix.add_line)),
         ],
