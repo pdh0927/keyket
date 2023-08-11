@@ -72,6 +72,18 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
     ];
   }
 
+  // 버킷리스트 모델로 버킷리스트 추가
+  void addBucketList(BucketListModel newBucket) async {
+    // State에 추가된 bucket 아이템 추가
+    state = [...state, newBucket];
+  }
+
+  // 아이디로 버킷리스트 삭제
+  void deleteBucketList(String bucketListId) async {
+    // State에서 해당 bucket리스트 삭제
+    state = state.where((bucket) => bucket.id != bucketListId).toList();
+  }
+
   double getAchievementRate(String bucketListId) {
     final bucketList = state.firstWhere((bucket) => bucket.id == bucketListId);
     int complementedCount = bucketList.completedCustomItemList.length +
