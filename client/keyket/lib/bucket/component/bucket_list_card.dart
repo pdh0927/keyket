@@ -112,11 +112,13 @@ class BucketListCard extends ConsumerWidget {
           child: InkWell(
             onTap: () {
               ref.read(myInformationProvider.notifier).setFixedBucket(
-                  ref.read(myInformationProvider)!.fixedBucket == id ? '' : id);
+                  ref.watch(myInformationProvider)!.fixedBucket == id
+                      ? ''
+                      : id);
             },
             child: Icon(Icons.push_pin,
                 size: 25,
-                color: ref.read(myInformationProvider)!.fixedBucket == id
+                color: ref.watch(myInformationProvider)!.fixedBucket == id
                     ? PRIMARY_COLOR
                     : Colors.white), // 여기에 원하는 아이콘을 설정하세요.
           ),
