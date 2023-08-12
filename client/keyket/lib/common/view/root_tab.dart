@@ -5,9 +5,9 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/common/provider/root_tab_index_provider.dart';
+import 'package:keyket/home/view/home_screen.dart';
 import 'package:keyket/my/view/my_screen.dart';
 import 'package:keyket/recommend/view/recommend_screen.dart';
-import 'package:keyket/recommend/view/tmp.dart';
 import 'package:remixicon/remixicon.dart';
 
 class RootTab extends ConsumerStatefulWidget {
@@ -71,7 +71,8 @@ class _RootTabState extends ConsumerState<RootTab>
           controller: controller,
           children: const [
             // Center(child: Text('HOME')),
-            Tmp(),
+            // Tmp(),
+            HomeScreen(),
             RecommendScreen(),
             BucketListListScreen(),
             MyScreen()
