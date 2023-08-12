@@ -36,11 +36,23 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   String? bucketName;
   String? bucketListId;
   bool? bucketListIsShared;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     selectedRecommendIds = [];
+    _scrollController.addListener(_scrollListener);
     super.initState();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.atEdge) {
+      if (_scrollController.position.pixels != 0) {
+        // 스크롤의 끝에 도달
+        ref.read(recommendItemListProvider.notifier).fetchMoreData();
+        print(ref.read(recommendItemListProvider).length);
+      }
+    }
   }
 
   @override
@@ -156,8 +168,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                   ]),
             const SizedBox(height: 30),
             Expanded(
-              child: ListView.builder(
-                // 추천 리스트
+              child: ListView.builder // 추천 리스트
+                  (
+                controller: _scrollController,
                 itemCount: recommendedItems.length,
                 itemBuilder: (context, index) {
                   RecommendItemModel item = recommendedItems[index];

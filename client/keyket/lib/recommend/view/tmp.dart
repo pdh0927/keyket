@@ -101,19 +101,79 @@ class _TmpState extends ConsumerState<Tmp> {
   saveData() async {
     List<Map<String, dynamic>> notifications = [
       {
-        'title': '공지1',
-        'contend': '하이',
-        'updatedAt': DateTime(2023, 5, 3),
+        'content': '추천124',
+        'region': 'seoul',
+        'theme': ['healing', 'hist'],
       },
       {
-        'title': '공지1',
-        'contend': '허티머터브래드',
-        'updatedAt': DateTime(2023, 4, 2),
+        'content': '추천214124',
+        'region': 'daegu',
+        'theme': ['healing', 'hist'],
       },
       {
-        'title': '공지3',
-        'contend': '진이',
-        'updatedAt': DateTime(2022, 8, 2),
+        'content': '추천312414',
+        'region': 'busan',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '물고기 124124사냥하기',
+        'region': 'seoul',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추천12351354',
+        'region': 'daegu',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추천16165',
+        'region': 'busan',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추천6134134',
+        'region': 'seoul',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추천7125123',
+        'region': 'daegu',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추천811',
+        'region': 'busan',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '13추천9',
+        'region': 'seoul',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '1616추천11',
+        'region': 'daegu',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '31432추천12',
+        'region': 'busan',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '123514추천13',
+        'region': 'seoul',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '161634추천14',
+        'region': 'daegu',
+        'theme': ['healing', 'hist'],
+      },
+      {
+        'content': '추12535132천10',
+        'region': 'busan',
+        'theme': ['healing', 'hist'],
       },
     ];
     WriteBatch batch = FirebaseFirestore.instance.batch();
@@ -121,7 +181,7 @@ class _TmpState extends ConsumerState<Tmp> {
     for (var item in notifications) {
       // Create a new document reference
       DocumentReference ref =
-          FirebaseFirestore.instance.collection('notification').doc();
+          FirebaseFirestore.instance.collection('recommend').doc();
       // Add this item to the batch
       batch.set(ref, item);
     }
