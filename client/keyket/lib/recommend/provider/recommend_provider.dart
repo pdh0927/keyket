@@ -16,16 +16,24 @@ final recommendItemListProvider =
 
 class RecommendItemListNotifier
     extends StateNotifier<List<RecommendItemModel>> {
-  RecommendItemListNotifier(
-      RecommendRegion? selectedRegion,
-      List<RecommendTheme>
-          selectedThemes) // StateNotifier에 기본으로 있는 state를 super 안의 값으로 초기화
+  RecommendItemListNotifier(this.selectedRegion, this.selectedThemes)
       : super([]) {
     getRecommendData(selectedRegion, selectedThemes);
   }
+  RecommendRegion? selectedRegion;
+  List<RecommendTheme> selectedThemes;
+
+  DocumentSnapshot? lastVisibleDocument;
+  bool isLastPage = false;
 
   void getRecommendData(RecommendRegion? selectedRegion,
       List<RecommendTheme> selectedThemes) async {
+    int getCount = 10;
+
+    if (isLastPage) {
+      return; // 마지막 페이지라면 추가 데이터를 가져오지 않습니다.
+    }
+
     List<RecommendItemModel> recommendItemList = [];
 
     try {
@@ -42,10 +50,15 @@ class RecommendItemListNotifier
         List<String> themeStringList = selectedThemes
             .map((theme) => theme.toString().split('.').last)
             .toList();
-        query = query.where('theme',
-            arrayContainsAny:
-                themeStringList); // themeStringList 안에 있는 요소가 하나라도 포함되면
+        query = query.where('theme', arrayContainsAny: themeStringList);
       }
+
+      if (lastVisibleDocument != null) {
+        query = query.startAfterDocument(lastVisibleDocument!);
+      }
+
+      query = query.limit(getCount); // 원하는 갯수만큼만 가져옴
+
       QuerySnapshot<Map<String, dynamic>> docList = await query.get();
 
       for (var doc in docList.docs) {
@@ -53,10 +66,25 @@ class RecommendItemListNotifier
         data['id'] = doc.id;
         recommendItemList.add(RecommendItemModel.fromJson(data));
       }
+
+      if (docList.docs.isNotEmpty) {
+        lastVisibleDocument = docList.docs.last;
+        if (docList.docs.length < getCount) {
+          isLastPage = true;
+        }
+      } else {
+        isLastPage = true;
+      }
+
+      state = [...state, ...recommendItemList]; // 기존의 아이템들에 새로운 아이템들을 추가합니다.
     } catch (e) {
       print(e);
     }
+  }
 
-    state = recommendItemList;
+  void fetchMoreData() {
+    if (!isLastPage) {
+      getRecommendData(selectedRegion, selectedThemes);
+    }
   }
 }
