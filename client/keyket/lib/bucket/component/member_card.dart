@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/user_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
