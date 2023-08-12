@@ -98,6 +98,7 @@ abstract class BucketListNotifier extends StateNotifier<List<BucketListModel>> {
       id: bucketList.id,
       name: bucketList.name,
       image: bucketList.image,
+      host: bucketList.host,
       isShared: bucketList.isShared,
       users: bucketList.users,
       createdAt: bucketList.createdAt,

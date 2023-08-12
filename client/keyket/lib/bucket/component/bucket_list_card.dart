@@ -13,6 +13,7 @@ class BucketListCard extends ConsumerWidget {
   final String id;
   final String name;
   final Image image;
+  final String host;
   final DateTime createdAt;
   final DateTime updatedAt;
   final List<String> completedCustomItemList;
@@ -26,6 +27,7 @@ class BucketListCard extends ConsumerWidget {
     required this.id,
     required this.name,
     required this.image,
+    required this.host,
     required this.isShared,
     required this.createdAt,
     required this.updatedAt,
@@ -47,6 +49,7 @@ class BucketListCard extends ConsumerWidget {
               fit: BoxFit.cover)
           : Image.network(
               width: 100, height: 100, model.image, fit: BoxFit.cover),
+      host: model.host,
       isShared: model.isShared,
       createdAt: model.createdAt,
       updatedAt: model.updatedAt,
