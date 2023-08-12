@@ -108,7 +108,7 @@ class _MyBucketListList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<BucketListModel> myBucketListList =
-        ref.watch(myBucketListListProvider);
+        ref.watch(myBucketListListProvider).values.toList();
     return _BucketListList(bucketListList: myBucketListList);
   }
 }
@@ -122,7 +122,7 @@ class _SharedBucketListList extends ConsumerWidget {
         .read(sharedBucketListListProvider.notifier)
         .getBucketList(ref.read(myInformationProvider)!.id, true);
     final List<BucketListModel> sharedBucketListList =
-        ref.watch(sharedBucketListListProvider);
+        ref.watch(sharedBucketListListProvider).values.toList();
     return _BucketListList(bucketListList: sharedBucketListList);
   }
 }
@@ -138,13 +138,7 @@ class _BucketListList extends StatelessWidget {
       itemCount: bucketListList.length,
       itemBuilder: (_, index) {
         final pItem = bucketListList[index];
-        return GestureDetector(
-            onTap: () {
-              // Navigator.of(context).push(MaterialPageRoute(
-              //     builder: (_) =>
-              //         RestaurantDetailScreen(id: pItem.id)));
-            },
-            child: BucketListCard.fromModel(model: pItem));
+        return GestureDetector(child: BucketListCard.fromModel(model: pItem));
       },
       separatorBuilder: (_, index) {
         // 분리 시 들어갈 항목

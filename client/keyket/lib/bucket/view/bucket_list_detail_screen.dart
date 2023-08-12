@@ -102,12 +102,12 @@ class _BucketListDetailScreenState
       modifiedBucketListModel =
           ref.read(sharedBucketListListProvider.notifier).getBucketListModel(
                 widget.bucketListId,
-              );
+              )!;
     } else {
       modifiedBucketListModel =
           ref.read(myBucketListListProvider.notifier).getBucketListModel(
                 widget.bucketListId,
-              );
+              )!;
     }
 
     // 현재 저장된 버킷리스트 모델에 저장된 item의 content 불러오기
@@ -930,14 +930,14 @@ class _BucketListDetailScreenState
       // 기존 BucketListModel 찾기
       final existingBucketList = widget.isShared
           ? ref
-              .read(sharedBucketListListProvider)
-              .firstWhere((bucketList) => bucketList.id == widget.bucketListId)
+              .read(sharedBucketListListProvider.notifier)
+              .getBucketListModel(widget.bucketListId)
           : ref
-              .read(myBucketListListProvider)
-              .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+              .read(myBucketListListProvider.notifier)
+              .getBucketListModel(widget.bucketListId);
 
       // 새로운 itemList로 BucketListModel 업데이트
-      final updatedBucketList = existingBucketList.copyWith(
+      final updatedBucketList = existingBucketList!.copyWith(
         customItemList: uncompletedCustomItemList,
         completedCustomItemList: completedCustomItemList,
       );
@@ -1173,10 +1173,10 @@ class _BucketListDetailScreenState
     BucketListModel originalBucketListModel = widget.isShared
         ? ref
             .read(sharedBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId)
+            .getBucketListModel(widget.bucketListId)!
         : ref
             .read(myBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId);
+            .getBucketListModel(widget.bucketListId)!;
     return !listEquals(originalBucketListModel.completedCustomItemList,
             modifiedBucketListModel.completedCustomItemList) ||
         !listEquals(originalBucketListModel.completedRecommendItemList,
@@ -1344,10 +1344,10 @@ class _BucketListDetailScreenState
     BucketListModel originalBucketListModel = widget.isShared
         ? ref
             .read(sharedBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId)
+            .getBucketListModel(widget.bucketListId)!
         : ref
             .read(myBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId);
+            .getBucketListModel(widget.bucketListId)!;
 
     // 완료된 custom bucketlist item 목록 확인
     if (!listEquals(originalBucketListModel.completedCustomItemList,

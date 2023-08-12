@@ -50,7 +50,6 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
       if (_scrollController.position.pixels != 0) {
         // 스크롤의 끝에 도달
         ref.read(recommendItemListProvider.notifier).fetchMoreData();
-        print(ref.read(recommendItemListProvider).length);
       }
     }
   }
@@ -58,8 +57,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
-    List<BucketListModel> bucketList = ref.watch(myBucketListListProvider) +
-        ref.watch(sharedBucketListListProvider);
+    List<BucketListModel> bucketList =
+        ref.watch(myBucketListListProvider).values.toList() +
+            ref.watch(sharedBucketListListProvider).values.toList();
     return DefaultLayout(
         title: '추천',
         actions: [
