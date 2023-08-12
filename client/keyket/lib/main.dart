@@ -27,7 +27,7 @@ class _App extends StatelessWidget {
     // 나중에 routing 시 buildcontext가 필요한 경우가 있어서 widget으로 감싸고 materialapp을 넣는다
 
     return MaterialApp(
-        theme: ThemeData(fontFamily: 'NotoSans'),
+        theme: ThemeData(fontFamily: 'SCDream'),
         debugShowCheckedModeBanner: false,
         home: const SplashScreen());
   }
