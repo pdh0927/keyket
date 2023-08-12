@@ -163,14 +163,21 @@ class _BucketListDetailScreenState
           .where(FieldPath.documentId, whereIn: chunk)
           .get();
 
-      users.addAll(querySnapshot.docs.map((doc) {
+      for (var doc in querySnapshot.docs) {
         // doc의 data를 map으로 변환하고, 'id' 필드에 doc의 id를 추가
         Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
         data['id'] = doc.id;
 
         // 변환한 map을 사용하여 UserModel을 생성
-        return UserModel.fromJson(data);
-      }).toList());
+        UserModel user = UserModel.fromJson(data);
+
+        // 조건에 따라 tempUsers의 첫 번째 위치에 추가하거나 끝에 추가
+        if (user.id == modifiedBucketListModel.host) {
+          users.insert(0, user); // 첫 번째 위치에 추가
+        } else {
+          users.add(user); // 끝에 추가
+        }
+      }
 
       read += chunk.length;
     }
@@ -198,6 +205,7 @@ class _BucketListDetailScreenState
                   _MemberSection(
                     bucketListId: widget.bucketListId,
                     userModelList: userModelList,
+                    host: modifiedBucketListModel.host,
                     removeUser: removeUser,
                     addUserIdList: addUserIdList,
                     cancelInvite: cancelInvite,
@@ -1678,6 +1686,7 @@ class _BackgroundEditButton extends StatelessWidget {
 
 class _MemberSection extends ConsumerWidget {
   final String bucketListId;
+  final String host;
   final List<UserModel> userModelList;
   final Function(String) removeUser;
   final Function(String) cancelInvite;
@@ -1685,6 +1694,7 @@ class _MemberSection extends ConsumerWidget {
 
   const _MemberSection({
     required this.bucketListId,
+    required this.host,
     required this.userModelList,
     required this.removeUser,
     required this.cancelInvite,
@@ -1726,7 +1736,7 @@ class _MemberSection extends ConsumerWidget {
               children: userModelList.map((user) {
                 return MemberCard.fromModel(
                   model: user,
-                  isHost: userModelList.indexOf(user) == 0,
+                  host: host,
                   bucketListId: bucketListId,
                   removeUser: removeUser,
                 );
@@ -1746,7 +1756,7 @@ class _MemberSection extends ConsumerWidget {
                   userId: userId,
                   nickname: userId,
                   image: null,
-                  isHost: false,
+                  host: host,
                   bucketListId: bucketListId,
                   removeUser: cancelInvite);
             }).toList(),
