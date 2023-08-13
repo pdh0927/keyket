@@ -84,6 +84,33 @@ class BucketListCustomItemNotifier
       state[key] = newCustomItems;
       state = {...state};
     }
+  } // 아이템을 미완료 항목 리스트에서 완료 항목 리스트로 이동
+
+  void moveToCompleted(String bucketId, String itemId) {
+    final items = state[bucketId];
+
+    if (items != null) {
+      final itemToMove =
+          items.uncompleteItems.firstWhere((item) => item.id == itemId);
+
+      items.uncompleteItems.remove(itemToMove);
+      items.completeItems.add(itemToMove);
+      state = {...state};
+    }
+  }
+
+// 아이템을 완료 항목 리스트에서 미완료 항목 리스트로 이동
+  void moveToUncompleted(String bucketId, String itemId) {
+    final items = state[bucketId];
+
+    if (items != null) {
+      final itemToMove =
+          items.completeItems.firstWhere((item) => item.id == itemId);
+
+      items.completeItems.remove(itemToMove);
+      items.uncompleteItems.add(itemToMove);
+      state = {...state};
+    }
   }
 }
 
@@ -121,6 +148,35 @@ class BucketListRecommendItemNotifier
       String key, RecommendItems newRecommendsItems) {
     if (state.containsKey(key)) {
       state[key] = newRecommendsItems;
+      state = {...state};
+    }
+  }
+
+  // 아이템을 미완료 항목 리스트에서 완료 항목 리스트로 이동
+  void moveToCompleted(String bucketId, String itemId) {
+    final items = state[bucketId];
+
+    if (items != null) {
+      final itemToMove = items.uncompleteItems.firstWhere(
+        (item) => item.id == itemId,
+      );
+
+      items.uncompleteItems.remove(itemToMove);
+      items.completeItems.add(itemToMove);
+      state = {...state};
+    }
+  }
+
+  // 아이템을 완료 항목 리스트에서 미완료 항목 리스트로 이동
+  void moveToUncompleted(String bucketId, String itemId) {
+    final items = state[bucketId];
+
+    if (items != null) {
+      final itemToMove =
+          items.completeItems.firstWhere((item) => item.id == itemId);
+
+      items.completeItems.remove(itemToMove);
+      items.uncompleteItems.add(itemToMove);
       state = {...state};
     }
   }

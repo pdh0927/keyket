@@ -50,7 +50,6 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
       if (_scrollController.position.pixels != 0) {
         // 스크롤의 끝에 도달
         ref.read(recommendItemListProvider.notifier).fetchMoreData();
-        print(ref.read(recommendItemListProvider).length);
       }
     }
   }
@@ -58,8 +57,9 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
-    List<BucketListModel> bucketList = ref.watch(myBucketListListProvider) +
-        ref.watch(sharedBucketListListProvider);
+    List<BucketListModel> bucketList =
+        ref.watch(myBucketListListProvider).values.toList() +
+            ref.watch(sharedBucketListListProvider).values.toList();
     return DefaultLayout(
         title: '추천',
         actions: [
@@ -136,6 +136,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                               'image': '',
                               'isShared': false,
                               'users': [ref.read(myInformationProvider)!.id],
+                              'host': ref.read(myInformationProvider)!.id,
                               'completedCustomItemList': [],
                               'completedRecommendItemList': [],
                               'uncompletedCustomItemList': [],
@@ -185,6 +186,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                           // 추천 아이템
                           selectFlag: selectFlag,
                           isContain: isContain,
+                          isHome: false,
                           isRecommendItem: true,
                           onPressed: () {
                             setState(() {

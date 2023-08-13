@@ -21,6 +21,7 @@ import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/select_box.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/user_model.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
@@ -102,12 +103,12 @@ class _BucketListDetailScreenState
       modifiedBucketListModel =
           ref.read(sharedBucketListListProvider.notifier).getBucketListModel(
                 widget.bucketListId,
-              );
+              )!;
     } else {
       modifiedBucketListModel =
           ref.read(myBucketListListProvider.notifier).getBucketListModel(
                 widget.bucketListId,
-              );
+              )!;
     }
 
     // 현재 저장된 버킷리스트 모델에 저장된 item의 content 불러오기
@@ -163,14 +164,21 @@ class _BucketListDetailScreenState
           .where(FieldPath.documentId, whereIn: chunk)
           .get();
 
-      users.addAll(querySnapshot.docs.map((doc) {
+      for (var doc in querySnapshot.docs) {
         // doc의 data를 map으로 변환하고, 'id' 필드에 doc의 id를 추가
         Map<String, dynamic> data = doc.data()! as Map<String, dynamic>;
         data['id'] = doc.id;
 
         // 변환한 map을 사용하여 UserModel을 생성
-        return UserModel.fromJson(data);
-      }).toList());
+        UserModel user = UserModel.fromJson(data);
+
+        // 조건에 따라 tempUsers의 첫 번째 위치에 추가하거나 끝에 추가
+        if (user.id == modifiedBucketListModel.host) {
+          users.insert(0, user); // 첫 번째 위치에 추가
+        } else {
+          users.add(user); // 끝에 추가
+        }
+      }
 
       read += chunk.length;
     }
@@ -198,6 +206,7 @@ class _BucketListDetailScreenState
                   _MemberSection(
                     bucketListId: widget.bucketListId,
                     userModelList: userModelList,
+                    host: modifiedBucketListModel.host,
                     removeUser: removeUser,
                     addUserIdList: addUserIdList,
                     cancelInvite: cancelInvite,
@@ -350,6 +359,11 @@ class _BucketListDetailScreenState
       ),
       onPressed: () {
         Navigator.pop(context);
+        if (widget.isShared) {
+          ref
+              .read(sharedBucketListListProvider.notifier)
+              .getBucketList(ref.read(myInformationProvider)!.id, true);
+        }
       },
     );
   }
@@ -573,6 +587,7 @@ class _BucketListDetailScreenState
       selectFlag: true,
       isContain: isCompleted,
       isRecommendItem: false,
+      isHome: false,
       removeItem: removeItem,
       modifyItem: modifyItem,
       onPressed: () {
@@ -922,14 +937,14 @@ class _BucketListDetailScreenState
       // 기존 BucketListModel 찾기
       final existingBucketList = widget.isShared
           ? ref
-              .read(sharedBucketListListProvider)
-              .firstWhere((bucketList) => bucketList.id == widget.bucketListId)
+              .read(sharedBucketListListProvider.notifier)
+              .getBucketListModel(widget.bucketListId)
           : ref
-              .read(myBucketListListProvider)
-              .firstWhere((bucketList) => bucketList.id == widget.bucketListId);
+              .read(myBucketListListProvider.notifier)
+              .getBucketListModel(widget.bucketListId);
 
       // 새로운 itemList로 BucketListModel 업데이트
-      final updatedBucketList = existingBucketList.copyWith(
+      final updatedBucketList = existingBucketList!.copyWith(
         customItemList: uncompletedCustomItemList,
         completedCustomItemList: completedCustomItemList,
       );
@@ -1165,10 +1180,10 @@ class _BucketListDetailScreenState
     BucketListModel originalBucketListModel = widget.isShared
         ? ref
             .read(sharedBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId)
+            .getBucketListModel(widget.bucketListId)!
         : ref
             .read(myBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId);
+            .getBucketListModel(widget.bucketListId)!;
     return !listEquals(originalBucketListModel.completedCustomItemList,
             modifiedBucketListModel.completedCustomItemList) ||
         !listEquals(originalBucketListModel.completedRecommendItemList,
@@ -1336,10 +1351,10 @@ class _BucketListDetailScreenState
     BucketListModel originalBucketListModel = widget.isShared
         ? ref
             .read(sharedBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId)
+            .getBucketListModel(widget.bucketListId)!
         : ref
             .read(myBucketListListProvider.notifier)
-            .getBucketListModel(widget.bucketListId);
+            .getBucketListModel(widget.bucketListId)!;
 
     // 완료된 custom bucketlist item 목록 확인
     if (!listEquals(originalBucketListModel.completedCustomItemList,
@@ -1430,6 +1445,7 @@ class _BucketListDetailScreenState
           ref
               .read(bucketListUserProvider.notifier)
               .addUserToBucketList(widget.bucketListId, userModel);
+
           setState(() {
             modifiedBucketListModel.users.add(userModel.id);
             userModelList.add(userModel);
@@ -1468,10 +1484,17 @@ class _BucketListDetailScreenState
 
     // 변경 사항이 있으면 Firebase에 업데이트
     if (updates.isNotEmpty) {
+      updates['updatedAt'] = DateTime.now();
+
       await firestore
           .collection('bucket_list')
           .doc(modifiedBucketListModel.id)
           .update(updates);
+
+      setState(() {
+        modifiedBucketListModel =
+            modifiedBucketListModel.copyWith(updatedAt: updates['updatedAt']);
+      });
 
       // 변경된 버킷 리스트 모델을 로컬에 업데이트
       widget.isShared
@@ -1614,6 +1637,7 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                     return ListItem(
                       selectFlag: true,
                       isContain: isContain,
+                      isHome: false,
                       isRecommendItem: true,
                       onPressed: () {
                         setState(
@@ -1678,6 +1702,7 @@ class _BackgroundEditButton extends StatelessWidget {
 
 class _MemberSection extends ConsumerWidget {
   final String bucketListId;
+  final String host;
   final List<UserModel> userModelList;
   final Function(String) removeUser;
   final Function(String) cancelInvite;
@@ -1685,6 +1710,7 @@ class _MemberSection extends ConsumerWidget {
 
   const _MemberSection({
     required this.bucketListId,
+    required this.host,
     required this.userModelList,
     required this.removeUser,
     required this.cancelInvite,
@@ -1726,7 +1752,7 @@ class _MemberSection extends ConsumerWidget {
               children: userModelList.map((user) {
                 return MemberCard.fromModel(
                   model: user,
-                  isHost: userModelList.indexOf(user) == 0,
+                  host: host,
                   bucketListId: bucketListId,
                   removeUser: removeUser,
                 );
@@ -1746,7 +1772,7 @@ class _MemberSection extends ConsumerWidget {
                   userId: userId,
                   nickname: userId,
                   image: null,
-                  isHost: false,
+                  host: host,
                   bucketListId: bucketListId,
                   removeUser: cancelInvite);
             }).toList(),
