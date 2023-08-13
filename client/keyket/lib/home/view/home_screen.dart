@@ -87,88 +87,70 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               child: const Text('광고'),
             ),
             const SizedBox(height: 20),
-            fixedBucketList != null
-                ? FutureBuilder<void>(
-                    future: _loadImage(fixedBucketList!.image),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState != ConnectionState.done) {
-                        return Center(child: CircularProgressIndicator());
-                      }
-                      return Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 16),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: fixedBucketList == null
-                                ? PRIMARY_COLOR.withOpacity(0.5)
-                                : fixedBucketList!.image == ''
-                                    ? PRIMARY_COLOR.withOpacity(0.5)
-                                    : null, // null을 설정하여 기본 배경색을 삭제합니다.
-                            image: (fixedBucketList == null ||
-                                    fixedBucketList!.image == '')
-                                ? null
-                                : DecorationImage(
-                                    image: NetworkImage(fixedBucketList!
-                                        .image), // 이미지 경로를 NetworkImage로 로드합니다.
-                                    fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정합니다.
-                                    colorFilter: ColorFilter.mode(
-                                      Colors.white.withOpacity(0.5),
-                                      BlendMode
-                                          .srcOver, // BlendMode를 사용하여 이미지 위에 반투명한 색을 덧붙입니다.
-                                    ),
-                                  ),
-                          ),
-                          child: isGetItemComplete
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        const Icon(Remix.arrow_left_s_line),
-                                        Text(
-                                          fixedBucketList!.name,
-                                          style: const TextStyle(
-                                              fontFamily: 'SCDream',
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w300),
-                                        ),
-                                        const Icon(Remix.arrow_right_s_line)
-                                      ],
-                                    ),
-                                    const SizedBox(height: 15),
-                                    // getItem 했을 때 id에 없으면 id에 해당하는 거만 불러와서 저장
-
-                                    Expanded(
-                                      child: ListView.builder(
-                                        itemCount: fixedBucketList!
-                                                .uncompletedCustomItemList
-                                                .length +
-                                            fixedBucketList!
-                                                .uncompletedRecommendItemList
-                                                .length +
-                                            fixedBucketList!
-                                                .completedCustomItemList
-                                                .length +
-                                            fixedBucketList!
-                                                .completedRecommendItemList
-                                                .length,
-                                        itemBuilder: (context, index) {
-                                          return buildListItem(index);
-                                        },
-                                      ),
-                                    )
-                                  ],
-                                )
-                              : const Center(child: const Text('고정 없다')),
+            Expanded(
+                child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: fixedBucketList == null
+                    ? PRIMARY_COLOR.withOpacity(0.5)
+                    : fixedBucketList!.image == ''
+                        ? PRIMARY_COLOR.withOpacity(0.5)
+                        : null, // null을 설정하여 기본 배경색을 삭제합니다.
+                image: (fixedBucketList == null || fixedBucketList!.image == '')
+                    ? null
+                    : DecorationImage(
+                        image: NetworkImage(fixedBucketList!
+                            .image), // 이미지 경로를 NetworkImage로 로드합니다.
+                        fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정합니다.
+                        colorFilter: ColorFilter.mode(
+                          Colors.white.withOpacity(0.5),
+                          BlendMode
+                              .srcOver, // BlendMode를 사용하여 이미지 위에 반투명한 색을 덧붙입니다.
                         ),
-                      );
-                    })
-                : const SizedBox(height: 0),
-            const SizedBox(height: 20),
+                      ),
+              ),
+              child: isGetItemComplete
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Remix.arrow_left_s_line),
+                            Text(
+                              fixedBucketList!.name,
+                              style: const TextStyle(
+                                  fontFamily: 'SCDream',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w300),
+                            ),
+                            const Icon(Remix.arrow_right_s_line)
+                          ],
+                        ),
+                        const SizedBox(height: 15),
+                        // getItem 했을 때 id에 없으면 id에 해당하는 거만 불러와서 저장
+
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: fixedBucketList!
+                                    .uncompletedCustomItemList.length +
+                                fixedBucketList!
+                                    .uncompletedRecommendItemList.length +
+                                fixedBucketList!
+                                    .completedCustomItemList.length +
+                                fixedBucketList!
+                                    .completedRecommendItemList.length,
+                            itemBuilder: (context, index) {
+                              return buildListItem(index);
+                            },
+                          ),
+                        )
+                      ],
+                    )
+                  : const SizedBox(height: 0),
+            )),
             Container(
               alignment: Alignment.center,
               width: double.infinity,
@@ -494,6 +476,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       selectFlag: true,
       isContain: isCompleted,
       isRecommendItem: true,
+      isHome: true,
       onPressed: () {
         if (isCompleted) {
           removeComplete(item);
