@@ -186,6 +186,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                           // 추천 아이템
                           selectFlag: selectFlag,
                           isContain: isContain,
+                          isHome: false,
                           isRecommendItem: true,
                           onPressed: () {
                             setState(() {
