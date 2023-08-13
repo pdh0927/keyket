@@ -114,14 +114,27 @@ class _MyBucketListList extends ConsumerWidget {
   }
 }
 
-class _SharedBucketListList extends ConsumerWidget {
+class _SharedBucketListList extends ConsumerStatefulWidget {
   const _SharedBucketListList({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SharedBucketListList> createState() =>
+      _SharedBucketListListState();
+}
+
+class _SharedBucketListListState extends ConsumerState<_SharedBucketListList> {
+  @override
+  void initState() {
     ref
         .read(sharedBucketListListProvider.notifier)
         .getBucketList(ref.read(myInformationProvider)!.id, true);
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    print('hi');
+
     final List<BucketListModel> sharedBucketListList =
         ref.watch(sharedBucketListListProvider).values.toList();
     return _BucketListList(bucketListList: sharedBucketListList);
@@ -139,6 +152,7 @@ class _BucketListList extends StatelessWidget {
       itemCount: bucketListList.length,
       itemBuilder: (_, index) {
         final pItem = bucketListList[index];
+
         return GestureDetector(child: BucketListCard.fromModel(model: pItem));
       },
       separatorBuilder: (_, index) {
