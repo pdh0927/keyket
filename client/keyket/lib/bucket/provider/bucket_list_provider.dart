@@ -212,6 +212,94 @@ abstract class BucketListNotifier
   void changeBucketListModel(
       String bucketListId, BucketListModel newBucketListModel) {
     state[bucketListId] = newBucketListModel.deepCopy();
+    state = {...state};
+  }
+
+  void moveToCompleted(String bucketListId, String itemId, String itemType) {
+    final bucketList = state[bucketListId];
+    if (bucketList == null) {
+      print("No bucket found with ID: $bucketListId");
+      return;
+    }
+
+    if (itemType == 'recommend') {
+      if (bucketList.uncompletedRecommendItemList.contains(itemId)) {
+        bucketList.uncompletedRecommendItemList.remove(itemId);
+        bucketList.completedRecommendItemList.add(itemId);
+
+        // Firestore에서 bucket_list 데이터 업데이트
+        firestore.collection('bucket_list').doc(bucketListId).update({
+          'completedRecommendItemList': bucketList.completedRecommendItemList,
+          'uncompletedRecommendItemList':
+              bucketList.uncompletedRecommendItemList,
+        });
+      } else {
+        print("Item not found in uncompleted Recommend list");
+        return;
+      }
+    } else if (itemType == 'custom') {
+      if (bucketList.uncompletedCustomItemList.contains(itemId)) {
+        bucketList.uncompletedCustomItemList.remove(itemId);
+        bucketList.completedCustomItemList.add(itemId);
+
+        firestore.collection('bucket_list').doc(bucketListId).update({
+          'completedCustomItemList': bucketList.completedCustomItemList,
+          'uncompletedCustomItemList': bucketList.uncompletedCustomItemList,
+        });
+      } else {
+        print("Item not found in uncompleted Custom list");
+        return;
+      }
+    } else {
+      print("Unknown itemType: $itemType");
+      return;
+    }
+
+    state[bucketListId] = bucketList; // state 업데이트
+  }
+
+  void moveToUncompleted(String bucketListId, String itemId, String itemType) {
+    final bucketList = state[bucketListId];
+    if (bucketList == null) {
+      print("No bucket found with ID: $bucketListId");
+      return;
+    }
+
+    if (itemType == 'recommend') {
+      if (bucketList.completedRecommendItemList.contains(itemId)) {
+        bucketList.completedRecommendItemList.remove(itemId);
+        bucketList.uncompletedRecommendItemList.add(itemId);
+
+        // Firestore에서 bucket_list 데이터 업데이트
+        firestore.collection('bucket_list').doc(bucketListId).update({
+          'completedRecommendItemList': bucketList.completedRecommendItemList,
+          'uncompletedRecommendItemList':
+              bucketList.uncompletedRecommendItemList,
+        });
+      } else {
+        print("Item not found in completed Recommend list");
+        return;
+      }
+    } else if (itemType == 'custom') {
+      if (bucketList.completedCustomItemList.contains(itemId)) {
+        bucketList.completedCustomItemList.remove(itemId);
+        bucketList.uncompletedCustomItemList.add(itemId);
+
+        // Firestore에서 bucket_list 데이터 업데이트
+        firestore.collection('bucket_list').doc(bucketListId).update({
+          'completedCustomItemList': bucketList.completedCustomItemList,
+          'uncompletedCustomItemList': bucketList.uncompletedCustomItemList,
+        });
+      } else {
+        print("Item not found in completed Custom list");
+        return;
+      }
+    } else {
+      print("Unknown itemType: $itemType");
+      return;
+    }
+
+    state[bucketListId] = bucketList; // state 업데이트
   }
 }
 

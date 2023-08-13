@@ -151,6 +151,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     )
                   : const SizedBox(height: 0),
             )),
+            const SizedBox(
+              height: 20,
+            ),
             Container(
               alignment: Alignment.center,
               width: double.infinity,
@@ -480,8 +483,54 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       onPressed: () {
         if (isCompleted) {
           removeComplete(item);
+          if (item.runtimeType == RecommendItemModel) {
+            fixedBucketList!.isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .moveToUncompleted(
+                        fixedBucketList!.id, item.id, 'recommend')
+                : ref.read(myBucketListListProvider.notifier).moveToUncompleted(
+                    fixedBucketList!.id, item.id, 'recommend');
+            ref
+                .read(recommendBucketListItemProvider.notifier)
+                .moveToUncompleted(fixedBucketList!.id, item.id);
+          } else {
+            fixedBucketList!.isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .moveToUncompleted(fixedBucketList!.id, item.id, 'custom')
+                : ref
+                    .read(myBucketListListProvider.notifier)
+                    .moveToUncompleted(fixedBucketList!.id, item.id, 'custom');
+            ref
+                .read(customBucketListItemProvider.notifier)
+                .moveToUncompleted(fixedBucketList!.id, item.id);
+          }
         } else {
           addComplete(item);
+          if (item.runtimeType == RecommendItemModel) {
+            fixedBucketList!.isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .moveToCompleted(fixedBucketList!.id, item.id, 'recommend')
+                : ref
+                    .read(myBucketListListProvider.notifier)
+                    .moveToCompleted(fixedBucketList!.id, item.id, 'recommend');
+            ref
+                .read(recommendBucketListItemProvider.notifier)
+                .moveToCompleted(fixedBucketList!.id, item.id);
+          } else {
+            fixedBucketList!.isShared
+                ? ref
+                    .read(sharedBucketListListProvider.notifier)
+                    .moveToCompleted(fixedBucketList!.id, item.id, 'custom')
+                : ref
+                    .read(myBucketListListProvider.notifier)
+                    .moveToCompleted(fixedBucketList!.id, item.id, 'custom');
+            ref
+                .read(customBucketListItemProvider.notifier)
+                .moveToCompleted(fixedBucketList!.id, item.id);
+          }
         }
       },
       item: item,
