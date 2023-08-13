@@ -1439,6 +1439,7 @@ class _BucketListDetailScreenState
           ref
               .read(bucketListUserProvider.notifier)
               .addUserToBucketList(widget.bucketListId, userModel);
+
           setState(() {
             modifiedBucketListModel.users.add(userModel.id);
             userModelList.add(userModel);
@@ -1477,10 +1478,17 @@ class _BucketListDetailScreenState
 
     // 변경 사항이 있으면 Firebase에 업데이트
     if (updates.isNotEmpty) {
+      updates['updatedAt'] = DateTime.now();
+
       await firestore
           .collection('bucket_list')
           .doc(modifiedBucketListModel.id)
           .update(updates);
+
+      setState(() {
+        modifiedBucketListModel =
+            modifiedBucketListModel.copyWith(updatedAt: updates['updatedAt']);
+      });
 
       // 변경된 버킷 리스트 모델을 로컬에 업데이트
       widget.isShared
