@@ -42,6 +42,7 @@ class _BucketListListScreenScreenState
                     'image': '',
                     'isShared': false,
                     'users': [ref.read(myInformationProvider)!.id],
+                    'host': ref.read(myInformationProvider)!.id,
                     'completedCustomItemList': [],
                     'completedRecommendItemList': [],
                     'uncompletedCustomItemList': [],
