@@ -136,6 +136,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                               'image': '',
                               'isShared': false,
                               'users': [ref.read(myInformationProvider)!.id],
+                              'host': ref.read(myInformationProvider)!.id,
                               'completedCustomItemList': [],
                               'completedRecommendItemList': [],
                               'uncompletedCustomItemList': [],
