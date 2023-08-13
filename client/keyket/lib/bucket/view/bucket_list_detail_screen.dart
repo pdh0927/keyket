@@ -581,6 +581,7 @@ class _BucketListDetailScreenState
       selectFlag: true,
       isContain: isCompleted,
       isRecommendItem: false,
+      isHome: false,
       removeItem: removeItem,
       modifyItem: modifyItem,
       onPressed: () {
@@ -1622,6 +1623,7 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                     return ListItem(
                       selectFlag: true,
                       isContain: isContain,
+                      isHome: false,
                       isRecommendItem: true,
                       onPressed: () {
                         setState(
