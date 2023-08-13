@@ -21,6 +21,7 @@ import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/select_box.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/user_model.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
@@ -358,6 +359,11 @@ class _BucketListDetailScreenState
       ),
       onPressed: () {
         Navigator.pop(context);
+        if (widget.isShared) {
+          ref
+              .read(sharedBucketListListProvider.notifier)
+              .getBucketList(ref.read(myInformationProvider)!.id, true);
+        }
       },
     );
   }
