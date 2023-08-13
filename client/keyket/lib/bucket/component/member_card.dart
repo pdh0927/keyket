@@ -69,7 +69,7 @@ class MemberCard extends ConsumerWidget {
             const Icon(Remix.vip_crown_fill,
                 color: Colors.yellow), // 왕관 아이콘, 실제 아이콘으로 교체하십시오.
           const Spacer(), // 이 부분은 메뉴 버튼을 끝으로 밀어냅니다.
-          if ((userId == host) && (host == ref.read(myInformationProvider)!.id))
+          if ((userId != host) && (host == ref.read(myInformationProvider)!.id))
             _MoreButton(
               removeUser: removeUser,
               userId: userId,
@@ -140,7 +140,7 @@ class _MoreButton extends StatelessWidget {
                     },
                     child: Text(
                       isMember ? '강퇴' : '취소',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontFamily: 'SCDream',
                           color: BLACK_COLOR,
                           fontSize: 12),
