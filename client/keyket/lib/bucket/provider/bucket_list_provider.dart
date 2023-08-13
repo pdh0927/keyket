@@ -153,22 +153,19 @@ abstract class BucketListNotifier
   void sortByName() {
     var sortedList = state.values.toList();
     sortedList.sort((a, b) => a.name.compareTo(b.name));
-    state = Map.fromIterable(sortedList,
-        key: (item) => item.id, value: (item) => item);
+    state = {for (var item in sortedList) item.id: item};
   }
 
   void sortByCreatedAt() {
     var sortedList = state.values.toList();
     sortedList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
-    state = Map.fromIterable(sortedList,
-        key: (item) => item.id, value: (item) => item);
+    state = {for (var item in sortedList) item.id: item};
   }
 
   void sortByUpdatedAt() {
     var sortedList = state.values.toList();
     sortedList.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
-    state = Map.fromIterable(sortedList,
-        key: (item) => item.id, value: (item) => item);
+    state = {for (var item in sortedList) item.id: item};
   }
 
   List<String> getCompleteList(String type, String bucketListId) {
