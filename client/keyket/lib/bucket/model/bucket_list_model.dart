@@ -7,6 +7,7 @@ class BucketListModel {
   final String id;
   final String name;
   final String image;
+  final String host;
   final bool isShared;
   final List<String> users;
   final DateTime createdAt;
@@ -20,6 +21,7 @@ class BucketListModel {
     required this.id,
     required this.name,
     required this.image,
+    required this.host,
     required this.isShared,
     required this.users,
     required this.createdAt,
@@ -34,6 +36,7 @@ class BucketListModel {
       id: id,
       name: name,
       image: image,
+      host: host,
       isShared: isShared,
       users: List.from(users),
       createdAt:
@@ -51,6 +54,7 @@ class BucketListModel {
     String? id,
     String? name,
     String? image,
+    String? host,
     double? achievementRate,
     bool? isShared,
     List<String>? users,
@@ -65,6 +69,7 @@ class BucketListModel {
       id: id ?? this.id,
       name: name ?? this.name,
       image: image ?? this.image,
+      host: host ?? this.host,
       isShared: isShared ?? this.isShared,
       users: users != null ? List.from(users) : this.users,
       createdAt: createdAt ?? this.createdAt,
@@ -90,6 +95,7 @@ class BucketListModel {
         'id: $id, '
         'name: $name, '
         'image: $image, '
+        'host: $host, '
         'isShared: $isShared, '
         'users: $users, '
         'createdAt: $createdAt, '

@@ -8,6 +8,7 @@ class ListItem extends StatefulWidget {
   final bool selectFlag;
   final bool isContain;
   final bool isRecommendItem;
+  final bool isHome;
   final Function() onPressed;
   final Function? removeItem;
   final Function? modifyItem;
@@ -17,6 +18,7 @@ class ListItem extends StatefulWidget {
       {super.key,
       required this.selectFlag,
       required this.isContain,
+      required this.isHome,
       required this.isRecommendItem,
       required this.onPressed,
       this.removeItem,
@@ -38,6 +40,7 @@ class _ListItemState extends State<ListItem> {
             ? _SelectButton(
                 onPressed: widget.onPressed,
                 isContain: widget.isContain,
+                isHome: widget.isHome,
               )
             : const SizedBox(height: 0),
         Expanded(
@@ -56,9 +59,14 @@ class _ListItemState extends State<ListItem> {
                               widget.item.content,
                               style: TextStyle(
                                   fontFamily: 'SCDream',
-                                  backgroundColor: widget.isContain
-                                      ? const Color(0xFFC4E4FA)
-                                      : null,
+                                  decoration:
+                                      (widget.isContain && widget.isHome)
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                  backgroundColor:
+                                      (widget.isContain && !widget.isHome)
+                                          ? const Color(0xFFC4E4FA)
+                                          : null,
                                   fontSize: 16,
                                   color: BLACK_COLOR),
                               textAlign: TextAlign.start,
@@ -108,9 +116,14 @@ class _ListItemState extends State<ListItem> {
 class _SelectButton extends StatelessWidget {
   final Function() onPressed;
   final bool isContain;
+  final bool isHome;
 
-  const _SelectButton(
-      {super.key, required this.onPressed, required this.isContain});
+  const _SelectButton({
+    super.key,
+    required this.onPressed,
+    required this.isHome,
+    required this.isContain,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -122,16 +135,39 @@ class _SelectButton extends StatelessWidget {
           constraints: const BoxConstraints(maxHeight: 26, maxWidth: 26),
           splashRadius: 15,
           icon: isContain
-              ? const Icon(
-                  Icons.check_box_rounded,
-                  color: PRIMARY_COLOR,
-                  size: 27,
-                )
-              : const Icon(
-                  Icons.check_box_outline_blank_rounded,
-                  color: PRIMARY_COLOR,
-                  size: 27,
-                )),
+              ? (isHome
+                  ? Container(
+                      height: 22,
+                      width: 22,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.white,
+                      ),
+                      alignment: Alignment.center,
+                      child: const Icon(
+                        Remix.check_line,
+                        size: 24,
+                        color: Color(0xFF616161),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.check_box_rounded,
+                      color: PRIMARY_COLOR,
+                      size: 27,
+                    ))
+              : (isHome
+                  ? Container(
+                      height: 22,
+                      width: 22,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: const Color(0xFF616161)),
+                    )
+                  : const Icon(
+                      Icons.check_box_outline_blank_rounded,
+                      color: PRIMARY_COLOR,
+                      size: 27,
+                    ))),
     );
   }
 }

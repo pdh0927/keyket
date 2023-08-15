@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/user_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
@@ -10,7 +9,8 @@ class MemberCard extends ConsumerWidget {
   final String userId;
   final String nickname;
   final Widget? image;
-  final bool isHost;
+  final String host;
+
   final String bucketListId;
   final Function(String) removeUser;
 
@@ -18,16 +18,16 @@ class MemberCard extends ConsumerWidget {
     super.key,
     required this.userId,
     required this.nickname,
+    required this.host,
     this.image,
-    required this.isHost,
     required this.bucketListId,
     required this.removeUser,
   });
 
   factory MemberCard.fromModel({
     required UserModel model,
-    required bool isHost,
     required String bucketListId,
+    required String host,
     required Function(String) removeUser,
   }) {
     return MemberCard(
@@ -45,7 +45,7 @@ class MemberCard extends ConsumerWidget {
               radius: 15,
               backgroundImage: NetworkImage(model.image),
             ),
-      isHost: isHost,
+      host: host,
       bucketListId: bucketListId,
       removeUser: removeUser,
     );
@@ -58,20 +58,18 @@ class MemberCard extends ConsumerWidget {
       child: Row(
         children: [
           image ??
-              CircleAvatar(
+              const CircleAvatar(
                   radius: 15, child: Icon(Remix.question_mark)), // CircleAvatar
-          SizedBox(width: 10), // 간격 설정
+          const SizedBox(width: 10), // 간격 설정
           Text(nickname),
-          SizedBox(width: 5), // 간격 설정
+          const SizedBox(width: 5), // 간격 설정
           // 이 부분은 방장인지 아닌지를 판별하는 boolean 값이 들어가야 합니다.
           // 실제 조건에 따라 변경하십시오.
-          if (isHost)
-            Icon(Remix.vip_crown_fill,
+          if (userId == host)
+            const Icon(Remix.vip_crown_fill,
                 color: Colors.yellow), // 왕관 아이콘, 실제 아이콘으로 교체하십시오.
-          Spacer(), // 이 부분은 메뉴 버튼을 끝으로 밀어냅니다.
-          if (!isHost &&
-              (ref.read(bucketListUserProvider)[bucketListId]![0].id ==
-                  ref.read(myInformationProvider)!.id))
+          const Spacer(), // 이 부분은 메뉴 버튼을 끝으로 밀어냅니다.
+          if ((userId != host) && (host == ref.read(myInformationProvider)!.id))
             _MoreButton(
               removeUser: removeUser,
               userId: userId,
@@ -142,7 +140,7 @@ class _MoreButton extends StatelessWidget {
                     },
                     child: Text(
                       isMember ? '강퇴' : '취소',
-                      style: TextStyle(
+                      style: const TextStyle(
                           fontFamily: 'SCDream',
                           color: BLACK_COLOR,
                           fontSize: 12),
