@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/my/view/my_image_screen.dart';
-import 'package:keyket/my/view/my_notification_screen.dart';
+import 'package:keyket/my/view/my_notification.dart';
 import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
@@ -122,14 +124,14 @@ class _MyScreenState extends State<MyScreen> {
   }
 }
 
-class _Top extends StatefulWidget {
+class _Top extends ConsumerStatefulWidget {
   const _Top({super.key});
 
   @override
-  State<_Top> createState() => _TopState();
+  ConsumerState<_Top> createState() => _TopState();
 }
 
-class _TopState extends State<_Top> {
+class _TopState extends ConsumerState<_Top> {
   @override
   Widget build(BuildContext context) {
     // print('top build');
@@ -146,8 +148,8 @@ class _TopState extends State<_Top> {
               children: [
                 Row(
                   children: [
-                    const Text(
-                      '강수진',
+                    Text(
+                      ref.read(myInformationProvider)!.nickname,
                       style: TextStyle(fontFamily: 'SCDream', fontSize: 24),
                     ),
                     IconButton(
@@ -200,8 +202,8 @@ class _TopState extends State<_Top> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            "123456",
+                          Text(
+                            ref.watch(myInformationProvider)!.id,
                             style: TextStyle(
                                 fontFamily: 'SCDream',
                                 fontSize: 16,
@@ -271,14 +273,14 @@ class _TopState extends State<_Top> {
   }
 }
 
-class MyProfile extends StatefulWidget {
+class MyProfile extends ConsumerStatefulWidget {
   const MyProfile({super.key});
 
   @override
-  State<MyProfile> createState() => _MyProfileState();
+  ConsumerState<MyProfile> createState() => _MyProfileState();
 }
 
-class _MyProfileState extends State<MyProfile> {
+class _MyProfileState extends ConsumerState<MyProfile> {
   XFile? _image;
   final ImagePicker picker = ImagePicker();
 
@@ -446,36 +448,49 @@ class _MyProfileState extends State<MyProfile> {
 
   // 사진 띄우는 부분
   ImageCircle() {
-    return _image == null
-        ? SizedBox(
-            width: 100,
-            height: 100,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100),
-                color: const Color(0XFF616161).withOpacity(0.2),
-              ),
-              child: GestureDetector(
-                onTap: () {
-                  takeImage(context);
-                },
-                child: Icon(
-                  Remix.user_fill,
-                  size: 60,
-                  color: const Color(0XFF3498DB).withOpacity(0.8),
-                ),
-              ),
+    if (_image == null && ref.watch(myInformationProvider)!.image == '') {
+      return SizedBox(
+        width: 100,
+        height: 100,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(100),
+            color: const Color(0XFF616161).withOpacity(0.2),
+          ),
+          child: GestureDetector(
+            onTap: () {
+              takeImage(context);
+            },
+            child: Icon(
+              Remix.user_fill,
+              size: 60,
+              color: const Color(0XFF3498DB).withOpacity(0.8),
             ),
-          )
-        : CircleAvatar(
-            radius: 50,
-            backgroundImage: Image.file(File(_image!.path)).image,
-            child: GestureDetector(
-              onTap: () {
-                takeImage(context);
-              },
-            ),
-          );
+          ),
+        ),
+      );
+    } else if (_image == null &&
+        ref.watch(myInformationProvider)!.image != '') {
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: NetworkImage(ref.watch(myInformationProvider)!.image),
+        child: GestureDetector(
+          onTap: () {
+            takeImage(context);
+          },
+        ),
+      );
+    } else {
+      return CircleAvatar(
+        radius: 50,
+        backgroundImage: Image.file(File(_image!.path)).image,
+        child: GestureDetector(
+          onTap: () {
+            takeImage(context);
+          },
+        ),
+      );
+    }
   }
 }
 
