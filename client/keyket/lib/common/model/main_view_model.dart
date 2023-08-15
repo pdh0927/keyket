@@ -1,61 +1,65 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
-import 'package:keyket/common/model/firebase_auth_remote_data_source.dart';
+
 import 'package:keyket/common/model/social_login.dart';
+import 'dart:convert';
+import 'package:uuid/uuid.dart';
+import 'package:crypto/crypto.dart';
 
 class MainViewModel {
-  final _firebaseAuthDataSource = FirebaseAuthRemoteDataSource();
   final SocialLogin _socialLogin;
-  bool isLogin = false;
-  kakao.User? user;
 
   MainViewModel(this._socialLogin);
 
   Future<bool> login() async {
-    isLogin = await _socialLogin.login();
+    await _socialLogin.login();
 
-    if (isLogin) {
-      user = await kakao.UserApi.instance.me();
-      final customToken = await _firebaseAuthDataSource.createCustomUserToken({
-        'uid': user!.id.toString(),
-        'displayname': user!.kakaoAccount!.profile!.nickname,
-      });
-
-      await FirebaseAuth.instance.signInWithCustomToken(customToken);
-
-      // JSON에서 필요한 정보 추출
-      String kakaoId = user!.id.toString();
-      String nickname = user!.kakaoAccount!.profile!.nickname!;
-
-      // Firestore에 사용자 데이터 저장
-      await _createUserInFirestore(kakaoId, nickname);
-
-      return true;
-    }
-    return false;
+    return true;
   }
 
   Future logout() async {
     await _socialLogin.logout();
     await FirebaseAuth.instance.signOut();
-    isLogin = false;
-    user = null;
   }
 }
 
-Future<void> _createUserInFirestore(String id, String nickname) async {
+// 8자리 UUID 생성 함수
+String generateShortUUID() {
+  var uuid = const Uuid().v4(); // UUID 생성
+  var bytes = utf8.encode(uuid); // UUID를 byte로 변환
+  var digest = sha256.convert(bytes); // sha256으로 해시
+
+  return digest.toString().substring(0, 8); // 해시값의 첫 8자리 반환
+}
+
+Future<void> createUserInFirestore(String id, String nickname) async {
   final firestore = FirebaseFirestore.instance;
   final userRef = firestore.collection('user').doc(id);
 
   await firestore.runTransaction((transaction) async {
     final userSnapshot = await transaction.get(userRef);
+    String inviteCode = generateShortUUID();
+    QuerySnapshot<Map<String, dynamic>> inviteCodeSnapshot = await firestore
+        .collection('user')
+        .where('inviteCode', isEqualTo: inviteCode)
+        .get();
+
+    // inviteCode의 중복을 피하기 위한 반복문
+    while (inviteCodeSnapshot.docs.isNotEmpty) {
+      inviteCode = generateShortUUID();
+      inviteCodeSnapshot = await firestore
+          .collection('user')
+          .where('inviteCode', isEqualTo: inviteCode)
+          .get();
+    }
 
     if (!userSnapshot.exists) {
+      // 사용자 데이터에 초대 코드를 포함하여 설정
       transaction.set(userRef, {
         'nickname': nickname,
         'image': '',
         'fixedBucket': '',
+        'inviteCode': inviteCode
       });
       print('User added to Firestore.');
     } else {
