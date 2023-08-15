@@ -1,10 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
@@ -16,26 +17,133 @@ import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return DefaultLayout(
+      title: '홈',
+      actions: [
+        IconButton(
+          icon: const Icon(Remix.notification_4_line, size: 28),
+          splashRadius: 20,
+          onPressed: () {},
+        )
+      ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+        child: Column(
+          children: [
+            _AdvertisementContainer(
+              adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+              adMaxHeight: 60,
+            ),
+            const SizedBox(height: 20),
+            Expanded(child: _FixedBucketList()),
+            const SizedBox(
+              height: 20,
+            ),
+            _RegionImageContainer(),
+            const SizedBox(height: 10)
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AdvertisementContainer extends StatefulWidget {
+  final int adWidth;
+  final int adMaxHeight;
+
+  const _AdvertisementContainer(
+      {super.key, required this.adWidth, required this.adMaxHeight});
+
+  @override
+  State<_AdvertisementContainer> createState() =>
+      _AdvertisementContainerState();
+}
+
+class _AdvertisementContainerState extends State<_AdvertisementContainer> {
+  AdManagerBannerAd? _bannerAd;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadAd(widget.adWidth, widget.adMaxHeight);
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  final adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/6300978111'
+      : 'ca-app-pub-3940256099942544/2934735716';
+
+  Future<void> loadAd(int width, int maxHeight) async {
+    final bannerAd = AdManagerBannerAd(
+      adUnitId: adUnitId,
+      request: const AdManagerAdRequest(),
+      sizes: [AdSize.getInlineAdaptiveBannerAdSize(width, maxHeight)],
+      listener: AdManagerBannerAdListener(
+        onAdLoaded: (ad) {
+          print('$ad loaded.');
+          setState(() {
+            _bannerAd = ad as AdManagerBannerAd;
+            isLoading = false;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('AdManagerBannerAd failed to load: $err');
+          ad.dispose();
+          setState(() {
+            isLoading = false;
+          });
+        },
+      ),
+    );
+    bannerAd.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const CircularProgressIndicator();
+    } else if (_bannerAd != null) {
+      return Container(
+        alignment: Alignment.center,
+        width: widget.adWidth.toDouble(),
+        height: widget.adMaxHeight.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      );
+    } else {
+      return const SizedBox(height: 0);
+    }
+  }
+}
+
+class _FixedBucketList extends ConsumerStatefulWidget {
+  @override
+  ConsumerState<_FixedBucketList> createState() => _FixedBucketListState();
+}
+
+class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
   BucketListModel? fixedBucketList;
   List<CustomItemModel> completeCustomItemList = [];
   List<CustomItemModel> uncompleteCustomItemList = [];
   List<RecommendItemModel> completeRecommendItemList = [];
   List<RecommendItemModel> uncompleteRecommendItemList = [];
-  bool isChanged = false;
   bool isGetItemComplete = false;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,110 +171,64 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       );
     }
 
-    return DefaultLayout(
-      title: '홈',
-      actions: [
-        IconButton(
-          icon: const Icon(Remix.notification_4_line, size: 28),
-          splashRadius: 20,
-          // constraints: BoxConstraints(maxHeight: 25, maxWidth: 25),
-          onPressed: () {},
-        )
-      ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-        child: Column(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: 85,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: 1.0)),
-              child: const Text('광고'),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-                child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: fixedBucketList == null
-                    ? PRIMARY_COLOR.withOpacity(0.5)
-                    : fixedBucketList!.image == ''
-                        ? PRIMARY_COLOR.withOpacity(0.5)
-                        : null, // null을 설정하여 기본 배경색을 삭제합니다.
-                image: (fixedBucketList == null || fixedBucketList!.image == '')
-                    ? null
-                    : DecorationImage(
-                        image: NetworkImage(fixedBucketList!
-                            .image), // 이미지 경로를 NetworkImage로 로드합니다.
-                        fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정합니다.
-                        colorFilter: ColorFilter.mode(
-                          Colors.white.withOpacity(0.5),
-                          BlendMode
-                              .srcOver, // BlendMode를 사용하여 이미지 위에 반투명한 색을 덧붙입니다.
-                        ),
-                      ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: fixedBucketList == null
+            ? PRIMARY_COLOR.withOpacity(0.5)
+            : fixedBucketList!.image == ''
+                ? PRIMARY_COLOR.withOpacity(0.5)
+                : null, // null을 설정하여 기본 배경색을 삭제합니다.
+        image: (fixedBucketList == null || fixedBucketList!.image == '')
+            ? null
+            : DecorationImage(
+                image: NetworkImage(
+                    fixedBucketList!.image), // 이미지 경로를 NetworkImage로 로드합니다.
+                fit: BoxFit.cover, // 이미지를 컨테이너에 맞게 조정합니다.
+                colorFilter: ColorFilter.mode(
+                  Colors.white.withOpacity(0.5),
+                  BlendMode.srcOver, // BlendMode를 사용하여 이미지 위에 반투명한 색을 덧붙입니다.
+                ),
               ),
-              child: isGetItemComplete
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Remix.arrow_left_s_line),
-                            Text(
-                              fixedBucketList!.name,
-                              style: const TextStyle(
-                                  fontFamily: 'SCDream',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w300),
-                            ),
-                            const Icon(Remix.arrow_right_s_line)
-                          ],
-                        ),
-                        const SizedBox(height: 15),
-                        // getItem 했을 때 id에 없으면 id에 해당하는 거만 불러와서 저장
-
-                        Expanded(
-                          child: ListView.builder(
-                            itemCount: fixedBucketList!
-                                    .uncompletedCustomItemList.length +
-                                fixedBucketList!
-                                    .uncompletedRecommendItemList.length +
-                                fixedBucketList!
-                                    .completedCustomItemList.length +
-                                fixedBucketList!
-                                    .completedRecommendItemList.length,
-                            itemBuilder: (context, index) {
-                              return buildListItem(index);
-                            },
-                          ),
-                        )
-                      ],
-                    )
-                  : const SizedBox(height: 0),
-            )),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: 140,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: 1.0)),
-              child: const Text('오늘 서울 어때요?'),
-            ),
-            const SizedBox(height: 10)
-          ],
-        ),
       ),
+      child: isGetItemComplete
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Remix.arrow_left_s_line),
+                    Text(
+                      fixedBucketList!.name,
+                      style: const TextStyle(
+                          fontFamily: 'SCDream',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w300),
+                    ),
+                    const Icon(Remix.arrow_right_s_line)
+                  ],
+                ),
+                const SizedBox(height: 15),
+                // getItem 했을 때 id에 없으면 id에 해당하는 거만 불러와서 저장
+
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: fixedBucketList!
+                            .uncompletedCustomItemList.length +
+                        fixedBucketList!.uncompletedRecommendItemList.length +
+                        fixedBucketList!.completedCustomItemList.length +
+                        fixedBucketList!.completedRecommendItemList.length,
+                    itemBuilder: (context, index) {
+                      return buildListItem(index);
+                    },
+                  ),
+                )
+              ],
+            )
+          : const SizedBox(height: 0),
     );
   }
 
@@ -446,6 +508,44 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return removedCount; // 제거된 수
   }
 
+  // 완료 목록에서 제거
+  void removeComplete(ItemModel item) {
+    setState(() {
+      if (item.runtimeType == RecommendItemModel) {
+        fixedBucketList!.completedRecommendItemList.remove(item.id);
+        fixedBucketList!.uncompletedRecommendItemList.add(item.id);
+
+        completeRecommendItemList.remove(item as RecommendItemModel);
+        uncompleteRecommendItemList.add(item);
+      } else {
+        fixedBucketList!.completedCustomItemList.remove(item.id);
+        fixedBucketList!.uncompletedCustomItemList.add(item.id);
+
+        completeCustomItemList.remove(item as CustomItemModel);
+        uncompleteCustomItemList.add(item);
+      }
+    });
+  }
+
+  // 완료 목록에 추가
+  void addComplete(ItemModel item) {
+    setState(() {
+      if (item.runtimeType == RecommendItemModel) {
+        fixedBucketList!.completedRecommendItemList.add(item.id);
+        fixedBucketList!.uncompletedRecommendItemList.remove(item.id);
+
+        completeRecommendItemList.add(item as RecommendItemModel);
+        uncompleteRecommendItemList.remove(item);
+      } else {
+        fixedBucketList!.completedCustomItemList.add(item.id);
+        fixedBucketList!.uncompletedCustomItemList.remove(item.id);
+
+        completeCustomItemList.add(item as CustomItemModel);
+        uncompleteCustomItemList.remove(item);
+      }
+    });
+  }
+
   // 리스트의 각 항목을 구성
   ListItem buildListItem(int index) {
     ItemModel item;
@@ -536,94 +636,72 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       item: item,
     );
   }
+}
 
-  // 완료 목록에서 제거
-  void removeComplete(ItemModel item) {
-    setState(() {
-      if (item.runtimeType == RecommendItemModel) {
-        fixedBucketList!.completedRecommendItemList.remove(item.id);
-        fixedBucketList!.uncompletedRecommendItemList.add(item.id);
+class _RegionImageContainer extends StatelessWidget {
+  const _RegionImageContainer({super.key});
 
-        completeRecommendItemList.remove(item as RecommendItemModel);
-        uncompleteRecommendItemList.add(item);
-      } else {
-        fixedBucketList!.completedCustomItemList.remove(item.id);
-        fixedBucketList!.uncompletedCustomItemList.add(item.id);
-
-        completeCustomItemList.remove(item as CustomItemModel);
-        uncompleteCustomItemList.add(item);
-      }
-    });
-    changeFlag();
-  }
-
-  // 완료 목록에 추가
-  void addComplete(ItemModel item) {
-    setState(() {
-      if (item.runtimeType == RecommendItemModel) {
-        fixedBucketList!.completedRecommendItemList.add(item.id);
-        fixedBucketList!.uncompletedRecommendItemList.remove(item.id);
-
-        completeRecommendItemList.add(item as RecommendItemModel);
-        uncompleteRecommendItemList.remove(item);
-      } else {
-        fixedBucketList!.completedCustomItemList.add(item.id);
-        fixedBucketList!.uncompletedCustomItemList.remove(item.id);
-
-        completeCustomItemList.add(item as CustomItemModel);
-        uncompleteCustomItemList.remove(item);
-      }
-    });
-    changeFlag();
-  }
-
-  // 저장버튼 노출을 위해서 변경 사항이 있다면 isChanged true
-  void changeFlag() {
-    setState(() {
-      isChanged = isChange();
-    });
-  }
-
-  // 변경된 필드가 있는지 확인
-  bool isChange() {
-    BucketListModel originalBucketListModel = fixedBucketList!.isShared
-        ? ref
-            .read(sharedBucketListListProvider.notifier)
-            .getBucketListModel(fixedBucketList!.id)!
-        : ref
-            .read(myBucketListListProvider.notifier)
-            .getBucketListModel(fixedBucketList!.id)!;
-
-    return !listEquals(originalBucketListModel.completedCustomItemList,
-            fixedBucketList!.completedCustomItemList) ||
-        !listEquals(originalBucketListModel.completedRecommendItemList,
-            fixedBucketList!.completedRecommendItemList) ||
-        !listEquals(originalBucketListModel.uncompletedCustomItemList,
-            fixedBucketList!.uncompletedCustomItemList) ||
-        !listEquals(originalBucketListModel.uncompletedRecommendItemList,
-            fixedBucketList!.uncompletedRecommendItemList);
-  }
-
-  Future<ImageInfo?> _loadImage(String imageUrl) {
-    if (imageUrl == '') return Future.value(null);
-
-    final Completer<ImageInfo?> completer = Completer<ImageInfo?>();
-    final ImageStream stream =
-        NetworkImage(imageUrl).resolve(ImageConfiguration());
-    final listener = ImageStreamListener(
-      (ImageInfo info, bool _) {
-        if (!completer.isCompleted) {
-          completer.complete(info);
-        }
-      },
-      onError: (exception, StackTrace? stackTrace) {
-        if (!completer.isCompleted) {
-          completer.completeError(exception, stackTrace);
-        }
-      },
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 16),
+      alignment: Alignment.center,
+      width: double.infinity,
+      height: 140,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: const Color(0xFFD9D9D9),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                '오늘 서울 어때요?',
+                style: const TextStyle(
+                    fontFamily: 'SCDream',
+                    fontSize: 16,
+                    fontWeight: FontWeight.w400),
+              ),
+              IconButton(
+                icon: const Icon(Remix.repeat_2_line, size: 20),
+                splashRadius: 20,
+                splashColor: Colors.white,
+                padding: const EdgeInsets.all(0),
+                constraints: const BoxConstraints(
+                    minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
+                onPressed: () {
+                  print('눌림');
+                },
+              )
+            ],
+          ),
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: getImages()),
+        ],
+      ),
     );
-    stream.addListener(listener);
-    completer.future.then((_) => stream.removeListener(listener));
-    return completer.future;
+  }
+
+  List<Widget> getImages() {
+    // 임시 이미지 URL들 (원하는 다른 URL로 변경하실 수 있습니다.)
+    const imageUrls = [
+      'https://via.placeholder.com/150',
+      'https://via.placeholder.com/150',
+      'https://via.placeholder.com/150'
+    ];
+
+    return imageUrls
+        .map((url) => Image.network(
+              url,
+              fit: BoxFit.cover,
+              width: 80, // 이미지의 너비와 높이를 원하시는대로 조정하실 수 있습니다.
+              height: 80,
+            ))
+        .toList();
   }
 }

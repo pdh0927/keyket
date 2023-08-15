@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
 import 'package:keyket/common/view/splash_screen.dart';
 import 'package:keyket/firebase_options.dart';
@@ -15,6 +16,7 @@ Future main() async {
 
   await dotenv.load(fileName: '.env');
   KakaoSdk.init(nativeAppKey: dotenv.env['KAKAO_APP_KEY']);
+  MobileAds.instance.initialize();
 
   runApp(const ProviderScope(child: _App()));
 }
