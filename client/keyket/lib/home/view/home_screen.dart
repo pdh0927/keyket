@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
@@ -15,14 +17,14 @@ import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
 
-class HomeScreen extends ConsumerStatefulWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends ConsumerState<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return DefaultLayout(
@@ -38,14 +40,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
         child: Column(
           children: [
-            Container(
-              alignment: Alignment.center,
-              width: double.infinity,
-              height: 85,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(width: 1.0)),
-              child: const Text('광고'),
+            _AdvertisementContainer(
+              adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+              adMaxHeight: 60,
             ),
             const SizedBox(height: 20),
             Expanded(child: _FixedBucketList()),
@@ -58,6 +55,80 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ),
       ),
     );
+  }
+}
+
+class _AdvertisementContainer extends StatefulWidget {
+  final int adWidth;
+  final int adMaxHeight;
+
+  const _AdvertisementContainer(
+      {super.key, required this.adWidth, required this.adMaxHeight});
+
+  @override
+  State<_AdvertisementContainer> createState() =>
+      _AdvertisementContainerState();
+}
+
+class _AdvertisementContainerState extends State<_AdvertisementContainer> {
+  AdManagerBannerAd? _bannerAd;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadAd(widget.adWidth, widget.adMaxHeight);
+  }
+
+  @override
+  void dispose() {
+    _bannerAd?.dispose();
+    super.dispose();
+  }
+
+  final adUnitId = Platform.isAndroid
+      ? 'ca-app-pub-3940256099942544/6300978111'
+      : 'ca-app-pub-3940256099942544/2934735716';
+
+  Future<void> loadAd(int width, int maxHeight) async {
+    final bannerAd = AdManagerBannerAd(
+      adUnitId: adUnitId,
+      request: const AdManagerAdRequest(),
+      sizes: [AdSize.getInlineAdaptiveBannerAdSize(width, maxHeight)],
+      listener: AdManagerBannerAdListener(
+        onAdLoaded: (ad) {
+          print('$ad loaded.');
+          setState(() {
+            _bannerAd = ad as AdManagerBannerAd;
+            isLoading = false;
+          });
+        },
+        onAdFailedToLoad: (ad, err) {
+          print('AdManagerBannerAd failed to load: $err');
+          ad.dispose();
+          setState(() {
+            isLoading = false;
+          });
+        },
+      ),
+    );
+    bannerAd.load();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const CircularProgressIndicator();
+    } else if (_bannerAd != null) {
+      return Container(
+        alignment: Alignment.center,
+        width: widget.adWidth.toDouble(),
+        height: widget.adMaxHeight.toDouble(),
+        child: AdWidget(ad: _bannerAd!),
+      );
+    } else {
+      return const SizedBox(height: 0);
+    }
   }
 }
 

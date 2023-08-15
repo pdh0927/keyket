@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:keyket/common/model/kakao_login_model.dart';
+import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/my/view/my_image_screen.dart';
 import 'package:keyket/my/view/my_notification_screen.dart';
 import 'package:flutter/material.dart';
@@ -35,10 +37,12 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   List<Widget> getActions(BuildContext context) {
+    final viewModel = MainViewModel(KaKaoLoginModel());
     return [
       IconButton(
         onPressed: () {
-          Logout(context);
+          // Logout(context);
+          viewModel.logout();
         },
         icon: const Icon(
           Remix.lock_unlock_line,
