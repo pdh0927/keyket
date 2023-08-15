@@ -88,7 +88,7 @@ class _BucketListDetailScreenState
   List<RecommendItemModel> completeRecommendItemList = [];
   List<RecommendItemModel> uncompleteRecommendItemList = [];
   List<UserModel> userModelList = [];
-  List<String> addUserIdList = [];
+  List<String> addUserInviteCodeList = [];
 
   @override
   void initState() {
@@ -208,7 +208,7 @@ class _BucketListDetailScreenState
                     userModelList: userModelList,
                     host: modifiedBucketListModel.host,
                     removeUser: removeUser,
-                    addUserIdList: addUserIdList,
+                    addUserIdList: addUserInviteCodeList,
                     cancelInvite: cancelInvite,
                   ),
                   _InviteSection(addUser: addUser),
@@ -279,9 +279,9 @@ class _BucketListDetailScreenState
     });
   }
 
-  void cancelInvite(String userId) {
+  void cancelInvite(String inviteCode) {
     setState(() {
-      addUserIdList.remove(userId);
+      addUserInviteCodeList.remove(inviteCode);
     });
     changeFlag();
   }
@@ -295,8 +295,8 @@ class _BucketListDetailScreenState
     changeFlag();
   }
 
-  void addUser(userId) {
-    addUserIdList.add(userId);
+  void addUser(inviteCode) {
+    addUserInviteCodeList.add(inviteCode);
     setState(() {
       isChanged = true;
       inviteFlag = !inviteFlag;
@@ -395,7 +395,9 @@ class _BucketListDetailScreenState
                 return userModel.image != ''
                     ? Positioned(
                         left: MediaQuery.of(context).size.width * 0.5 -
-                            (userModelList.length + addUserIdList.length + 1) *
+                            (userModelList.length +
+                                    addUserInviteCodeList.length +
+                                    1) *
                                 7.5 +
                             15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
                         child: CircleAvatar(
@@ -405,7 +407,9 @@ class _BucketListDetailScreenState
                       )
                     : Positioned(
                         left: MediaQuery.of(context).size.width * 0.5 -
-                            (userModelList.length + addUserIdList.length + 1) *
+                            (userModelList.length +
+                                    addUserInviteCodeList.length +
+                                    1) *
                                 7.5 +
                             15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
                         child: CircleAvatar(
@@ -417,11 +421,15 @@ class _BucketListDetailScreenState
                         ),
                       );
               }).toList(),
-              ...addUserIdList.map((id) {
-                int index = userModelList.length + addUserIdList.indexOf(id);
+              ...addUserInviteCodeList.map((id) {
+                int index =
+                    userModelList.length + addUserInviteCodeList.indexOf(id);
                 return Positioned(
                   left: MediaQuery.of(context).size.width * 0.5 -
-                      (userModelList.length + addUserIdList.length + 1) * 7.5 +
+                      (userModelList.length +
+                              addUserInviteCodeList.length +
+                              1) *
+                          7.5 +
                       15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
                   child: CircleAvatar(
                     radius: 15.0, // 이미지 크기를 30x30으로 조정했습니다.
@@ -1198,7 +1206,7 @@ class _BucketListDetailScreenState
         originalBucketListModel.image != modifiedBucketListModel.image ||
         !listEquals(
             originalBucketListModel.users, modifiedBucketListModel.users) ||
-        addUserIdList.isNotEmpty ||
+        addUserInviteCodeList.isNotEmpty ||
         tmpImage != null;
   }
 
@@ -1419,19 +1427,22 @@ class _BucketListDetailScreenState
     }
 
     // addUserIdList가 있고 그 길이가 0이 아닌지 확인
-    if (addUserIdList.isNotEmpty) {
+    if (addUserInviteCodeList.isNotEmpty) {
       // addUserIdList를 10개씩 분할합니다. (Firestore의 제한으로 인해)
       List<List<String>> chunks = [];
-      for (int i = 0; i < addUserIdList.length; i += 10) {
-        chunks.add(addUserIdList.sublist(
-            i, i + 10 > addUserIdList.length ? addUserIdList.length : i + 10));
+      for (int i = 0; i < addUserInviteCodeList.length; i += 10) {
+        chunks.add(addUserInviteCodeList.sublist(
+            i,
+            i + 10 > addUserInviteCodeList.length
+                ? addUserInviteCodeList.length
+                : i + 10));
       }
 
       for (List<String> chunk in chunks) {
         // 각 chunk에 대해 Firestore에서 사용자 정보를 가져옵니다.
         QuerySnapshot querySnapshot = await firestore
             .collection('user')
-            .where(FieldPath.documentId, whereIn: chunk)
+            .where('inviteCode', whereIn: chunk)
             .get();
 
         // 가져온 사용자 정보를 UserModel 형태로 변환하고 Provider의 상태에 추가합니다.
@@ -1454,7 +1465,7 @@ class _BucketListDetailScreenState
       }
 
       setState(() {
-        addUserIdList = [];
+        addUserInviteCodeList = [];
       });
     }
 

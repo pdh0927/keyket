@@ -1,5 +1,8 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart';
+import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
+import 'package:keyket/common/model/firebase_auth_remote_data_source.dart';
+import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/common/model/social_login.dart';
 
 class KaKaoLoginModel implements SocialLogin {
@@ -8,13 +11,14 @@ class KaKaoLoginModel implements SocialLogin {
     try {
       // 카카오톡 실행 가능 여부 확인
       // 카카오톡 실행이 가능하면 카카오톡으로 로그인, 아니면 카카오계정으로 로그인
-      if (await isKakaoTalkInstalled()) {
+      if (await kakao.isKakaoTalkInstalled()) {
         try {
-          OAuthToken token = await UserApi.instance.loginWithKakaoTalk();
+          kakao.OAuthToken token =
+              await kakao.UserApi.instance.loginWithKakaoTalk();
 
           // 토큰 저장
-          TokenManagerProvider.instance.manager.setToken(token);
-
+          kakao.TokenManagerProvider.instance.manager.setToken(token);
+          await loginProcess();
           return true;
         } catch (error) {
           print('카카오톡으로 로그인 실패 $error');
@@ -26,10 +30,12 @@ class KaKaoLoginModel implements SocialLogin {
           }
           // 카카오톡에 연결된 카카오계정이 없는 경우, 카카오계정으로 로그인
           try {
-            OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+            kakao.OAuthToken token =
+                await kakao.UserApi.instance.loginWithKakaoAccount();
 
             // 토큰 저장
-            TokenManagerProvider.instance.manager.setToken(token);
+            kakao.TokenManagerProvider.instance.manager.setToken(token);
+            await loginProcess();
 
             return true;
           } catch (error) {
@@ -40,10 +46,12 @@ class KaKaoLoginModel implements SocialLogin {
       } else {
         // 카카오톡 설치가 안되어 있어서 카카오계정으로 로그인
         try {
-          OAuthToken token = await UserApi.instance.loginWithKakaoAccount();
+          kakao.OAuthToken token =
+              await kakao.UserApi.instance.loginWithKakaoAccount();
 
           // 토큰 저장
-          TokenManagerProvider.instance.manager.setToken(token);
+          kakao.TokenManagerProvider.instance.manager.setToken(token);
+          await loginProcess();
 
           return true;
         } catch (error) {
@@ -60,11 +68,31 @@ class KaKaoLoginModel implements SocialLogin {
   @override
   Future<bool> logout() async {
     try {
-      await UserApi.instance.unlink();
+      await kakao.UserApi.instance.unlink();
       return true;
     } catch (e) {
       print(e);
       return false;
     }
+  }
+
+  loginProcess() async {
+    kakao.User? user;
+    user = await kakao.UserApi.instance.me();
+    final firebaseAuthDataSource = FirebaseAuthRemoteDataSource();
+
+    final customToken = await firebaseAuthDataSource.createCustomUserToken({
+      'uid': user.id.toString(),
+      'displayname': user.kakaoAccount!.profile!.nickname,
+    });
+
+    await FirebaseAuth.instance.signInWithCustomToken(customToken);
+
+    // JSON에서 필요한 정보 추출
+    String kakaoId = user.id.toString();
+    String nickname = user.kakaoAccount!.profile!.nickname!;
+
+    // Firestore에 사용자 데이터 저장
+    await createUserInFirestore(kakaoId, nickname);
   }
 }
