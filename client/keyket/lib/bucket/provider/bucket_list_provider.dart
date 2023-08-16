@@ -66,6 +66,10 @@ abstract class BucketListNotifier
     state[updatedBucketList.id] = updatedBucketList;
   }
 
+  int getBucketListCount() {
+    return state.length;
+  }
+
   void updateRecommendItems(String bucketListId, List<String> ids) async {
     final bucketList = state[bucketListId];
 
@@ -142,6 +146,13 @@ abstract class BucketListNotifier
     } catch (error) {
       print('Error deleting bucket list: $error');
     }
+  }
+
+  // 아이디로 버킷리스트 삭제
+  void deleteBucketListFromProvider(String bucketListId) async {
+    // State에서 해당 버킷 리스트 삭제
+    state.remove(bucketListId);
+    state = {...state};
   }
 
   double getAchievementRate(String bucketListId) {
