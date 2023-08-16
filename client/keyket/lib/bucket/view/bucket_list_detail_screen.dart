@@ -254,6 +254,7 @@ class _BucketListDetailScreenState
                         });
                       },
                       nameChange: nameChange),
+                  _DeleteBucketSection(deleteBucketList: deleteBucketList),
                   SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
                 ],
               ),
@@ -269,6 +270,14 @@ class _BucketListDetailScreenState
           ),
         ),
     ]);
+  }
+
+  void deleteBucketList() {
+    ref
+        .read(widget.isShared
+            ? sharedBucketListListProvider.notifier
+            : myBucketListListProvider.notifier)
+        .deleteBucketList(widget.bucketListId);
   }
 
   void removeUser(String userId) {
@@ -1528,7 +1537,7 @@ class _BucketListDetailScreenState
             .read(updates['isShared']
                 ? myBucketListListProvider.notifier
                 : sharedBucketListListProvider.notifier)
-            .deleteBucketList(modifiedBucketListModel.id);
+            .deleteBucketListFromProvider(modifiedBucketListModel.id);
       }
       ref
           .read(customBucketListItemProvider.notifier)
@@ -2020,6 +2029,111 @@ class _TitleEditSection extends StatelessWidget {
                 onRightPressed: () => setStateCallback(),
               )
             : const SizedBox(height: 0),
+      ],
+    );
+  }
+}
+
+class _DeleteBucketSection extends StatefulWidget {
+  final Function() deleteBucketList;
+  const _DeleteBucketSection({super.key, required this.deleteBucketList});
+
+  @override
+  State<_DeleteBucketSection> createState() => __DeleteBucketSectionState();
+}
+
+class __DeleteBucketSectionState extends State<_DeleteBucketSection> {
+  bool isSelect = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const SizedBox(height: 5),
+        TextButton(
+          style: ButtonStyle(
+            padding: MaterialStateProperty.all<EdgeInsets>(
+                const EdgeInsets.only(right: 16, left: 10)),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Remix.delete_bin_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+              SizedBox(width: 10),
+              Text(
+                '삭제하기',
+                style: TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Color(0xFF1A1A1A),
+                ),
+              ),
+              Spacer(),
+              Icon(
+                Remix.arrow_down_s_line,
+                size: 30,
+                color: Color(0xFF1A1A1A),
+              ),
+            ],
+          ),
+          onPressed: () {
+            setState(() {
+              isSelect = !isSelect;
+            });
+          },
+        ),
+        isSelect
+            ? Column(
+                children: [
+                  Container(
+                    alignment: Alignment.center,
+                    width: 230,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: const Color(0xFFC4E4FA)),
+                    child: const Text(
+                      '삭제하시겠습니까?',
+                      style: TextStyle(
+                        fontFamily: 'SCDream',
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                    child: Row(
+                      children: [
+                        CustomButton(
+                          buttonText: '예',
+                          onPressed: () {
+                            widget.deleteBucketList();
+                            setState(() {
+                              Navigator.pop(context);
+                              Navigator.pop(context);
+                            });
+                          },
+                        ),
+                        const Spacer(),
+                        CustomButton(
+                          buttonText: '아니요',
+                          onPressed: () {
+                            setState(() {
+                              isSelect = false;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            : const SizedBox(height: 0)
       ],
     );
   }

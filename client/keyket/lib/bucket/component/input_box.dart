@@ -66,7 +66,7 @@ class _InputBoxState extends State<InputBox> {
           padding: const EdgeInsets.symmetric(horizontal: 18.0),
           child: Row(
             children: [
-              _CustomButton(
+              CustomButton(
                 buttonText: '확인',
                 onPressed: () {
                   // 이름이 없거나, 이전 이름과 같지 않으면 변경 실행
@@ -77,7 +77,7 @@ class _InputBoxState extends State<InputBox> {
                 },
               ),
               const Spacer(),
-              _CustomButton(
+              CustomButton(
                 buttonText: '취소',
                 onPressed: () {
                   widget.onRightPressed();
@@ -91,11 +91,11 @@ class _InputBoxState extends State<InputBox> {
   }
 }
 
-class _CustomButton extends StatelessWidget {
+class CustomButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback onPressed;
 
-  const _CustomButton({
+  const CustomButton({
     Key? key,
     required this.buttonText,
     required this.onPressed,
