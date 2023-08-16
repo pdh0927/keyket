@@ -34,14 +34,19 @@ class _MyScreenState extends State<MyScreen> {
     return DefaultLayout(
       title: '내 정보',
       actions: getActions(context),
-      child: Column(
-        children: [
-          MyProfile(),
-          DivideLine(),
-          MyBucket(),
-          DivideLine(),
-          Bottom(),
-        ],
+      child: Scaffold(
+        body: SingleChildScrollView(
+          physics: NeverScrollableScrollPhysics(),
+          child: Column(
+            children: [
+              MyProfile(),
+              DivideLine(),
+              MyBucket(),
+              DivideLine(),
+              Bottom(),
+            ],
+          ),
+        ),
       ),
     );
   }
