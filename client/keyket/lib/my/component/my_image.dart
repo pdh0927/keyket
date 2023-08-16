@@ -18,19 +18,20 @@ class _MyImageState extends ConsumerState<MyImage> {
   XFile? _image;
   final ImagePicker picker = ImagePicker();
 
-  Future pickImage(ImageSource imageSource) async {
+  Future<String?> pickImage(ImageSource imageSource) async {
     final XFile? pickedFile = await picker.pickImage(
         source: imageSource, maxWidth: 100, maxHeight: 100);
     if (pickedFile != null) {
       setState(() {
         _image = XFile(pickedFile.path);
       });
+      return pickedFile.path;
     }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    print('image: ' + _image.toString());
     return Stack(
       children: [
         ImageCircle(),
@@ -57,7 +58,7 @@ class _MyImageState extends ConsumerState<MyImage> {
 
   // 이미지 가져오는 부분
   takeImage(mContext) {
-    return _image == null
+    return ref.watch(myInformationProvider)!.image == ''
         ? showDialog(
             barrierColor: const Color(0xff616161).withOpacity(0.2),
             context: mContext,
@@ -97,8 +98,19 @@ class _MyImageState extends ConsumerState<MyImage> {
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        onPressed: () {
-                          pickImage(ImageSource.gallery);
+                        onPressed: () async {
+                          String? imagePath =
+                              await pickImage(ImageSource.gallery);
+                          if (imagePath == null) {
+                            ref
+                                .read(myInformationProvider.notifier)
+                                .changeImage('');
+                          } else {
+                            ref
+                                .read(myInformationProvider.notifier)
+                                .changeImage(imagePath);
+                          }
+
                           Navigator.pop(context);
                         },
                       ),
@@ -144,8 +156,19 @@ class _MyImageState extends ConsumerState<MyImage> {
                             fontSize: 16,
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
                           pickImage(ImageSource.gallery);
+                          String? imagePath =
+                              await pickImage(ImageSource.gallery);
+                          if (imagePath == null) {
+                            ref
+                                .read(myInformationProvider.notifier)
+                                .changeImage('');
+                          } else {
+                            ref
+                                .read(myInformationProvider.notifier)
+                                .changeImage(imagePath);
+                          }
                           Navigator.pop(context);
                         },
                       ),
@@ -164,7 +187,11 @@ class _MyImageState extends ConsumerState<MyImage> {
                             fontSize: 16,
                           ),
                         ),
-                        onPressed: () {
+                        onPressed: () async {
+                          await ref
+                              .read(myInformationProvider.notifier)
+                              .changeImage('');
+
                           setState(() {
                             _image = null;
                             // File(_image!.path).delete(); ////////// 이 부분 덜함
@@ -205,6 +232,7 @@ class _MyImageState extends ConsumerState<MyImage> {
       );
     } else if (_image == null &&
         ref.watch(myInformationProvider)!.image != '') {
+      print(ref.watch(myInformationProvider)!.image);
       return CircleAvatar(
         radius: 50,
         backgroundImage: NetworkImage(ref.watch(myInformationProvider)!.image),

@@ -1,14 +1,16 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
 import '../../common/const/colors.dart';
 
-class MyBucket extends StatelessWidget {
+class MyBucket extends ConsumerWidget {
   const MyBucket({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -45,7 +47,7 @@ class MyBucket extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   const Text(
-                    "완성된 버킷",
+                    "나만의 버킷",
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'SCDream',
@@ -53,8 +55,8 @@ class MyBucket extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      const Text(
-                        "0개",
+                      Text(
+                        "${ref.read(myBucketListListProvider.notifier).getBucketListCount()}개",
                         style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'SCDream',
@@ -81,7 +83,7 @@ class MyBucket extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   const Text(
-                    "진행중 버킷",
+                    "공유 버킷",
                     style: TextStyle(
                       fontSize: 12,
                       fontFamily: 'SCDream',
@@ -89,8 +91,8 @@ class MyBucket extends StatelessWidget {
                   ),
                   Column(
                     children: [
-                      const Text(
-                        "5개",
+                      Text(
+                        "${ref.read(sharedBucketListListProvider.notifier).getBucketListCount()}개",
                         style: TextStyle(
                           fontSize: 12,
                           fontFamily: 'SCDream',

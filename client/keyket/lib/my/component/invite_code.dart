@@ -56,20 +56,21 @@ class _InviteCodeState extends ConsumerState<InviteCode> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                ref.watch(myInformationProvider)!.id,
+                ref.watch(myInformationProvider)!.inviteCode,
                 style: TextStyle(
                     fontFamily: 'SCDream', fontSize: 16, color: Colors.black),
               ),
               IconButton(
                 onPressed: () {
                   Clipboard.setData(
-                    ClipboardData(text: ref.watch(myInformationProvider)!.id),
+                    ClipboardData(
+                        text: ref.watch(myInformationProvider)!.inviteCode),
                   ); // 클립보드 복사
                   _InviteMessage(context);
                 },
                 icon: Icon(Remix.file_copy_line),
                 iconSize: 20,
-              )
+              ),
             ],
           ),
         ),
