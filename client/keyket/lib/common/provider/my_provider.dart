@@ -42,7 +42,7 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
         .update({'nickname': nickname});
   }
 
-  void changeImage(String imagePath) async {
+  Future<void> changeImage(String imagePath) async {
     // 기존의 이미지가 있으면 삭제합니다.
     if (state!.image != '') {
       Reference photoRef = FirebaseStorage.instance.refFromURL(state!.image);
@@ -61,7 +61,7 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
           .doc(state!.id)
           .update({'image': imageUrl});
     } else {
-      // 기존의 이미지가 있으면 삭제합니다.
+      state = state!.copyWith(image: '');
 
       await _firestore.collection('user').doc(state!.id).update({'image': ''});
     }
