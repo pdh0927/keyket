@@ -28,6 +28,15 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
     }
   }
 
+  void changeName(String nickname) async {
+    state = state!.copyWith(nickname: nickname);
+
+    await _firestore
+        .collection('user')
+        .doc(state!.id)
+        .update({'nickname': nickname});
+  }
+
   void setFixedBucket(String newBucketId) async {
     // 상태 업데이트
     state = state!.copyWith(fixedBucket: newBucketId);
