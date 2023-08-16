@@ -1537,7 +1537,7 @@ class _BucketListDetailScreenState
             .read(updates['isShared']
                 ? myBucketListListProvider.notifier
                 : sharedBucketListListProvider.notifier)
-            .deleteBucketList(modifiedBucketListModel.id);
+            .deleteBucketListFromProvider(modifiedBucketListModel.id);
       }
       ref
           .read(customBucketListItemProvider.notifier)
@@ -2035,7 +2035,7 @@ class _TitleEditSection extends StatelessWidget {
 }
 
 class _DeleteBucketSection extends StatefulWidget {
-  final Function deleteBucketList;
+  final Function() deleteBucketList;
   const _DeleteBucketSection({super.key, required this.deleteBucketList});
 
   @override
