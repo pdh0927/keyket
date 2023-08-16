@@ -55,6 +55,7 @@ abstract class BucketListNotifier
 
       // State에 추가된 bucket 추가
       state[bucketData['id']] = BucketListModel.fromJson(bucketData);
+      state = {...state};
     } catch (e) {
       print(e);
     }
@@ -126,12 +127,21 @@ abstract class BucketListNotifier
   void addBucketList(BucketListModel newBucket) async {
     // State에 추가된 bucket 아이템 추가
     state[newBucket.id] = newBucket;
+    state = {...state};
   }
 
   // 아이디로 버킷리스트 삭제
   void deleteBucketList(String bucketListId) async {
-    // State에서 해당 bucket리스트 삭제
-    state.remove(bucketListId);
+    try {
+      // State에서 해당 버킷 리스트 삭제
+      state.remove(bucketListId);
+      state = {...state};
+
+      // Firebase Firestore에서도 해당 버킷 리스트 삭제
+      await firestore.collection('bucket_list').doc(bucketListId).delete();
+    } catch (error) {
+      print('Error deleting bucket list: $error');
+    }
   }
 
   double getAchievementRate(String bucketListId) {
