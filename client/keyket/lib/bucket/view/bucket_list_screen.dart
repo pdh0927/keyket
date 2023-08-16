@@ -133,8 +133,6 @@ class _SharedBucketListListState extends ConsumerState<_SharedBucketListList> {
 
   @override
   Widget build(BuildContext context) {
-    print('hi');
-
     final List<BucketListModel> sharedBucketListList =
         ref.watch(sharedBucketListListProvider).values.toList();
     return _BucketListList(bucketListList: sharedBucketListList);
