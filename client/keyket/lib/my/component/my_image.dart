@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:remixicon/remixicon.dart';
 
 import '../../common/provider/my_provider.dart';
+import 'divide_line.dart';
 
 class MyImage extends ConsumerStatefulWidget {
   const MyImage({super.key});
@@ -82,12 +83,7 @@ class _MyImageState extends ConsumerState<MyImage> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                      const Divider(
-                        // 구분선
-                        color: Colors.white,
-                        thickness: 1,
-                        height: 0,
-                      ),
+                      const DividePopUp(),
                       SimpleDialogOption(
                         child: const Text(
                           '앨범에서 사진 선택하기',
@@ -141,12 +137,7 @@ class _MyImageState extends ConsumerState<MyImage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Divider(
-                        // 구분선
-                        color: Colors.white,
-                        thickness: 1,
-                        height: 0,
-                      ),
+                      const DividePopUp(),
                       SimpleDialogOption(
                         child: const Text(
                           '앨범에서 사진 선택하기',
@@ -172,12 +163,7 @@ class _MyImageState extends ConsumerState<MyImage> {
                           Navigator.pop(context);
                         },
                       ),
-                      const Divider(
-                        // 구분선
-                        color: Colors.white,
-                        thickness: 1,
-                        height: 0,
-                      ),
+                      const DividePopUp(),
                       SimpleDialogOption(
                         child: const Text(
                           '기본 이미지로 선택하기',
@@ -232,7 +218,6 @@ class _MyImageState extends ConsumerState<MyImage> {
       );
     } else if (_image == null &&
         ref.watch(myInformationProvider)!.image != '') {
-      print(ref.watch(myInformationProvider)!.image);
       return CircleAvatar(
         radius: 50,
         backgroundImage: NetworkImage(ref.watch(myInformationProvider)!.image),
