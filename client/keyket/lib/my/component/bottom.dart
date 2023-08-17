@@ -54,13 +54,17 @@ class Bottom extends StatelessWidget {
       context: context,
       barrierColor: const Color(0xff616161).withOpacity(0.2),
       builder: (BuildContext) {
+        Future.delayed(const Duration(seconds: 1), () {
+          // 1초 후에 사라짐
+          Navigator.of(context).pop(true);
+        });
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: const Color(0xff616161),
           elevation: 0,
           content: const Text(
-            '준비중입니다',
+            '준비 중입니다.',
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w500,
