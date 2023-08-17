@@ -30,11 +30,11 @@ class MyScreen extends StatefulWidget {
 class _MyScreenState extends State<MyScreen> {
   @override
   Widget build(BuildContext context) {
-    print('main build');
     return DefaultLayout(
       title: '내 정보',
       actions: getActions(context),
-      child: Scaffold(
+      child: const Scaffold(
+        backgroundColor: Colors.white,
         body: SingleChildScrollView(
           physics: NeverScrollableScrollPhysics(),
           child: Column(
@@ -61,7 +61,7 @@ class _MyScreenState extends State<MyScreen> {
         },
         icon: const Icon(
           Remix.lock_unlock_line,
-          size: 24,
+          size: 27,
           color: Color(0XFF3498DB),
         ),
       ),
@@ -76,11 +76,11 @@ class _MyScreenState extends State<MyScreen> {
         },
         icon: const Icon(
           Remix.notification_4_line,
-          size: 24,
+          size: 27,
           color: Colors.black,
         ),
       ),
-      SizedBox(width: 20)
+      const SizedBox(width: 20)
     ];
   }
 
