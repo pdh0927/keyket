@@ -1,10 +1,5 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dotted_border/dotted_border.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
 import '../../common/provider/my_provider.dart';
@@ -64,13 +59,13 @@ class _MyProfileState extends ConsumerState<MyProfile> {
     // print('top build');
     return Column(
       children: [
-        SizedBox(
+        const SizedBox(
           height: 20,
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            MyImage(),
+            const MyImage(),
             Column(
               children: [
                 Row(
@@ -81,7 +76,7 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                       child: TextFormField(
                         focusNode: _focusNode,
                         controller: _controller,
-                        cursorColor: Color(0XFF616161),
+                        cursorColor: const Color(0XFF616161),
                         readOnly: !isSelect,
                         maxLength: isSelect ? 8 : null,
                         autofocus: true,
@@ -90,11 +85,13 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                           fontSize: 24,
                         ),
                         decoration: isSelect
-                            ? InputDecoration(
-                                // focusedBorder: UnderlineInputBorder(),
+                            ? const InputDecoration(
+                                focusedBorder: UnderlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.black),
+                                ),
                                 contentPadding: EdgeInsets.all(0),
                               )
-                            : InputDecoration(border: InputBorder.none),
+                            : const InputDecoration(border: InputBorder.none),
                         onFieldSubmitted: (text) {
                           saveNickname(text);
                           setState(() {
@@ -118,10 +115,10 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                     ),
                   ],
                 ),
-                SizedBox(
+                const SizedBox(
                   height: 20,
                 ),
-                InviteCode(),
+                const InviteCode(),
               ],
             ),
           ],
