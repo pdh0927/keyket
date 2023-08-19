@@ -54,9 +54,11 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    _controller =
-        TextEditingController(text: ref.watch(myInformationProvider)!.nickname);
-    // print('top build');
+    if (ref.watch(myInformationProvider) != null) {
+      _controller = TextEditingController(
+          text: ref.watch(myInformationProvider)!.nickname);
+    }
+
     return Column(
       children: [
         const SizedBox(
