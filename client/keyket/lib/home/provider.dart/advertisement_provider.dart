@@ -26,7 +26,6 @@ class BannerAdvertisementNotifier extends StateNotifier<AdManagerBannerAd?> {
           print('$ad loaded.');
 
           state = ad as AdManagerBannerAd;
-          print(state);
         },
         onAdFailedToLoad: (ad, err) {
           print('AdManagerBannerAd failed to load: $err');
