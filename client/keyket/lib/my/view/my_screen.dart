@@ -1,6 +1,8 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/common/model/apple_login_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/my/component/my_image.dart';
 import 'package:keyket/my/component/my_notification.dart';
@@ -52,12 +54,19 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   List<Widget> getActions(BuildContext context) {
-    final viewModel = MainViewModel(KaKaoLoginModel());
     return [
       IconButton(
         onPressed: () {
-          // Logout(context);
-          viewModel.logout();
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            if (user.providerData.isNotEmpty) {
+              final viewModel = MainViewModel(KaKaoLoginModel());
+              viewModel.logout();
+            } else {
+              final viewModel = MainViewModel(AppleLoginModel());
+              viewModel.logout();
+            }
+          }
         },
         icon: const Icon(
           Remix.lock_unlock_line,
