@@ -16,7 +16,7 @@ Future<File?> compressImage({required File? imageFile}) async {
   var result = await FlutterImageCompress.compressAndGetFile(
     imageFile.absolute.path,
     targetPath,
-    quality: 50, // 압축 품질 (0 ~ 100)
+    quality: 10, // 압축 품질 (0 ~ 100)
   );
 
   return File(result!.path);

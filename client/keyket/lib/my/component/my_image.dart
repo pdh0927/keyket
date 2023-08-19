@@ -148,7 +148,6 @@ class _MyImageState extends ConsumerState<MyImage> {
                           ),
                         ),
                         onPressed: () async {
-                          pickImage(ImageSource.gallery);
                           String? imagePath =
                               await pickImage(ImageSource.gallery);
                           if (imagePath == null) {
