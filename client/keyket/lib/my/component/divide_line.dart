@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class DivideLine extends StatelessWidget {
   const DivideLine({super.key});
@@ -19,6 +19,19 @@ class DivideLine extends StatelessWidget {
           height: 20,
         ),
       ],
+    );
+  }
+}
+
+class DividePopUp extends StatelessWidget {
+  const DividePopUp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Divider(
+      color: Colors.white,
+      thickness: 1,
+      height: 0,
     );
   }
 }
