@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -18,22 +19,27 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   bool isSelect = false;
 
-  late FocusNode _focusNode;
+  late FocusNode _focusNode; // focus = 사용자 인터페이스에서 현재 활성화된 컨트롤 또는 위젯
 
   @override
   void initState() {
+    // 위젯이 생성될 때 호출되는 메서드
     super.initState();
 
     _focusNode = FocusNode();
-    _focusNode.addListener(_onFocusChanged);
+    _focusNode.addListener(
+        _onFocusChanged); // _focusNode의 상태 변화를 감지하는 _onFocusChanged
   }
 
   void _onFocusChanged() {
+    // _focusNode의 상태가 감지될 때 호출되는 함수
     if (!_focusNode.hasFocus) {
+      // 포커스가 해당 FocusNode에 없는 경우
       if (isSelect) {
         setState(() {
           isSelect = false;
-          _controller.text = ref.read(myInformationProvider)!.nickname;
+          _controller.text =
+              ref.read(myInformationProvider)!.nickname; // 원래 닉네임으로 저장
         });
       }
     }
@@ -41,12 +47,16 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   void saveNickname(String text) {
     if (text != ref.read(myInformationProvider)!.nickname) {
-      ref.read(myInformationProvider.notifier).changeName(text);
+      // 수정한 닉네임(text)이 현재 닉네임과 다르면
+      ref
+          .read(myInformationProvider.notifier)
+          .changeName(text); // changeName 함수를 호출하여 수정한 닉네임으로 변경하여 저장
     }
   }
 
   @override
   void dispose() {
+    // 위젯이 제거될 때 호출되는 메서드 /  메모리 누수를 방지하고 필요한 정리 작업을 수행하는 데 사용
     _focusNode.removeListener(_onFocusChanged);
     _focusNode.dispose();
     super.dispose();
@@ -54,9 +64,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    _controller =
-        TextEditingController(text: ref.watch(myInformationProvider)!.nickname);
-    // print('top build');
+    _controller = TextEditingController(
+        text: ref.watch(myInformationProvider)!.nickname); // 현재 닉네임을 기본값으로 설정
     return Column(
       children: [
         const SizedBox(
@@ -74,12 +83,13 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                     SizedBox(
                       width: 150,
                       child: TextFormField(
-                        focusNode: _focusNode,
-                        controller: _controller,
-                        cursorColor: const Color(0XFF616161),
-                        readOnly: !isSelect,
-                        maxLength: isSelect ? 8 : null,
-                        autofocus: true,
+                        focusNode: _focusNode, // 포커스가 있는지 없는지 제어
+                        controller: _controller, // 텍스트 필드의 입력 내용 관리
+                        cursorColor: const Color(0XFF616161), // 커서 색 변경
+                        readOnly: !isSelect, // isSelect가 false면 읽기 전용
+                        maxLength:
+                            isSelect ? 8 : null, // isSelect가 true면 최대 길이 표시
+                        autofocus: true, // 자동으로 포커스 받음
                         style: const TextStyle(
                           fontFamily: 'SCDream',
                           fontSize: 24,
@@ -93,9 +103,10 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                               )
                             : const InputDecoration(border: InputBorder.none),
                         onFieldSubmitted: (text) {
-                          saveNickname(text);
+                          // 사용자가 '엔터'나 '완료' 버튼을 누르면
+                          saveNickname(text); // 변경한 닉네임 저장
                           setState(() {
-                            isSelect = !isSelect;
+                            isSelect = !isSelect; // 수정모드 해제
                           });
                         },
                       ),
