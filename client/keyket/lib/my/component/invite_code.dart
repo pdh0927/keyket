@@ -82,6 +82,7 @@ class _InviteCodeState extends ConsumerState<InviteCode> {
     return showDialog(
       context: context,
       barrierColor: const Color(0xff616161).withOpacity(0.2),
+      barrierDismissible: false,
       builder: (BuildContext) {
         Future.delayed(Duration(seconds: 1), () {
           // 1초 후에 사라짐

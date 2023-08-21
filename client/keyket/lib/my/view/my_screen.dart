@@ -1,24 +1,16 @@
-import 'dart:io';
-
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:keyket/common/provider/my_provider.dart';
-import 'package:keyket/my/component/my_image.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:keyket/common/model/apple_login_model.dart';
+import 'package:keyket/common/model/kakao_login_model.dart';
+import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/my/component/bottom.dart';
+import 'package:keyket/my/component/divide_line.dart';
+import 'package:keyket/my/component/my_bucket.dart';
 import 'package:keyket/my/component/my_notification.dart';
 
 import 'package:flutter/material.dart';
-import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
-import 'package:flutter/services.dart';
 import 'package:keyket/my/component/my_profile.dart';
 import 'package:remixicon/remixicon.dart';
-import 'package:image_picker/image_picker.dart';
-
-import '../../common/model/kakao_login_model.dart';
-import '../../common/model/main_view_model.dart';
-import '../component/bottom.dart';
-import '../component/divide_line.dart';
-import '../component/invite_code.dart';
-import '../component/my_bucket.dart';
 
 class MyScreen extends StatefulWidget {
   const MyScreen({super.key});
@@ -52,12 +44,19 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   List<Widget> getActions(BuildContext context) {
-    final viewModel = MainViewModel(KaKaoLoginModel());
     return [
       IconButton(
         onPressed: () {
-          // Logout(context);
-          viewModel.logout();
+          final user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            if (user.providerData.isNotEmpty) {
+              final viewModel = MainViewModel(KaKaoLoginModel());
+              viewModel.logout();
+            } else {
+              final viewModel = MainViewModel(AppleLoginModel());
+              viewModel.logout();
+            }
+          }
         },
         icon: const Icon(
           Remix.lock_unlock_line,

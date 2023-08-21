@@ -16,6 +16,7 @@ import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
+import 'package:keyket/common/component/compress_image.dart';
 import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/select_box.dart';
@@ -1414,6 +1415,7 @@ class _BucketListDetailScreenState
             FirebaseStorage.instance.refFromURL(originalBucketListModel.image);
         await photoRef.delete();
       }
+      tmpImage = await compressImage(imageFile: tmpImage);
 
       // 이미지를 Firebase Storage에 업로드하고 Firestore에 이미지 URL을 저장합니다.
       String imageUrl = await _uploadImageToFirebase(tmpImage!.path, storage);

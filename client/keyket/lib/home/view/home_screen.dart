@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -14,6 +13,7 @@ import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
+import 'package:keyket/home/provider.dart/advertisement_provider.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const SizedBox(
               height: 20,
             ),
-            _RegionImageContainer(),
+            const _RegionImageContainer(),
             const SizedBox(height: 10)
           ],
         ),
@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class _AdvertisementContainer extends StatefulWidget {
+class _AdvertisementContainer extends ConsumerStatefulWidget {
   final int adWidth;
   final int adMaxHeight;
 
@@ -66,68 +66,32 @@ class _AdvertisementContainer extends StatefulWidget {
       {super.key, required this.adWidth, required this.adMaxHeight});
 
   @override
-  State<_AdvertisementContainer> createState() =>
+  ConsumerState<_AdvertisementContainer> createState() =>
       _AdvertisementContainerState();
 }
 
-class _AdvertisementContainerState extends State<_AdvertisementContainer> {
-  AdManagerBannerAd? _bannerAd;
-  bool isLoading = true;
-
+class _AdvertisementContainerState
+    extends ConsumerState<_AdvertisementContainer> {
   @override
   void initState() {
+    ref
+        .read(bannerAdvertisementProvider.notifier)
+        .loadAd(widget.adWidth, widget.adMaxHeight);
     super.initState();
-    loadAd(widget.adWidth, widget.adMaxHeight);
-  }
-
-  @override
-  void dispose() {
-    _bannerAd?.dispose();
-    super.dispose();
-  }
-
-  final adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111'
-      : 'ca-app-pub-3940256099942544/2934735716';
-
-  Future<void> loadAd(int width, int maxHeight) async {
-    final bannerAd = AdManagerBannerAd(
-      adUnitId: adUnitId,
-      request: const AdManagerAdRequest(),
-      sizes: [AdSize.getInlineAdaptiveBannerAdSize(width, maxHeight)],
-      listener: AdManagerBannerAdListener(
-        onAdLoaded: (ad) {
-          print('$ad loaded.');
-          setState(() {
-            _bannerAd = ad as AdManagerBannerAd;
-            isLoading = false;
-          });
-        },
-        onAdFailedToLoad: (ad, err) {
-          print('AdManagerBannerAd failed to load: $err');
-          ad.dispose();
-          setState(() {
-            isLoading = false;
-          });
-        },
-      ),
-    );
-    bannerAd.load();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
+    final bannerAdvertisement = ref.watch(bannerAdvertisementProvider);
+    if (bannerAdvertisement == null) {
       return const CircularProgressIndicator();
-    } else if (_bannerAd != null) {
+    } else {
       return Container(
         alignment: Alignment.center,
         width: widget.adWidth.toDouble(),
         height: widget.adMaxHeight.toDouble(),
-        child: AdWidget(ad: _bannerAd!),
+        child: AdWidget(ad: bannerAdvertisement),
       );
-    } else {
-      return const SizedBox(height: 0);
     }
   }
 }

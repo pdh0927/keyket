@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
-
-import '../../common/const/colors.dart';
 
 class Bottom extends StatelessWidget {
   const Bottom({super.key});
@@ -53,6 +52,7 @@ class Bottom extends StatelessWidget {
     return showDialog(
       context: context,
       barrierColor: const Color(0xff616161).withOpacity(0.2),
+      barrierDismissible: false,
       builder: (BuildContext) {
         Future.delayed(const Duration(seconds: 1), () {
           // 1초 후에 사라짐

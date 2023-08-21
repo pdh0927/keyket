@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
 
-import '../../common/provider/my_provider.dart';
 import 'invite_code.dart';
 import 'my_image.dart';
 
@@ -64,8 +63,11 @@ class _MyProfileState extends ConsumerState<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    _controller = TextEditingController(
-        text: ref.watch(myInformationProvider)!.nickname); // 현재 닉네임을 기본값으로 설정
+    if (ref.watch(myInformationProvider) != null) {
+      _controller = TextEditingController(
+          text: ref.watch(myInformationProvider)!.nickname);
+    }
+
     return Column(
       children: [
         const SizedBox(
@@ -81,15 +83,16 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      width: 150,
+                      width: 190,
                       child: TextFormField(
                         focusNode: _focusNode, // 포커스가 있는지 없는지 제어
                         controller: _controller, // 텍스트 필드의 입력 내용 관리
                         cursorColor: const Color(0XFF616161), // 커서 색 변경
                         readOnly: !isSelect, // isSelect가 false면 읽기 전용
+                        textAlign: TextAlign.center,
                         maxLength:
                             isSelect ? 8 : null, // isSelect가 true면 최대 길이 표시
-                        autofocus: true, // 자동으로 포커스 받음
+                        // autofocus: true, // 자동으로 포커스 받음
                         style: const TextStyle(
                           fontFamily: 'SCDream',
                           fontSize: 24,
@@ -114,9 +117,15 @@ class _MyProfileState extends ConsumerState<MyProfile> {
                     IconButton(
                       onPressed: () {
                         if (isSelect) {
-                          saveNickname(_controller.text);
+                          if (_controller.text.isNotEmpty) {
+                            saveNickname(_controller.text);
+                          } else {
+                            // text가 아무것도 없으면
+                            _controller.text = ref
+                                .read(myInformationProvider)!
+                                .nickname; // 기존 닉네임으로 저장
+                          }
                         }
-
                         setState(() {
                           isSelect = !isSelect;
                         });

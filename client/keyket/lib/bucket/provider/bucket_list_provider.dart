@@ -1,3 +1,4 @@
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
@@ -137,6 +138,12 @@ abstract class BucketListNotifier
   // 아이디로 버킷리스트 삭제
   void deleteBucketList(String bucketListId) async {
     try {
+      if (state[bucketListId]!.image != '') {
+        Reference photoRef =
+            FirebaseStorage.instance.refFromURL(state[bucketListId]!.image);
+        await photoRef.delete();
+      }
+
       // State에서 해당 버킷 리스트 삭제
       state.remove(bucketListId);
       state = {...state};

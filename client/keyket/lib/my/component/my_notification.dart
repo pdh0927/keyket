@@ -39,7 +39,7 @@ class MyNotification extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: FutureBuilder(
-          // * collection path : Collection / ID / Collection
+          // * collection path : notification
           // * snapshots() : 데이터가 바뀔 때마다 받아옴
           future: FirebaseFirestore.instance.collection('notification').get(),
           // * AsyncSnapshot : Stream에서 가장 최신의 snapShot을 가져오기 위한 클래스
@@ -55,53 +55,64 @@ class MyNotification extends StatelessWidget {
             return ListView.builder(
               itemCount: docs.length, // * 데이터 갯수
               itemBuilder: (context, index) {
-                return ExpansionTile(
-                  // * message의 field명 'text'로 값 받아오기
-                  textColor: Colors.black,
-                  iconColor: const Color(0XFF616161),
-                  title: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        DateFormat('yy/MM/dd')
-                            .format(docs[index]['updatedAt'].toDate()),
-                        style: const TextStyle(
-                            fontFamily: 'SCDream',
-                            fontSize: 12,
-                            color: Color(0XFF616161)),
-                      ),
-                      Text(
-                        docs[index]['title'],
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w400,
-                          fontFamily: 'SCDream',
-                        ),
-                      ),
-                    ],
-                  ),
+                return Column(
                   children: [
-                    ListTile(
-                      title: Container(
-                        child: Padding(
-                          padding: EdgeInsets.all(20),
-                          child: Text(
-                            docs[index]['content'],
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: Color(0XFF000000),
+                    ExpansionTile(
+                      // * message의 field명 'text'로 값 받아오기
+                      textColor: Colors.black,
+                      iconColor: const Color(0XFF616161),
+                      title: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            DateFormat('yy/MM/dd')
+                                .format(docs[index]['updatedAt'].toDate()),
+                            style: const TextStyle(
+                                fontFamily: 'SCDream',
+                                fontSize: 12,
+                                color: Color(0XFF616161)),
+                          ),
+                          const SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            docs[index]['title'],
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
                               fontFamily: 'SCDream',
                             ),
                           ),
-                        ),
-                        decoration: const BoxDecoration(
-                          color: Color(0XFFC4E4FA),
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(10),
+                        ],
+                      ),
+                      children: [
+                        ListTile(
+                          title: Container(
+                            decoration: const BoxDecoration(
+                              color: Color(0XFFC4E4FA),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Text(
+                                docs[index]['content'],
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Color(0XFF000000),
+                                  fontFamily: 'SCDream',
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    )
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    // const Divider(height: 1, color: Colors.black), // 구분선 추가
                   ],
                 );
               },

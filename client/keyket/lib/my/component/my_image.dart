@@ -36,23 +36,23 @@ class _MyImageState extends ConsumerState<MyImage> {
     return Stack(
       children: [
         ImageCircle(),
-        Positioned(
-          top: 0,
-          right: 0,
-          child: Container(
-            width: 28,
-            height: 28,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: const Color(0XFF616161).withOpacity(0.2),
-            ),
-            child: Icon(
-              Remix.image_edit_line,
-              color: const Color(0XFF3498DB).withOpacity(0.8),
-              size: 23,
-            ),
-          ),
-        ),
+        // Positioned(
+        //   top: 0,
+        //   right: 0,
+        //   child: Container(
+        //     width: 28,
+        //     height: 28,
+        //     decoration: BoxDecoration(
+        //       borderRadius: BorderRadius.circular(10),
+        //       color: const Color(0XFF616161).withOpacity(0.2),
+        //     ),
+        //     child: Icon(
+        //       Remix.image_edit_line,
+        //       color: const Color(0XFF3498DB).withOpacity(0.8),
+        //       size: 23,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }
@@ -148,7 +148,6 @@ class _MyImageState extends ConsumerState<MyImage> {
                           ),
                         ),
                         onPressed: () async {
-                          pickImage(ImageSource.gallery);
                           String? imagePath =
                               await pickImage(ImageSource.gallery);
                           if (imagePath == null) {
