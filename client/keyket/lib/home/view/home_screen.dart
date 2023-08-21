@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -10,12 +12,17 @@ import 'package:keyket/bucket/model/custom_item_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/component/list_item.dart';
+import 'package:keyket/common/component/save_data.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/home/provider.dart/advertisement_provider.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
+
+import '../../common/model/apple_login_model.dart';
+import '../../common/model/kakao_login_model.dart';
+import '../../common/model/main_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,20 +45,22 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-        child: Column(
-          children: [
-            _AdvertisementContainer(
-              adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-              adMaxHeight: 60,
-            ),
-            const SizedBox(height: 20),
-            Expanded(child: _FixedBucketList()),
-            const SizedBox(
-              height: 20,
-            ),
-            const _RegionImageContainer(),
-            const SizedBox(height: 10)
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _AdvertisementContainer(
+                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+                adMaxHeight: 60,
+              ),
+              const SizedBox(height: 20),
+              _FixedBucketList(),
+              const SizedBox(
+                height: 20,
+              ),
+              const _RegionImageContainer(),
+              const SizedBox(height: 10)
+            ],
+          ),
         ),
       ),
     );
@@ -140,6 +149,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return Container(
       width: double.infinity,
+      height: 400,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -632,7 +642,7 @@ class _RegionImageContainer extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 16),
       alignment: Alignment.center,
       width: double.infinity,
-      height: 140,
+      height: 151,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: const Color(0xFFD9D9D9),
@@ -644,9 +654,9 @@ class _RegionImageContainer extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
+              const Text(
                 '오늘 서울 어때요?',
-                style: const TextStyle(
+                style: TextStyle(
                     fontFamily: 'SCDream',
                     fontSize: 16,
                     fontWeight: FontWeight.w400),
@@ -658,35 +668,89 @@ class _RegionImageContainer extends StatelessWidget {
                 padding: const EdgeInsets.all(0),
                 constraints: const BoxConstraints(
                     minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
-                onPressed: () {
-                  print('눌림');
+                onPressed: () async {
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user != null) {
+                    if (user.providerData.isNotEmpty) {
+                      final viewModel = MainViewModel(KaKaoLoginModel());
+                      viewModel.logout();
+                    } else {
+                      final viewModel = MainViewModel(AppleLoginModel());
+                      viewModel.logout();
+                    }
+                  }
                 },
               )
             ],
           ),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: getImages()),
+          FutureBuilder<List<Widget>>(
+            future: getImages(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.done) {
+                if (snapshot.hasError) {
+                  return Text('오류 발생: ${snapshot.error}');
+                }
+                print(snapshot.data!);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: snapshot.data!,
+                );
+              } else {
+                return const CircularProgressIndicator(); // 로딩 중일 때 표시할 위젯
+              }
+            },
+          )
         ],
       ),
     );
   }
 
-  List<Widget> getImages() {
-    // 임시 이미지 URL들 (원하는 다른 URL로 변경하실 수 있습니다.)
-    const imageUrls = [
-      'https://via.placeholder.com/150',
-      'https://via.placeholder.com/150',
-      'https://via.placeholder.com/150'
-    ];
+  Future<List<Image>> getImages() async {
+    final Dio dio = Dio();
+    final Map<String, dynamic> params = {
+      "numOfRows": 100,
+      "pageNo": 1,
+      "MobileOS": "IOS",
+      "MobileApp": "keyket",
+      "_type": "json",
+      "keyword": "대구광역시",
+      "serviceKey":
+          "xBDpjEAn5RzvzNhwBgo/BTjxXFd07srl7FzKbHOXh0liVSTWzSEF/8fFK9in+oJNI26MkaHvUyhPQ067LYXuKQ=="
+    };
 
-    return imageUrls
-        .map((url) => Image.network(
-              url,
-              fit: BoxFit.cover,
-              width: 80, // 이미지의 너비와 높이를 원하시는대로 조정하실 수 있습니다.
-              height: 80,
-            ))
-        .toList();
+    try {
+      Response response = await dio.get(
+        'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
+        queryParameters: params,
+      );
+
+      if (response.statusCode == 200) {
+        print(response.data['response']['body']);
+
+        List<String> allImageUrls = [];
+        for (var item in response.data['response']['body']['items']['item']) {
+          allImageUrls.add(item['galWebImageUrl']);
+        }
+
+        allImageUrls.shuffle(); // 리스트를 랜덤으로 섞기
+
+        // 랜덤으로 섞인 URL들 중에서 처음 3개만 선택
+        var selectedImageUrls = allImageUrls.take(3).toList();
+
+        return selectedImageUrls
+            .map((url) => Image.network(
+                  url,
+                  fit: BoxFit.cover,
+                  width: 100,
+                  height: 100,
+                ))
+            .toList();
+      } else {
+        throw Exception('Failed to load data from the API');
+      }
+    } catch (e) {
+      print(e.toString());
+      throw e;
+    }
   }
 }
