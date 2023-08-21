@@ -20,13 +20,16 @@ class _MyImageState extends ConsumerState<MyImage> {
   final ImagePicker picker = ImagePicker();
 
   Future<String?> pickImage(ImageSource imageSource) async {
-    final XFile? pickedFile = await picker.pickImage(
-        source: imageSource, maxWidth: 100, maxHeight: 100);
-    if (pickedFile != null) {
-      setState(() {
-        _image = XFile(pickedFile.path);
-      });
-      return pickedFile.path;
+    try {
+      final XFile? pickedFile = await picker.pickImage(source: imageSource);
+      if (pickedFile != null) {
+        setState(() {
+          _image = XFile(pickedFile.path);
+        });
+        return pickedFile.path;
+      }
+    } catch (e) {
+      print('Error picking image: $e');
     }
     return null;
   }
