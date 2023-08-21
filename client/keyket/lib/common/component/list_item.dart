@@ -32,8 +32,26 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem> {
   bool modifyFlag = false;
 
+  double calculateTextHeight(String content) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: content, style: TextStyle(fontSize: 16.0)),
+      maxLines: 2,
+      textDirection: TextDirection.ltr,
+    )..layout(
+        maxWidth: MediaQuery.of(context).size.width -
+            107 -
+            ((widget.selectFlag && !modifyFlag)
+                ? 51
+                : 0)); // padding을 고려한 것입니다.
+
+    final int lines = textPainter.computeLineMetrics().length;
+
+    return (lines == 1) ? 50 : 70; // 예를 들어, 한 줄일 때는 55, 두 줄일 때는 110
+  }
+
   @override
   Widget build(BuildContext context) {
+    double containerHeight = calculateTextHeight(widget.item.content);
     return Row(
       children: [
         (widget.selectFlag && !modifyFlag)
@@ -52,13 +70,15 @@ class _ListItemState extends State<ListItem> {
                     child: !modifyFlag
                         ? Container(
                             alignment: Alignment.centerLeft,
-                            height: 55,
+                            height: containerHeight,
                             padding: EdgeInsets.only(
                                 left: widget.selectFlag ? 0 : 10),
                             child: Text(
                               widget.item.content,
                               style: TextStyle(
                                   fontFamily: 'SCDream',
+                                  height: 1.6,
+                                  letterSpacing: 1.5,
                                   decoration:
                                       (widget.isContain && widget.isHome)
                                           ? TextDecoration.lineThrough
