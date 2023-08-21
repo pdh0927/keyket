@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
@@ -27,6 +30,16 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Image.asset('asset/img/logo.png', width: 250, height: 200),
+                  Text(
+                    '여행을 여는 열쇠',
+                    style: loginLogoTextStyle,
+                  ),
+                  Text(
+                    '키킷',
+                    style: loginLogoTextStyle.copyWith(color: PRIMARY_COLOR),
+                  ),
+                  const SizedBox(height: 90),
                   InkWell(
                     onTap: _loginWithKakao,
                     child: Container(
@@ -40,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: [
                           const Icon(
                             Remix.kakao_talk_fill,
-                            size: 50,
+                            size: 30,
                             color: Colors.black,
                           ),
                           const SizedBox(width: 20),
@@ -52,38 +65,41 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20), // 간격 추가
-                  InkWell(
-                    onTap: _loginWithApple,
-                    child: Container(
-                      width: double.infinity,
-                      height: 70,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(50),
-                          color: const Color(0xFFFAEA5C)),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(
-                            Remix.apple_fill,
-                            size: 50,
-                            color: Colors.black,
+                  SizedBox(height: Platform.isIOS ? 20 : 0), // 간격 추가
+                  Platform.isIOS
+                      ? InkWell(
+                          onTap: _loginWithApple,
+                          child: Container(
+                            width: double.infinity,
+                            height: 70,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(50),
+                                color: BLACK_COLOR),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Remix.apple_fill,
+                                  size: 30,
+                                  color: Colors.white,
+                                ),
+                                const SizedBox(width: 20),
+                                Text(
+                                  '애플 로그인',
+                                  style: dropdownTextStyle.copyWith(
+                                      color: Colors.white),
+                                ),
+                              ],
+                            ),
                           ),
-                          const SizedBox(width: 20),
-                          Text(
-                            '애플 로그인',
-                            style: dropdownTextStyle,
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+                        )
+                      : const SizedBox(height: 0)
                 ],
               ),
             ),
           ),
           if (isLoading) // 로딩 상태가 true일 때만 로딩 창 표시
-            Center(
+            const Center(
               child: CircularProgressIndicator(),
             ),
         ],
