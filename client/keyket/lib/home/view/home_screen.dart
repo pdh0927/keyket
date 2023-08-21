@@ -74,9 +74,12 @@ class _AdvertisementContainerState
     extends ConsumerState<_AdvertisementContainer> {
   @override
   void initState() {
-    ref
-        .read(bannerAdvertisementProvider.notifier)
-        .loadAd(widget.adWidth, widget.adMaxHeight);
+    if (ref.read(bannerAdvertisementProvider) == null) {
+      ref
+          .read(bannerAdvertisementProvider.notifier)
+          .loadAd(widget.adWidth, widget.adMaxHeight);
+    }
+
     super.initState();
   }
 
@@ -137,6 +140,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return Container(
       width: double.infinity,
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -157,7 +161,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
                 ),
               ),
       ),
-      child: isGetItemComplete
+      child: (isGetItemComplete && fixedBucketList != null)
           ? Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -192,7 +196,24 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
                 )
               ],
             )
-          : const SizedBox(height: 0),
+          : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  'asset/img/logo.png',
+                  height: 150,
+                  width: 150,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  '고정된 버킷이 없습니다',
+                  style: TextStyle(
+                      fontFamily: 'SCDream',
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500),
+                ),
+              ],
+            ),
     );
   }
 

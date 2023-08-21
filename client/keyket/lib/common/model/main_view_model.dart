@@ -12,9 +12,12 @@ class MainViewModel {
   MainViewModel(this._socialLogin);
 
   Future<bool> login() async {
-    await _socialLogin.login();
-
-    return true;
+    bool isSucessed = await _socialLogin.login();
+    if (isSucessed) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Future logout() async {
