@@ -35,18 +35,27 @@ class _ListItemState extends State<ListItem> {
   double calculateTextHeight(String content) {
     final textPainter = TextPainter(
       text: TextSpan(text: content, style: TextStyle(fontSize: 16.0)),
-      maxLines: 2,
+      maxLines: 3,
       textDirection: TextDirection.ltr,
     )..layout(
+        // .layout()를 호출하여 텍스트를 그림. 여기서 최대 너비를 지정하여 줄 바꿈이 일어날 위치를 계산
         maxWidth: MediaQuery.of(context).size.width -
             107 -
             ((widget.selectFlag && !modifyFlag)
                 ? 51
                 : 0)); // padding을 고려한 것입니다.
 
-    final int lines = textPainter.computeLineMetrics().length;
+    final int lines = textPainter
+        .computeLineMetrics()
+        .length; // computeLineMetrics().length를 호출하여 실제로 그려진 줄 수를 얻음
 
-    return (lines == 1) ? 50 : 70; // 예를 들어, 한 줄일 때는 55, 두 줄일 때는 110
+    if (lines == 1) {
+      return 50;
+    } else if (lines == 2) {
+      return 70;
+    } else {
+      return 90;
+    }
   }
 
   @override
