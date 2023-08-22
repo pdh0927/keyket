@@ -204,9 +204,9 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'asset/img/logo.png',
-                  height: 150,
-                  width: 150,
+                  'asset/img/logo_transparent.png',
+                  height: 200,
+                  width: 200,
                 ),
                 const SizedBox(height: 10),
                 const Text(
