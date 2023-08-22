@@ -694,14 +694,16 @@ class _BucketListDetailScreenState
             index = newCustomItemCompletedList.indexWhere((content) =>
                 content ==
                 beforeContent); // newCustomItemCompletedList에서 변경 전 content index 검색
-
-            newCustomItemCompletedList[index] = modifiedContent;
+            if (index != -1) {
+              newCustomItemCompletedList[index] = modifiedContent;
+            }
           } else {
             index = newCustomItemList.indexWhere((content) =>
                 content ==
                 beforeContent); // newCustomItemList에서 변경 전 content index 검색
-
-            newCustomItemList[index] = modifiedContent;
+            if (index != -1) {
+              newCustomItemList[index] = modifiedContent;
+            }
           }
         }
       }
@@ -710,6 +712,7 @@ class _BucketListDetailScreenState
         isChanged = true;
       });
     }
+    print(newCustomItemCompletedList);
   }
 
   // 완료 목록에서 제거
