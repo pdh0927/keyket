@@ -15,6 +15,7 @@ import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/home/provider.dart/advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
+import 'package:keyket/my/component/my_notification.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -34,7 +35,14 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           icon: const Icon(Remix.notification_4_line, size: 28),
           splashRadius: 20,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MyNotification(),
+              ),
+            );
+          },
         )
       ],
       child: Padding(
