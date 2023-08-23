@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Bottom extends StatelessWidget {
   const Bottom({super.key});
@@ -20,7 +21,7 @@ class Bottom extends StatelessWidget {
               '고객센터',
             ),
             onTap: () {
-              _Message(context);
+              _launchInstagramProfile();
             },
           ),
           ListTile(
@@ -67,7 +68,7 @@ class Bottom extends StatelessWidget {
             '준비 중입니다.',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,
@@ -75,5 +76,14 @@ class Bottom extends StatelessWidget {
         );
       },
     );
+  }
+
+  _launchInstagramProfile() async {
+    const instagramProfileUrl = 'https://www.instagram.com/keyket_official/';
+    if (await canLaunch(instagramProfileUrl)) {
+      await launch(instagramProfileUrl);
+    } else {
+      throw 'Could not launch $instagramProfileUrl';
+    }
   }
 }

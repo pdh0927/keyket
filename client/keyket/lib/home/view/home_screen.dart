@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -16,6 +17,10 @@ import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/home/provider.dart/advertisement_provider.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
+
+import '../../common/model/apple_login_model.dart';
+import '../../common/model/kakao_login_model.dart';
+import '../../common/model/main_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -659,7 +664,16 @@ class _RegionImageContainer extends StatelessWidget {
                 constraints: const BoxConstraints(
                     minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
                 onPressed: () {
-                  print('눌림');
+                  final user = FirebaseAuth.instance.currentUser;
+                  if (user != null) {
+                    if (user.providerData.isNotEmpty) {
+                      final viewModel = MainViewModel(KaKaoLoginModel());
+                      viewModel.logout();
+                    } else {
+                      final viewModel = MainViewModel(AppleLoginModel());
+                      viewModel.logout();
+                    }
+                  }
                 },
               )
             ],
