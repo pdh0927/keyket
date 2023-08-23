@@ -66,16 +66,16 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
             ref.watch(sharedBucketListListProvider).values.toList();
     return DefaultLayout(
         title: '추천',
-        actions: [
-          InkWell(
-            onTap: () {},
-            child: const SizedBox(
-              height: 10,
-              child: Icon(Remix.search_line, color: BLACK_COLOR, size: 25),
-            ),
-          ),
-          const SizedBox(width: 25)
-        ],
+        // actions: [
+        //   InkWell(
+        //     onTap: () {},
+        //     child: const SizedBox(
+        //       height: 10,
+        //       child: Icon(Remix.search_line, color: BLACK_COLOR, size: 25),
+        //     ),
+        //   ),
+        //   const SizedBox(width: 25)
+        // ],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [
