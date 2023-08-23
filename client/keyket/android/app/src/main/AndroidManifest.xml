@@ -1,18 +1,18 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-
-    <application
-        android:label="keyket"
-        android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
-
-        <queries> <!--url 이동하기 위해 추가-->
+    <queries> <!--url 이동하기 위해 추가-->
             <intent>
                 <action android:name="android.intent.action.VIEW" />
                 <data android:scheme="https" />
             </intent>
         </queries>
+    <application
+        android:label="keyket"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher">
+
+        
 
         <activity 
             android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"

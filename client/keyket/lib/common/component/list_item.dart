@@ -44,7 +44,7 @@ class _ListItemState extends State<ListItem> {
             113 -
             (widget.isNeedSelectButton ? 23 : 0) -
             (widget.isNeedMoreButton ? 32 : 0) -
-            (widget.isHome ? 15 : 0)); // padding을 고려한 것입니다.
+            (widget.isHome ? 20 : 0)); // padding을 고려한 것입니다.
 
     final int lines = textPainter
         .computeLineMetrics()
