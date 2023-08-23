@@ -5,10 +5,11 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
 class ListItem extends StatefulWidget {
-  final bool selectFlag;
-  final bool isContain;
-  final bool isRecommendItem;
+  final bool isNeedSelectButton;
+  final bool isNeedMoreButton;
   final bool isHome;
+
+  final bool isContain;
   final Function() onPressed;
   final Function? removeItem;
   final Function? modifyItem;
@@ -16,10 +17,10 @@ class ListItem extends StatefulWidget {
 
   const ListItem(
       {super.key,
-      required this.selectFlag,
+      required this.isNeedSelectButton,
       required this.isContain,
       required this.isHome,
-      required this.isRecommendItem,
+      required this.isNeedMoreButton,
       required this.onPressed,
       this.removeItem,
       this.modifyItem,
@@ -40,10 +41,10 @@ class _ListItemState extends State<ListItem> {
     )..layout(
         // .layout()를 호출하여 텍스트를 그림. 여기서 최대 너비를 지정하여 줄 바꿈이 일어날 위치를 계산
         maxWidth: MediaQuery.of(context).size.width -
-            136 -
-            ((!widget.isRecommendItem && !modifyFlag)
-                ? 33
-                : 0)); // padding을 고려한 것입니다.
+            113 -
+            (widget.isNeedSelectButton ? 23 : 0) -
+            (widget.isNeedMoreButton ? 32 : 0) -
+            (widget.isHome ? 15 : 0)); // padding을 고려한 것입니다.
 
     final int lines = textPainter
         .computeLineMetrics()
@@ -64,7 +65,7 @@ class _ListItemState extends State<ListItem> {
 
     return Row(
       children: [
-        (widget.selectFlag && !modifyFlag)
+        (widget.isNeedSelectButton && !modifyFlag)
             ? _SelectButton(
                 onPressed: widget.onPressed,
                 isContain: widget.isContain,
@@ -82,7 +83,7 @@ class _ListItemState extends State<ListItem> {
                             alignment: Alignment.centerLeft,
                             height: containerHeight,
                             padding: EdgeInsets.only(
-                                left: widget.selectFlag ? 0 : 10),
+                                left: widget.isNeedSelectButton ? 0 : 10),
                             child: Text(
                               widget.item.content,
                               style: TextStyle(
@@ -109,7 +110,7 @@ class _ListItemState extends State<ListItem> {
                             isCompleted: widget.isContain,
                           ),
                   ),
-                  (!widget.isRecommendItem && !modifyFlag)
+                  (widget.isNeedMoreButton && !modifyFlag)
                       ? _MoreButton(
                           item: widget.item,
                           removeItem: widget.removeItem!,

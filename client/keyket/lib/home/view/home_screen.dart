@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 20,
               ),
-              const _RegionImageContainer(),
+              // const _RegionImageContainer(),
               const SizedBox(height: 10)
             ],
           ),
@@ -186,7 +186,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
                       style: const TextStyle(
                           fontFamily: 'SCDream',
                           fontSize: 16,
-                          fontWeight: FontWeight.w300),
+                          fontWeight: FontWeight.w400),
                     ),
                     const Icon(Remix.arrow_right_s_line)
                   ],
@@ -573,9 +573,9 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return ListItem(
       // 추천 아이템
-      selectFlag: true,
+      isNeedSelectButton: true,
       isContain: isCompleted,
-      isRecommendItem: true,
+      isNeedMoreButton: false,
       isHome: true,
       onPressed: () {
         if (isCompleted) {

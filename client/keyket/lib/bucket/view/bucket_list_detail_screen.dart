@@ -603,9 +603,9 @@ class _BucketListDetailScreenState
 
     return ListItem(
       // 추천 아이템
-      selectFlag: true,
+      isNeedSelectButton: true,
       isContain: isCompleted,
-      isRecommendItem: false,
+      isNeedMoreButton: true,
       isHome: false,
       removeItem: removeItem,
       modifyItem: modifyItem,
@@ -1679,10 +1679,10 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                           containedComplement || uncontainedComplement;
 
                       return ListItem(
-                        selectFlag: true,
+                        isNeedSelectButton: true,
                         isContain: isContain,
                         isHome: false,
-                        isRecommendItem: true,
+                        isNeedMoreButton: false,
                         onPressed: () {
                           setState(
                             () {
