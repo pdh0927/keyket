@@ -37,6 +37,7 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   String? bucketListId;
   bool? bucketListIsShared;
   final ScrollController _scrollController = ScrollController();
+  bool isLastPage = false;
 
   @override
   void initState() {
@@ -49,7 +50,10 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
     if (_scrollController.position.atEdge) {
       if (_scrollController.position.pixels != 0) {
         // 스크롤의 끝에 도달
-        ref.read(recommendItemListProvider.notifier).fetchMoreData();
+        setState(() {
+          isLastPage =
+              ref.read(recommendItemListProvider.notifier).fetchMoreData();
+        });
       }
     }
   }
@@ -172,36 +176,49 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
               child: ListView.builder // 추천 리스트
                   (
                 controller: _scrollController,
-                itemCount: recommendedItems.length,
+                itemCount: recommendedItems.length + 1,
                 itemBuilder: (context, index) {
-                  RecommendItemModel item = recommendedItems[index];
-                  bool isContain = selectedRecommendIds.contains(item.id);
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      getDottedLine(
-                          index, true, recommendedItems.length), // 구분 점선
-                      ListItem(
-                          // 추천 아이템
-                          selectFlag: selectFlag,
-                          isContain: isContain,
-                          isHome: false,
-                          isRecommendItem: true,
-                          onPressed: () {
-                            setState(() {
-                              if (isContain) {
-                                selectedRecommendIds.remove(item.id);
-                              } else {
-                                selectedRecommendIds.add(item.id);
-                              }
-                            });
-                          },
-                          item: item),
-                      getDottedLine(
-                          index, false, recommendedItems.length) // 구분 점선
-                    ],
-                  );
+                  if (index < recommendedItems.length) {
+                    RecommendItemModel item = recommendedItems[index];
+                    bool isContain = selectedRecommendIds.contains(item.id);
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        getDottedLine(
+                            index, true, recommendedItems.length), // 구분 점선
+                        ListItem(
+                            // 추천 아이템
+                            isNeedSelectButton: selectFlag,
+                            isContain: isContain,
+                            isHome: false,
+                            isNeedMoreButton: false,
+                            onPressed: () {
+                              setState(() {
+                                if (isContain) {
+                                  selectedRecommendIds.remove(item.id);
+                                } else {
+                                  selectedRecommendIds.add(item.id);
+                                }
+                              });
+                            },
+                            item: item),
+                        isLastPage
+                            ? getDottedLine(
+                                index, false, recommendedItems.length) // 구분 점선
+                            : const SizedBox(height: 0, width: 0)
+                      ],
+                    );
+                  } else {
+                    return Center(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        width: 25.0,
+                        height: 45.0,
+                        child: const CircularProgressIndicator(),
+                      ),
+                    );
+                  }
                 },
               ),
             ),

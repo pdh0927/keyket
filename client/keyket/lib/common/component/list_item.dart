@@ -5,10 +5,11 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 
 class ListItem extends StatefulWidget {
-  final bool selectFlag;
-  final bool isContain;
-  final bool isRecommendItem;
+  final bool isNeedSelectButton;
+  final bool isNeedMoreButton;
   final bool isHome;
+
+  final bool isContain;
   final Function() onPressed;
   final Function? removeItem;
   final Function? modifyItem;
@@ -16,10 +17,10 @@ class ListItem extends StatefulWidget {
 
   const ListItem(
       {super.key,
-      required this.selectFlag,
+      required this.isNeedSelectButton,
       required this.isContain,
       required this.isHome,
-      required this.isRecommendItem,
+      required this.isNeedMoreButton,
       required this.onPressed,
       this.removeItem,
       this.modifyItem,
@@ -32,11 +33,39 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem> {
   bool modifyFlag = false;
 
+  double calculateTextHeight(String content) {
+    final textPainter = TextPainter(
+      text: TextSpan(text: content, style: const TextStyle(fontSize: 16.0)),
+      maxLines: 3,
+      textDirection: TextDirection.ltr,
+    )..layout(
+        // .layout()를 호출하여 텍스트를 그림. 여기서 최대 너비를 지정하여 줄 바꿈이 일어날 위치를 계산
+        maxWidth: MediaQuery.of(context).size.width -
+            113 -
+            (widget.isNeedSelectButton ? 23 : 0) -
+            (widget.isNeedMoreButton ? 32 : 0) -
+            (widget.isHome ? 15 : 0)); // padding을 고려한 것입니다.
+
+    final int lines = textPainter
+        .computeLineMetrics()
+        .length; // computeLineMetrics().length를 호출하여 실제로 그려진 줄 수를 얻음
+
+    if (lines == 1) {
+      return 50;
+    } else if (lines == 2) {
+      return 70;
+    } else {
+      return 90;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    double containerHeight = calculateTextHeight(widget.item.content);
+
     return Row(
       children: [
-        (widget.selectFlag && !modifyFlag)
+        (widget.isNeedSelectButton && !modifyFlag)
             ? _SelectButton(
                 onPressed: widget.onPressed,
                 isContain: widget.isContain,
@@ -52,13 +81,15 @@ class _ListItemState extends State<ListItem> {
                     child: !modifyFlag
                         ? Container(
                             alignment: Alignment.centerLeft,
-                            height: 55,
+                            height: containerHeight,
                             padding: EdgeInsets.only(
-                                left: widget.selectFlag ? 0 : 10),
+                                left: widget.isNeedSelectButton ? 0 : 10),
                             child: Text(
                               widget.item.content,
                               style: TextStyle(
                                   fontFamily: 'SCDream',
+                                  height: 1.6,
+                                  letterSpacing: 1.5,
                                   decoration:
                                       (widget.isContain && widget.isHome)
                                           ? TextDecoration.lineThrough
@@ -79,7 +110,7 @@ class _ListItemState extends State<ListItem> {
                             isCompleted: widget.isContain,
                           ),
                   ),
-                  (!widget.isRecommendItem || modifyFlag)
+                  (widget.isNeedMoreButton && !modifyFlag)
                       ? _MoreButton(
                           item: widget.item,
                           removeItem: widget.removeItem!,
@@ -220,11 +251,12 @@ class _MoreButton extends StatelessWidget {
                 top: position.dy + size.height - 10,
                 left: position.dx - 95,
                 child: Material(
+                  color: Colors.transparent,
                   child: Row(
                     children: <Widget>[
                       TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: GREY_COLOR.withOpacity(0.2),
+                          backgroundColor: const Color(0xFFD9D9D9),
                           padding: EdgeInsets.zero,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(
@@ -244,7 +276,7 @@ class _MoreButton extends StatelessWidget {
                       ),
                       TextButton(
                         style: TextButton.styleFrom(
-                          backgroundColor: GREY_COLOR.withOpacity(0.2),
+                          backgroundColor: const Color(0xFFD9D9D9),
                           padding: EdgeInsets.zero,
                           shape: const RoundedRectangleBorder(
                             borderRadius: BorderRadius.only(

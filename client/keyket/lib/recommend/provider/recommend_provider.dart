@@ -82,9 +82,10 @@ class RecommendItemListNotifier
     }
   }
 
-  void fetchMoreData() {
+  bool fetchMoreData() {
     if (!isLastPage) {
       getRecommendData(selectedRegion, selectedThemes);
     }
+    return isLastPage;
   }
 }

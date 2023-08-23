@@ -15,6 +15,8 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/home/provider.dart/advertisement_provider.dart';
+import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
+import 'package:keyket/my/component/my_notification.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
 
@@ -38,25 +40,34 @@ class _HomeScreenState extends State<HomeScreen> {
         IconButton(
           icon: const Icon(Remix.notification_4_line, size: 28),
           splashRadius: 20,
-          onPressed: () {},
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MyNotification(),
+              ),
+            );
+          },
         )
       ],
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-        child: Column(
-          children: [
-            _AdvertisementContainer(
-              adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-              adMaxHeight: 60,
-            ),
-            const SizedBox(height: 20),
-            Expanded(child: _FixedBucketList()),
-            const SizedBox(
-              height: 20,
-            ),
-            const _RegionImageContainer(),
-            const SizedBox(height: 10)
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              _AdvertisementContainer(
+                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+                adMaxHeight: 60,
+              ),
+              const SizedBox(height: 20),
+              _FixedBucketList(),
+              const SizedBox(
+                height: 20,
+              ),
+              // const _RegionImageContainer(),
+              const SizedBox(height: 10)
+            ],
+          ),
         ),
       ),
     );
@@ -145,6 +156,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return Container(
       width: double.infinity,
+      height: 400,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(
@@ -179,7 +191,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
                       style: const TextStyle(
                           fontFamily: 'SCDream',
                           fontSize: 16,
-                          fontWeight: FontWeight.w300),
+                          fontWeight: FontWeight.w400),
                     ),
                     const Icon(Remix.arrow_right_s_line)
                   ],
@@ -205,9 +217,9 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Image.asset(
-                  'asset/img/logo.png',
-                  height: 150,
-                  width: 150,
+                  'asset/img/logo_transparent.png',
+                  height: 200,
+                  width: 200,
                 ),
                 const SizedBox(height: 10),
                 const Text(
@@ -566,9 +578,9 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return ListItem(
       // 추천 아이템
-      selectFlag: true,
+      isNeedSelectButton: true,
       isContain: isCompleted,
-      isRecommendItem: true,
+      isNeedMoreButton: false,
       isHome: true,
       onPressed: () {
         if (isCompleted) {
@@ -628,79 +640,101 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
   }
 }
 
-class _RegionImageContainer extends StatelessWidget {
+class _RegionImageContainer extends ConsumerWidget {
   const _RegionImageContainer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, dynamic> recommendRegion = ref.watch(recommmendRegionProvider);
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 16),
       alignment: Alignment.center,
       width: double.infinity,
-      height: 140,
+      height: 170,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         color: const Color(0xFFD9D9D9),
       ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                '오늘 서울 어때요?',
-                style: const TextStyle(
-                    fontFamily: 'SCDream',
-                    fontSize: 16,
-                    fontWeight: FontWeight.w400),
-              ),
-              IconButton(
-                icon: const Icon(Remix.repeat_2_line, size: 20),
-                splashRadius: 20,
-                splashColor: Colors.white,
-                padding: const EdgeInsets.all(0),
-                constraints: const BoxConstraints(
-                    minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
-                onPressed: () {
-                  final user = FirebaseAuth.instance.currentUser;
-                  if (user != null) {
-                    if (user.providerData.isNotEmpty) {
-                      final viewModel = MainViewModel(KaKaoLoginModel());
-                      viewModel.logout();
-                    } else {
-                      final viewModel = MainViewModel(AppleLoginModel());
-                      viewModel.logout();
-                    }
-                  }
-                },
-              )
-            ],
-          ),
-          Row(
+
+      child: recommendRegion.isNotEmpty
+          ? Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: getImages()),
-        ],
-      ),
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      '오늘 ${recommendRegion['region']} 어때요?',
+                      style: const TextStyle(
+                          fontFamily: 'SCDream',
+                          fontSize: 16,
+                          fontWeight: FontWeight.w400),
+                    ),
+                    IconButton(
+                      icon: const Icon(Remix.repeat_2_line, size: 20),
+                      splashRadius: 20,
+                      splashColor: Colors.white,
+                      padding: const EdgeInsets.all(0),
+                      constraints: const BoxConstraints(
+                          minHeight: 25,
+                          minWidth: 25,
+                          maxHeight: 25,
+                          maxWidth: 25),
+                      onPressed: () async {
+                        // final user = FirebaseAuth.instance.currentUser;
+                        // if (user != null) {
+                        //   if (user.providerData.isNotEmpty) {
+                        //     final viewModel = MainViewModel(KaKaoLoginModel());
+                        //     viewModel.logout();
+                        //   } else {
+                        //     final viewModel = MainViewModel(AppleLoginModel());
+                        //     viewModel.logout();
+                        //   }
+                        // }
+                        ref
+                            .read(recommmendRegionProvider.notifier)
+                            .getRegionData();
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children:
+                      List.generate(recommendRegion['images'].length, (index) {
+                    return SizedBox(
+                      width: 90,
+                      child: Column(
+                        children: [
+                          Image.network(
+                            recommendRegion['images'][index],
+                            fit: BoxFit.cover,
+                            width: 90,
+                            height: 90,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            recommendRegion['titles'][index],
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: 10,
+                                color: BLACK_COLOR,
+                                fontFamily: 'SCDream',
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                )
+              ],
+            )
+          : const Expanded(
+              child: Center(child: CircularProgressIndicator()),
+            ),
     );
-  }
-
-  List<Widget> getImages() {
-    // 임시 이미지 URL들 (원하는 다른 URL로 변경하실 수 있습니다.)
-    const imageUrls = [
-      'https://via.placeholder.com/150',
-      'https://via.placeholder.com/150',
-      'https://via.placeholder.com/150'
-    ];
-
-    return imageUrls
-        .map((url) => Image.network(
-              url,
-              fit: BoxFit.cover,
-              width: 80, // 이미지의 너비와 높이를 원하시는대로 조정하실 수 있습니다.
-              height: 80,
-            ))
-        .toList();
   }
 }
