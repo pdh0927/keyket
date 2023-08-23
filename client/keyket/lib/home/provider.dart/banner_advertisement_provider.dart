@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
@@ -13,12 +14,12 @@ class BannerAdvertisementNotifier extends StateNotifier<AdManagerBannerAd?> {
   BannerAdvertisementNotifier() : super(null);
 
   final adUnitId = Platform.isAndroid
-      ? 'ca-app-pub-3940256099942544/6300978111'
-      : 'ca-app-pub-3940256099942544/2934735716';
+      ? dotenv.env['ANDROID_BANNER_UNIT_KEY']
+      : dotenv.env['IOS_BANNER_UNIT_KEY'];
 
   void loadAd(int width, int maxHeight) {
     final bannerAd = AdManagerBannerAd(
-      adUnitId: adUnitId,
+      adUnitId: adUnitId!,
       request: const AdManagerAdRequest(),
       sizes: [AdSize.getInlineAdaptiveBannerAdSize(width, maxHeight)],
       listener: AdManagerBannerAdListener(

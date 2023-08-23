@@ -13,7 +13,7 @@ import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
-import 'package:keyket/home/provider.dart/advertisement_provider.dart';
+import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
@@ -59,7 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(
                 height: 20,
               ),
-              // const _RegionImageContainer(),
+              const _RegionImageContainer(),
               const SizedBox(height: 10)
             ],
           ),
