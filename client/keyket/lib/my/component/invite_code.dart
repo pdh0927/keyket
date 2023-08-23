@@ -97,7 +97,7 @@ class _InviteCodeState extends ConsumerState<InviteCode> {
             '초대코드가 복사되었습니다.',
             style: TextStyle(
               fontSize: 16,
-              fontWeight: FontWeight.w200,
+              fontWeight: FontWeight.w400,
               color: Colors.white,
             ),
             textAlign: TextAlign.center,

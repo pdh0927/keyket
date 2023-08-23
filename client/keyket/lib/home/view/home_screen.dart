@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -18,6 +19,10 @@ import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
+
+import '../../common/model/apple_login_model.dart';
+import '../../common/model/kakao_login_model.dart';
+import '../../common/model/main_view_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -651,6 +656,7 @@ class _RegionImageContainer extends ConsumerWidget {
         borderRadius: BorderRadius.circular(10),
         color: const Color(0xFFD9D9D9),
       ),
+
       child: recommendRegion.isNotEmpty
           ? Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
