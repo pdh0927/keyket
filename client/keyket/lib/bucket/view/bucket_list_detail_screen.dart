@@ -561,6 +561,7 @@ class _BucketListDetailScreenState
       child: IconButton(
         onPressed: () {
           // 추가 버튼 클릭시 추가 메뉴 띄움
+
           showAddButtonBottomSheet();
         },
         icon: const Icon(
@@ -602,9 +603,9 @@ class _BucketListDetailScreenState
 
     return ListItem(
       // 추천 아이템
-      selectFlag: true,
+      isNeedSelectButton: true,
       isContain: isCompleted,
-      isRecommendItem: false,
+      isNeedMoreButton: true,
       isHome: false,
       removeItem: removeItem,
       modifyItem: modifyItem,
@@ -639,6 +640,7 @@ class _BucketListDetailScreenState
 
     int index = list.indexWhere(
         (item) => item.content == beforeContent); // list에 변경 Item할 index 알아냄
+
     if (index != -1) // 동일한 ID를 가진 항목이 존재하면
     {
       if (type == RecommendItemModel) {
@@ -683,8 +685,8 @@ class _BucketListDetailScreenState
             updatedCustomBucketListItemList.add(modifiedItem);
           }
         } else {
-          index = list.indexWhere(
-              (item) => item.id == itemId); // list에 변경 Item할 index 알아냄
+          index = list.indexWhere((item) =>
+              item.content == beforeContent); // list에 변경 Item할 index 알아냄
 
           setState(() {
             list[index] = (CustomItemModel(id: '', content: modifiedContent));
@@ -694,6 +696,7 @@ class _BucketListDetailScreenState
             index = newCustomItemCompletedList.indexWhere((content) =>
                 content ==
                 beforeContent); // newCustomItemCompletedList에서 변경 전 content index 검색
+
             if (index != -1) {
               newCustomItemCompletedList[index] = modifiedContent;
             }
@@ -701,6 +704,7 @@ class _BucketListDetailScreenState
             index = newCustomItemList.indexWhere((content) =>
                 content ==
                 beforeContent); // newCustomItemList에서 변경 전 content index 검색
+
             if (index != -1) {
               newCustomItemList[index] = modifiedContent;
             }
@@ -712,7 +716,6 @@ class _BucketListDetailScreenState
         isChanged = true;
       });
     }
-    print(newCustomItemCompletedList);
   }
 
   // 완료 목록에서 제거
@@ -1601,9 +1604,23 @@ class _RecommendItemList extends ConsumerStatefulWidget {
 }
 
 class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
+  late ScrollController _scrollController; // 1. ScrollController 추가
+
   @override
   void initState() {
     super.initState();
+
+    _scrollController = ScrollController(); // ScrollController 초기화
+    _scrollController.addListener(_scrollListener); // 2. 리스너 설정
+  }
+
+  // 3. 스크롤 끝에 도달했는지 확인하는 리스너
+  void _scrollListener() {
+    if (_scrollController.position.atEdge) {
+      if (_scrollController.position.pixels != 0) {
+        ref.read(recommendItemListProvider.notifier).fetchMoreData();
+      }
+    }
   }
 
   @override
@@ -1646,38 +1663,50 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
           const SizedBox(height: 16),
           Expanded(
               child: ListView.builder(
-                  itemCount: recommendItemList.length,
+                  controller: _scrollController,
+                  itemCount: recommendItemList.length + 1,
                   itemBuilder: (context, index) {
-                    final RecommendItemModel recommendItem =
-                        recommendItemList[index];
-                    bool containedComplement = widget
-                        .complementedRecommendItemList
-                        .contains(recommendItem.id);
-                    bool uncontainedComplement = widget
-                        .uncomplementedRecommendItemList
-                        .contains(recommendItem.id);
-                    bool isContain =
-                        containedComplement || uncontainedComplement;
+                    if (index < recommendItemList.length) {
+                      final RecommendItemModel recommendItem =
+                          recommendItemList[index];
+                      bool containedComplement = widget
+                          .complementedRecommendItemList
+                          .contains(recommendItem.id);
+                      bool uncontainedComplement = widget
+                          .uncomplementedRecommendItemList
+                          .contains(recommendItem.id);
+                      bool isContain =
+                          containedComplement || uncontainedComplement;
 
-                    return ListItem(
-                      selectFlag: true,
-                      isContain: isContain,
-                      isHome: false,
-                      isRecommendItem: true,
-                      onPressed: () {
-                        setState(
-                          () {
-                            if (isContain) {
-                              widget.removeRecommendItem(
-                                  recommendItem, containedComplement);
-                            } else {
-                              widget.addRecommendItem(recommendItem);
-                            }
-                          },
-                        );
-                      },
-                      item: recommendItem,
-                    );
+                      return ListItem(
+                        isNeedSelectButton: true,
+                        isContain: isContain,
+                        isHome: false,
+                        isNeedMoreButton: false,
+                        onPressed: () {
+                          setState(
+                            () {
+                              if (isContain) {
+                                widget.removeRecommendItem(
+                                    recommendItem, containedComplement);
+                              } else {
+                                widget.addRecommendItem(recommendItem);
+                              }
+                            },
+                          );
+                        },
+                        item: recommendItem,
+                      );
+                    } else {
+                      return Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          width: 25.0,
+                          height: 45.0,
+                          child: const CircularProgressIndicator(),
+                        ),
+                      );
+                    }
                   }))
         ]);
   }
