@@ -1,9 +1,13 @@
+import 'dart:convert';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:kakao_flutter_sdk_user/kakao_flutter_sdk_user.dart' as kakao;
 import 'package:keyket/common/model/firebase_auth_remote_data_source.dart';
 import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/common/model/social_login.dart';
+import 'package:http/http.dart' as http;
 
 class KaKaoLoginModel implements SocialLogin {
   @override
@@ -19,6 +23,7 @@ class KaKaoLoginModel implements SocialLogin {
           // 토큰 저장
           kakao.TokenManagerProvider.instance.manager.setToken(token);
           await loginProcess();
+
           return true;
         } catch (error) {
           print('카카오톡으로 로그인 실패 $error');
@@ -94,5 +99,40 @@ class KaKaoLoginModel implements SocialLogin {
 
     // Firestore에 사용자 데이터 저장
     await createUserInFirestore(kakaoId, nickname);
+  }
+
+  @override
+  Future<bool> deleteUser() async {
+    String functionURL =
+        "https://us-central1-keyket-bc537.cloudfunctions.net/deleteUser";
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String userId = auth.currentUser!.uid;
+
+    try {
+      final response = await http.post(
+        Uri.parse(functionURL),
+        body: jsonEncode({'uid': userId}),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+
+        final FirebaseFirestore firestore = FirebaseFirestore.instance;
+        await firestore.collection("user").doc(userId).delete();
+        await auth.signOut(); // 사용자 로그아웃
+
+        if (responseData['success'] == true) {
+          return true;
+        }
+      }
+      print('Failed to delete user: ${response.body}');
+      return false;
+    } catch (error) {
+      print('Error when trying to delete user: $error');
+      return false;
+    }
   }
 }
