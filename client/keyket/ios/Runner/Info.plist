@@ -45,11 +45,11 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>카메라 정보가 필요합니다</string>
+	<string>귀하의 카메라를 통해 사용자 프로필을 설정할 수 있습니다</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>마이크 정보가 필요합니다</string>
+	<string>귀하의 마이크를 통해 받아쓰기 기능을 사용 할 수 있습니다</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>사진첩 정보가 필요합니다</string>
+	<string>귀하의 사진첩에서 사용자 프로필 사진과 버킷리스트 사진을 불러올 수 있습니다</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -70,6 +70,8 @@
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
+	<false/>
+	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 </dict>
 </plist>
