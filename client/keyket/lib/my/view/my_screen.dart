@@ -1,7 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
+import 'package:keyket/common/provider/my_provider.dart';
 import 'package:keyket/my/component/bottom.dart';
 import 'package:keyket/my/component/divide_line.dart';
 import 'package:keyket/my/component/my_bucket.dart';
@@ -12,35 +14,45 @@ import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/my/component/my_profile.dart';
 import 'package:remixicon/remixicon.dart';
 
-class MyScreen extends StatefulWidget {
+class MyScreen extends ConsumerStatefulWidget {
   const MyScreen({super.key});
 
   @override
-  State<MyScreen> createState() => _MyScreenState();
+  ConsumerState<MyScreen> createState() => _MyScreenState();
 }
 
-class _MyScreenState extends State<MyScreen> {
+class _MyScreenState extends ConsumerState<MyScreen> {
   @override
   Widget build(BuildContext context) {
-    return DefaultLayout(
-      title: '내 정보',
-      actions: getActions(context),
-      child: const Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          physics: NeverScrollableScrollPhysics(),
-          child: Column(
-            children: [
+    if (ref.watch(myInformationProvider) != null) {
+      return DefaultLayout(
+        title: '내 정보',
+        actions: getActions(context),
+        child: const Scaffold(
+          backgroundColor: Colors.white,
+          body: SingleChildScrollView(
+            physics: NeverScrollableScrollPhysics(),
+            child: Column(children: [
               MyProfile(),
               DivideLine(),
               MyBucket(),
               DivideLine(),
               Bottom(),
-            ],
+            ]),
           ),
         ),
-      ),
-    );
+      );
+    } else {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? user = auth.currentUser;
+      if (user != null) {
+        ref.read(myInformationProvider.notifier).loadUserInfo();
+      }
+
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
   }
 
   List<Widget> getActions(BuildContext context) {
@@ -50,12 +62,13 @@ class _MyScreenState extends State<MyScreen> {
           final user = FirebaseAuth.instance.currentUser;
           if (user != null) {
             if (user.providerData.isNotEmpty) {
-              final viewModel = MainViewModel(KaKaoLoginModel());
-              viewModel.logout();
-            } else {
               final viewModel = MainViewModel(AppleLoginModel());
               viewModel.logout();
+            } else {
+              final viewModel = MainViewModel(KaKaoLoginModel());
+              viewModel.logout();
             }
+            ref.read(myInformationProvider.notifier).resetState();
           }
         },
         icon: const Icon(
@@ -139,8 +152,3 @@ class _MyScreenState extends State<MyScreen> {
         });
   }
 }
-
-
-// imageProvider --> Imageasset, Imagememory, Imagenetwork
-// image --> image.asset, imgae.network
-
