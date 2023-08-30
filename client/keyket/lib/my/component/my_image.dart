@@ -36,28 +36,7 @@ class _MyImageState extends ConsumerState<MyImage> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ImageCircle(),
-        // Positioned(
-        //   top: 0,
-        //   right: 0,
-        //   child: Container(
-        //     width: 28,
-        //     height: 28,
-        //     decoration: BoxDecoration(
-        //       borderRadius: BorderRadius.circular(10),
-        //       color: const Color(0XFF616161).withOpacity(0.2),
-        //     ),
-        //     child: Icon(
-        //       Remix.image_edit_line,
-        //       color: const Color(0XFF3498DB).withOpacity(0.8),
-        //       size: 23,
-        //     ),
-        //   ),
-        // ),
-      ],
-    );
+    return ImageCircle();
   }
 
   // 이미지 가져오는 부분
