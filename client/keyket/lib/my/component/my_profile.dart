@@ -28,6 +28,8 @@ class _MyProfileState extends ConsumerState<MyProfile> {
     _focusNode = FocusNode();
     _focusNode.addListener(
         _onFocusChanged); // _focusNode의 상태 변화를 감지하는 _onFocusChanged
+
+    _controller = TextEditingController(text: "");
   }
 
   void _onFocusChanged() {
