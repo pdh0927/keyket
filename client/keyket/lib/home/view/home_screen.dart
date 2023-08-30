@@ -99,7 +99,10 @@ class _AdvertisementContainerState
   Widget build(BuildContext context) {
     final bannerAdvertisement = ref.watch(bannerAdvertisementProvider);
     if (bannerAdvertisement == null) {
-      return const CircularProgressIndicator();
+      return Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: const CircularProgressIndicator());
     } else {
       return Container(
         alignment: Alignment.center,
