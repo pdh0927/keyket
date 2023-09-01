@@ -31,7 +31,6 @@ class _MyScreenState extends ConsumerState<MyScreen> {
         child: const Scaffold(
           backgroundColor: Colors.white,
           body: SingleChildScrollView(
-            physics: NeverScrollableScrollPhysics(),
             child: Column(children: [
               MyProfile(),
               DivideLine(),
