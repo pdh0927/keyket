@@ -24,6 +24,15 @@ class MainViewModel {
     await _socialLogin.logout();
     await FirebaseAuth.instance.signOut();
   }
+
+  Future<bool> deleteUser() async {
+    bool isSucessed = await _socialLogin.deleteUser();
+    if (isSucessed) {
+      return true;
+    } else {
+      return false;
+    }
+  }
 }
 
 // 8자리 UUID 생성 함수

@@ -11,9 +11,6 @@
         android:label="keyket"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-
-        
-
         <activity 
             android:name="com.kakao.sdk.flutter.AuthCodeCustomTabsActivity"
             android:exported="true">

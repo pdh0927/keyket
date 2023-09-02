@@ -18,6 +18,7 @@ import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:sizer/sizer.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -98,7 +99,10 @@ class _AdvertisementContainerState
   Widget build(BuildContext context) {
     final bannerAdvertisement = ref.watch(bannerAdvertisementProvider);
     if (bannerAdvertisement == null) {
-      return const CircularProgressIndicator();
+      return Container(
+          height: 50,
+          padding: const EdgeInsets.symmetric(vertical: 5),
+          child: const CircularProgressIndicator());
     } else {
       return Container(
         alignment: Alignment.center,
@@ -151,7 +155,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 
     return Container(
       width: double.infinity,
-      height: 400,
+      height: 55.h,
       alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       decoration: BoxDecoration(

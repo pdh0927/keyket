@@ -82,6 +82,10 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
       print("Error updating user's fixed bucket: $e");
     }
   }
+
+  void resetState() {
+    state = null;
+  }
 }
 
 Future<String> _uploadImageToFirebase(
