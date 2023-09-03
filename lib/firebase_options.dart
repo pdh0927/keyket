@@ -51,7 +51,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyC7kBSLclUf3LhlmkFrT6rMRK2jHPWYIX4',
-    appId: '1:100253194221:android:1d084e83decf12c3ae39e4',
+    appId: '1:100253194221:android:cbaf8800d4edc8f0ae39e4',
     messagingSenderId: '100253194221',
     projectId: 'keyket-bc537',
     storageBucket: 'keyket-bc537.appspot.com',
@@ -59,11 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCYVM86QHlnFq2vtTaNhZe1v4nmAjhMb1k',
-    appId: '1:100253194221:ios:ab9e3413d175a08aae39e4',
+    appId: '1:100253194221:ios:cdba9020437fe917ae39e4',
     messagingSenderId: '100253194221',
     projectId: 'keyket-bc537',
     storageBucket: 'keyket-bc537.appspot.com',
-    iosClientId: '100253194221-cfhlro6uddssum34jis2cjorv8240v20.apps.googleusercontent.com',
+    iosClientId:
+        '100253194221-cfhlro6uddssum34jis2cjorv8240v20.apps.googleusercontent.com',
     iosBundleId: 'com.dhapp.keyket',
   );
 }

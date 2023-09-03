@@ -59,9 +59,9 @@ class KaKaoLoginModel implements SocialLogin {
           await loginProcess();
 
           return true;
-        } catch (error, stack) {
+        } catch (error) {
           print('카카오계정으로 로그인 실패 $error');
-          print(stack);
+
           return false;
         }
       }
@@ -80,6 +80,7 @@ class KaKaoLoginModel implements SocialLogin {
       'uid': user.id.toString(),
       'displayname': user.kakaoAccount!.profile!.nickname,
     });
+    print(customToken);
 
     await FirebaseAuth.instance.signInWithCustomToken(customToken);
 
