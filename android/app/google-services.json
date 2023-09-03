@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "100253194221-42mab567u4631q7o9bco9mh8edimfjk2.apps.googleusercontent.com",
+          "client_id": "100253194221-f2fuh4smko1mm83imluii884qkh8kqpb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.dhapp.keyket",
+            "certificate_hash": "63e32bf67fb9ca67f903298dfb9efc12185235c8"
+          }
+        },
+        {
+          "client_id": "100253194221-do57aghu77cnh102hn5t3caokfthpvql.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
