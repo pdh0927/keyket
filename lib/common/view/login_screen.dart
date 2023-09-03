@@ -5,6 +5,7 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
+import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
 import 'package:remixicon/remixicon.dart';
@@ -65,6 +66,34 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 20),
+                  InkWell(
+                    onTap: _loginWithGoogle,
+                    child: Container(
+                      width: double.infinity,
+                      height: 70,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(),
+                          color: Colors.white),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Remix.google_fill,
+                            size: 30,
+                            color: Colors.black,
+                          ),
+                          const SizedBox(width: 20),
+                          Text(
+                            '구글 로그인',
+                            style: dropdownTextStyle,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
                   SizedBox(height: Platform.isIOS ? 20 : 0), // 간격 추가
                   Platform.isIOS
                       ? InkWell(
@@ -127,6 +156,20 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final viewModel = MainViewModel(AppleLoginModel());
+    bool isSuccessed = await viewModel.login();
+    if (!isSuccessed) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void _loginWithGoogle() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    final viewModel = MainViewModel(GoogleLoginModel());
     bool isSuccessed = await viewModel.login();
     if (!isSuccessed) {
       setState(() {

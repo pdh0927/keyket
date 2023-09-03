@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
+import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
@@ -60,11 +61,14 @@ class _MyScreenState extends ConsumerState<MyScreen> {
         onPressed: () {
           final user = FirebaseAuth.instance.currentUser;
           if (user != null) {
-            if (user.providerData.isNotEmpty) {
+            if (user.providerData.isEmpty) {
+              final viewModel = MainViewModel(KaKaoLoginModel());
+              viewModel.logout();
+            } else if (user.providerData[0].providerId == 'apple.com') {
               final viewModel = MainViewModel(AppleLoginModel());
               viewModel.logout();
             } else {
-              final viewModel = MainViewModel(KaKaoLoginModel());
+              final viewModel = MainViewModel(GoogleLoginModel());
               viewModel.logout();
             }
             ref.read(myInformationProvider.notifier).resetState();
