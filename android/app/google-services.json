@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "100253194221",
+    "project_id": "keyket-bc537",
+    "storage_bucket": "keyket-bc537.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:100253194221:android:0935f4fe7533959dae39e4",
+        "android_client_info": {
+          "package_name": "com.dhapp.keyket"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "100253194221-9l3f9vik5dh0d3g271i3hvt1nsper4o3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7kBSLclUf3LhlmkFrT6rMRK2jHPWYIX4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "100253194221-9l3f9vik5dh0d3g271i3hvt1nsper4o3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "100253194221-cfhlro6uddssum34jis2cjorv8240v20.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.dhapp.keyket"
+              }
+            }
+          ]
+        }
+      },
+      "admob_app_id": "ca-app-pub-7019781074208132~2683534007"
+    }
+  ],
+  "configuration_version": "1"
+}
