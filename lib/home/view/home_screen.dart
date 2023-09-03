@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String _authStatus = 'Unknown';
+  String authStatus = 'Unknown';
 
   @override
   void initState() {
@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> initPlugin() async {
     final TrackingStatus status =
         await AppTrackingTransparency.trackingAuthorizationStatus;
-    setState(() => _authStatus = '$status');
+    setState(() => authStatus = '$status');
     // If the system can show an authorization request dialog
     if (status == TrackingStatus.notDetermined) {
       // Wait for dialog popping animation
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // Request system's tracking authorization dialog
       final TrackingStatus status =
           await AppTrackingTransparency.requestTrackingAuthorization();
-      setState(() => _authStatus = '$status');
+      setState(() => authStatus = '$status');
     }
 
     final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
