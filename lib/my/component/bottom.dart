@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/component/check_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
+import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
@@ -72,11 +73,15 @@ class Bottom extends ConsumerWidget {
                   User? user = auth.currentUser;
 
                   if (user != null) {
-                    if (user.providerData.isNotEmpty) {
+                    if (user.providerData.isEmpty) {
+                      final viewModel = MainViewModel(KaKaoLoginModel());
+                      await viewModel.deleteUser();
+                    } else if (user.providerData[0].providerId == 'apple.com') {
                       final viewModel = MainViewModel(AppleLoginModel());
+
                       await viewModel.deleteUser();
                     } else {
-                      final viewModel = MainViewModel(KaKaoLoginModel());
+                      final viewModel = MainViewModel(GoogleLoginModel());
 
                       await viewModel.deleteUser();
                     }
