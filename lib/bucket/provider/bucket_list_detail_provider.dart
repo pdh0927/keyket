@@ -34,6 +34,10 @@ class BucketListUserNotifier
       state = {...state};
     }
   }
+
+  void resetState() {
+    state = {};
+  }
 }
 
 final customBucketListItemProvider = StateNotifierProvider<
@@ -112,6 +116,10 @@ class BucketListCustomItemNotifier
       state = {...state};
     }
   }
+
+  void resetState() {
+    state = {};
+  }
 }
 
 final recommendBucketListItemProvider = StateNotifierProvider<
@@ -179,5 +187,9 @@ class BucketListRecommendItemNotifier
       items.uncompleteItems.add(itemToMove);
       state = {...state};
     }
+  }
+
+  void resetState() {
+    state = {};
   }
 }

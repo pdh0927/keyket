@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
 import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
@@ -67,11 +69,16 @@ class _MyScreenState extends ConsumerState<MyScreen> {
             } else if (user.providerData[0].providerId == 'apple.com') {
               final viewModel = MainViewModel(AppleLoginModel());
               viewModel.logout();
-            } else {
+            } else // google.com 일 떄
+            {
               final viewModel = MainViewModel(GoogleLoginModel());
               viewModel.logout();
             }
+
             ref.read(myInformationProvider.notifier).resetState();
+            ref.read(myBucketListListProvider.notifier).resetState();
+            ref.read(sharedBucketListListProvider.notifier).resetState();
+            ref.read(bucketListUserProvider.notifier).resetState();
           }
         },
         icon: const Icon(

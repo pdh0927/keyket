@@ -329,6 +329,10 @@ abstract class BucketListNotifier
 
     state[bucketListId] = bucketList; // state 업데이트
   }
+
+  void resetState() {
+    state = {};
+  }
 }
 
 class MyBucketListNotifier extends BucketListNotifier {
