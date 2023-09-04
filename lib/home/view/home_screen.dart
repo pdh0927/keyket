@@ -79,11 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _AdvertisementContainer(
-                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-                adMaxHeight: 60,
-              ),
-              const SizedBox(height: 20),
+              // _AdvertisementContainer(
+              //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+              //   adMaxHeight: 60,
+              // ),
+              // const SizedBox(height: 20),
               _FixedBucketList(),
               const SizedBox(
                 height: 20,
