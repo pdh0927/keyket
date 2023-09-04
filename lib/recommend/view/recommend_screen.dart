@@ -62,8 +62,8 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
     List<BucketListModel> bucketList =
-        ref.watch(myBucketListListProvider).values.toList() +
-            ref.watch(sharedBucketListListProvider).values.toList();
+        ref.watch(myBucketListListProvider)!.values.toList() +
+            ref.watch(sharedBucketListListProvider)!.values.toList();
     return DefaultLayout(
         title: '추천',
         // actions: [

@@ -188,8 +188,4 @@ class BucketListRecommendItemNotifier
       state = {...state};
     }
   }
-
-  void resetState() {
-    state = {};
-  }
 }

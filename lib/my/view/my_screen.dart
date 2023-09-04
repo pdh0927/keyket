@@ -47,7 +47,7 @@ class _MyScreenState extends ConsumerState<MyScreen> {
     } else {
       FirebaseAuth auth = FirebaseAuth.instance;
       User? user = auth.currentUser;
-      if (user != null) {
+      if (user != null && ref.read(myInformationProvider) == null) {
         ref.read(myInformationProvider.notifier).loadUserInfo();
       }
 
@@ -92,7 +92,7 @@ class _MyScreenState extends ConsumerState<MyScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MyNotification(),
+              builder: (context) => const MyNotification(),
             ),
           );
         },

@@ -160,14 +160,25 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
     final info = ref.watch(myInformationProvider);
 
     if (info != null) {
-      if (ref.watch(myBucketListListProvider).isNotEmpty ||
-          ref.watch(sharedBucketListListProvider).isNotEmpty) {
-        fixedBucketList = ref
-                .read(myBucketListListProvider.notifier)
-                .getBucketListModel(info.fixedBucket) ??
-            ref
-                .read(sharedBucketListListProvider.notifier)
-                .getBucketListModel(info.fixedBucket);
+      if (ref.watch(myBucketListListProvider) != null &&
+          ref.watch(sharedBucketListListProvider) != null) {
+        if (ref.watch(myBucketListListProvider)!.isNotEmpty ||
+            ref.watch(sharedBucketListListProvider)!.isNotEmpty) {
+          fixedBucketList = ref
+                  .read(myBucketListListProvider.notifier)
+                  .getBucketListModel(info.fixedBucket) ??
+              ref
+                  .read(sharedBucketListListProvider.notifier)
+                  .getBucketListModel(info.fixedBucket);
+        }
+      } else {
+        ref
+            .read(myBucketListListProvider.notifier)
+            .getBucketList(info.id, false);
+
+        ref
+            .read(sharedBucketListListProvider.notifier)
+            .getBucketList(info.id, true);
       }
     }
 
