@@ -23,13 +23,17 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
     final user = FirebaseAuth.instance.currentUser;
 
     if (user != null) {
-      final DocumentSnapshot userDoc =
-          await _firestore.collection('user').doc(user.uid).get();
+      try {
+        final DocumentSnapshot userDoc =
+            await _firestore.collection('user').doc(user.uid).get();
 
-      if (userDoc.exists) {
-        final data = userDoc.data() as Map<String, dynamic>;
-        data['id'] = userDoc.id;
-        state = UserModel.fromJson(data);
+        if (userDoc.exists) {
+          final data = userDoc.data() as Map<String, dynamic>;
+          data['id'] = userDoc.id;
+          state = UserModel.fromJson(data);
+        }
+      } catch (e) {
+        print(e);
       }
     }
   }
