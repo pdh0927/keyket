@@ -64,6 +64,12 @@ class _MyScreenState extends ConsumerState<MyScreen> {
         onPressed: () {
           final user = FirebaseAuth.instance.currentUser;
           if (user != null) {
+            ref.read(myInformationProvider.notifier).resetState();
+            ref.read(myBucketListListProvider.notifier).resetState();
+            ref.read(sharedBucketListListProvider.notifier).resetState();
+            ref.read(bucketListUserProvider.notifier).resetState();
+            ref.read(rootTabIndexProvider.notifier).state = 0;
+
             if (user.providerData.isEmpty) {
               final viewModel = MainViewModel(KaKaoLoginModel());
               viewModel.logout();
@@ -75,12 +81,6 @@ class _MyScreenState extends ConsumerState<MyScreen> {
               final viewModel = MainViewModel(GoogleLoginModel());
               viewModel.logout();
             }
-
-            ref.read(myInformationProvider.notifier).resetState();
-            ref.read(myBucketListListProvider.notifier).resetState();
-            ref.read(sharedBucketListListProvider.notifier).resetState();
-            ref.read(bucketListUserProvider.notifier).resetState();
-            ref.read(rootTabIndexProvider.notifier).state = 0;
           }
         },
         icon: const Icon(

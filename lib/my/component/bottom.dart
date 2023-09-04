@@ -76,6 +76,13 @@ class Bottom extends ConsumerWidget {
                   User? user = auth.currentUser;
 
                   if (user != null) {
+                    ref.read(myInformationProvider.notifier).resetState();
+                    ref.read(myBucketListListProvider.notifier).resetState();
+                    ref
+                        .read(sharedBucketListListProvider.notifier)
+                        .resetState();
+                    ref.read(bucketListUserProvider.notifier).resetState();
+                    ref.read(rootTabIndexProvider.notifier).state = 0;
                     if (user.providerData.isEmpty) {
                       final viewModel = MainViewModel(KaKaoLoginModel());
                       await viewModel.deleteUser();
@@ -88,14 +95,6 @@ class Bottom extends ConsumerWidget {
 
                       await viewModel.deleteUser();
                     }
-
-                    ref.read(myInformationProvider.notifier).resetState();
-                    ref.read(myBucketListListProvider.notifier).resetState();
-                    ref
-                        .read(sharedBucketListListProvider.notifier)
-                        .resetState();
-                    ref.read(bucketListUserProvider.notifier).resetState();
-                    ref.read(rootTabIndexProvider.notifier).state = 0;
                   }
                 },
                 rightActionText: '아니요',
