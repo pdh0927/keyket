@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
 import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/model/main_view_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
+import 'package:keyket/common/provider/root_tab_index_provider.dart';
 import 'package:keyket/my/component/bottom.dart';
 import 'package:keyket/my/component/divide_line.dart';
 import 'package:keyket/my/component/my_bucket.dart';
@@ -45,7 +48,7 @@ class _MyScreenState extends ConsumerState<MyScreen> {
     } else {
       FirebaseAuth auth = FirebaseAuth.instance;
       User? user = auth.currentUser;
-      if (user != null) {
+      if (user != null && ref.read(myInformationProvider) == null) {
         ref.read(myInformationProvider.notifier).loadUserInfo();
       }
 
@@ -67,11 +70,17 @@ class _MyScreenState extends ConsumerState<MyScreen> {
             } else if (user.providerData[0].providerId == 'apple.com') {
               final viewModel = MainViewModel(AppleLoginModel());
               viewModel.logout();
-            } else {
+            } else // google.com 일 떄
+            {
               final viewModel = MainViewModel(GoogleLoginModel());
               viewModel.logout();
             }
+
             ref.read(myInformationProvider.notifier).resetState();
+            ref.read(myBucketListListProvider.notifier).resetState();
+            ref.read(sharedBucketListListProvider.notifier).resetState();
+            ref.read(bucketListUserProvider.notifier).resetState();
+            ref.read(rootTabIndexProvider.notifier).state = 0;
           }
         },
         icon: const Icon(
@@ -85,7 +94,7 @@ class _MyScreenState extends ConsumerState<MyScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => MyNotification(),
+              builder: (context) => const MyNotification(),
             ),
           );
         },

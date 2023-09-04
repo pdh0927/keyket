@@ -109,7 +109,7 @@ class _MyBucketListList extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final List<BucketListModel> myBucketListList =
-        ref.watch(myBucketListListProvider).values.toList();
+        ref.watch(myBucketListListProvider)!.values.toList();
     return _BucketListList(bucketListList: myBucketListList);
   }
 }
@@ -134,7 +134,7 @@ class _SharedBucketListListState extends ConsumerState<_SharedBucketListList> {
   @override
   Widget build(BuildContext context) {
     final List<BucketListModel> sharedBucketListList =
-        ref.watch(sharedBucketListListProvider).values.toList();
+        ref.watch(sharedBucketListListProvider)!.values.toList();
     return _BucketListList(bucketListList: sharedBucketListList);
   }
 }

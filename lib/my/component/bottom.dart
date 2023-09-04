@@ -1,12 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/bucket/provider/bucket_list_detail_provider.dart';
+import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/component/check_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/apple_login_model.dart';
 import 'package:keyket/common/model/google_login_model.dart';
 import 'package:keyket/common/model/kakao_login_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
+import 'package:keyket/common/provider/root_tab_index_provider.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -87,6 +90,12 @@ class Bottom extends ConsumerWidget {
                     }
 
                     ref.read(myInformationProvider.notifier).resetState();
+                    ref.read(myBucketListListProvider.notifier).resetState();
+                    ref
+                        .read(sharedBucketListListProvider.notifier)
+                        .resetState();
+                    ref.read(bucketListUserProvider.notifier).resetState();
+                    ref.read(rootTabIndexProvider.notifier).state = 0;
                   }
                 },
                 rightActionText: '아니요',

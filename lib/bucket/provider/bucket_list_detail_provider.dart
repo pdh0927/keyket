@@ -34,6 +34,10 @@ class BucketListUserNotifier
       state = {...state};
     }
   }
+
+  void resetState() {
+    state = {};
+  }
 }
 
 final customBucketListItemProvider = StateNotifierProvider<
@@ -111,6 +115,10 @@ class BucketListCustomItemNotifier
       items.uncompleteItems.add(itemToMove);
       state = {...state};
     }
+  }
+
+  void resetState() {
+    state = {};
   }
 }
 

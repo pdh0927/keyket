@@ -80,7 +80,6 @@ class KaKaoLoginModel implements SocialLogin {
       'uid': user.id.toString(),
       'displayname': user.kakaoAccount!.profile!.nickname,
     });
-    print(customToken);
 
     await FirebaseAuth.instance.signInWithCustomToken(customToken);
 

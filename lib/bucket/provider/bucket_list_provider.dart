@@ -8,8 +8,8 @@ import 'package:keyket/common/provider/my_provider.dart';
 final firestore = FirebaseFirestore.instance;
 
 abstract class BucketListNotifier
-    extends StateNotifier<Map<String, BucketListModel>> {
-  BucketListNotifier(String userId, bool isShared) : super({}) {
+    extends StateNotifier<Map<String, BucketListModel>?> {
+  BucketListNotifier(String userId, bool isShared) : super(null) {
     getBucketList(userId, isShared);
   }
 
@@ -39,7 +39,6 @@ abstract class BucketListNotifier
     } catch (e) {
       print(e);
     }
-
     state = bucketListMap;
   }
 
@@ -55,8 +54,8 @@ abstract class BucketListNotifier
       bucketData['updatedAt'] = bucketData['updatedAt'].toString();
 
       // State에 추가된 bucket 추가
-      state[bucketData['id']] = BucketListModel.fromJson(bucketData);
-      state = {...state};
+      state![bucketData['id']] = BucketListModel.fromJson(bucketData);
+      state = {...state!};
     } catch (e) {
       print(e);
     }
@@ -64,15 +63,18 @@ abstract class BucketListNotifier
 
   // 버킷리시트 업데이트
   void updateBucketList(BucketListModel updatedBucketList) {
-    state[updatedBucketList.id] = updatedBucketList;
+    state![updatedBucketList.id] = updatedBucketList;
   }
 
   int getBucketListCount() {
-    return state.length;
+    if (state != null) {
+      return state!.length;
+    }
+    return 0;
   }
 
   void updateRecommendItems(String bucketListId, List<String> ids) async {
-    final bucketList = state[bucketListId];
+    final bucketList = state![bucketListId];
 
     if (bucketList == null) {
       print("No bucket found with ID: $bucketListId");
@@ -114,7 +116,7 @@ abstract class BucketListNotifier
     );
 
     // state 업데이트
-    state[bucketListId] = updatedBucket;
+    state![bucketListId] = updatedBucket;
 
     // Firestore bucket_list에 업데이트
     try {
@@ -131,22 +133,22 @@ abstract class BucketListNotifier
   // 버킷리스트 모델로 버킷리스트 추가
   void addBucketList(BucketListModel newBucket) async {
     // State에 추가된 bucket 아이템 추가
-    state[newBucket.id] = newBucket;
-    state = {...state};
+    state![newBucket.id] = newBucket;
+    state = {...state!};
   }
 
   // 아이디로 버킷리스트 삭제
   void deleteBucketList(String bucketListId) async {
     try {
-      if (state[bucketListId]!.image != '') {
+      if (state![bucketListId]!.image != '') {
         Reference photoRef =
-            FirebaseStorage.instance.refFromURL(state[bucketListId]!.image);
+            FirebaseStorage.instance.refFromURL(state![bucketListId]!.image);
         await photoRef.delete();
       }
 
       // State에서 해당 버킷 리스트 삭제
-      state.remove(bucketListId);
-      state = {...state};
+      state!.remove(bucketListId);
+      state = {...state!};
 
       // Firebase Firestore에서도 해당 버킷 리스트 삭제
       await firestore.collection('bucket_list').doc(bucketListId).delete();
@@ -158,12 +160,12 @@ abstract class BucketListNotifier
   // 아이디로 버킷리스트 삭제
   void deleteBucketListFromProvider(String bucketListId) async {
     // State에서 해당 버킷 리스트 삭제
-    state.remove(bucketListId);
-    state = {...state};
+    state!.remove(bucketListId);
+    state = {...state!};
   }
 
   double getAchievementRate(String bucketListId) {
-    final bucketList = state[bucketListId];
+    final bucketList = state![bucketListId];
 
     if (bucketList == null) {
       print("No bucket found with ID: $bucketListId");
@@ -179,25 +181,25 @@ abstract class BucketListNotifier
   }
 
   void sortByName() {
-    var sortedList = state.values.toList();
+    var sortedList = state!.values.toList();
     sortedList.sort((a, b) => a.name.compareTo(b.name));
     state = {for (var item in sortedList) item.id: item};
   }
 
   void sortByCreatedAt() {
-    var sortedList = state.values.toList();
+    var sortedList = state!.values.toList();
     sortedList.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     state = {for (var item in sortedList) item.id: item};
   }
 
   void sortByUpdatedAt() {
-    var sortedList = state.values.toList();
+    var sortedList = state!.values.toList();
     sortedList.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     state = {for (var item in sortedList) item.id: item};
   }
 
   List<String> getCompleteList(String type, String bucketListId) {
-    final bucket = state[bucketListId];
+    final bucket = state![bucketListId];
 
     if (bucket == null) {
       print("No bucket found with ID: $bucketListId");
@@ -212,7 +214,7 @@ abstract class BucketListNotifier
   }
 
   List<String> getContainList(String type, String bucketListId) {
-    final bucket = state[bucketListId];
+    final bucket = state![bucketListId];
 
     if (bucket == null) {
       print("No bucket found with ID: $bucketListId");
@@ -227,7 +229,7 @@ abstract class BucketListNotifier
   }
 
   BucketListModel? getBucketListModel(String bucketListId) {
-    final bucketList = state[bucketListId];
+    final bucketList = state![bucketListId];
 
     if (bucketList == null) {
       print("No bucket found with ID: $bucketListId");
@@ -239,12 +241,12 @@ abstract class BucketListNotifier
 
   void changeBucketListModel(
       String bucketListId, BucketListModel newBucketListModel) {
-    state[bucketListId] = newBucketListModel.deepCopy();
-    state = {...state};
+    state![bucketListId] = newBucketListModel.deepCopy();
+    state = {...state!};
   }
 
   void moveToCompleted(String bucketListId, String itemId, String itemType) {
-    final bucketList = state[bucketListId];
+    final bucketList = state![bucketListId];
     if (bucketList == null) {
       print("No bucket found with ID: $bucketListId");
       return;
@@ -283,11 +285,11 @@ abstract class BucketListNotifier
       return;
     }
 
-    state[bucketListId] = bucketList; // state 업데이트
+    state![bucketListId] = bucketList; // state 업데이트
   }
 
   void moveToUncompleted(String bucketListId, String itemId, String itemType) {
-    final bucketList = state[bucketListId];
+    final bucketList = state![bucketListId];
     if (bucketList == null) {
       print("No bucket found with ID: $bucketListId");
       return;
@@ -327,7 +329,11 @@ abstract class BucketListNotifier
       return;
     }
 
-    state[bucketListId] = bucketList; // state 업데이트
+    state![bucketListId] = bucketList; // state 업데이트
+  }
+
+  void resetState() {
+    state = null;
   }
 }
 
@@ -340,7 +346,7 @@ class SharedBucketListNotifier extends BucketListNotifier {
 }
 
 final myBucketListListProvider =
-    StateNotifierProvider<MyBucketListNotifier, Map<String, BucketListModel>>(
+    StateNotifierProvider<MyBucketListNotifier, Map<String, BucketListModel>?>(
         (ref) {
   String userId = ref.read(myInformationProvider)!.id;
 
@@ -348,7 +354,7 @@ final myBucketListListProvider =
 });
 
 final sharedBucketListListProvider = StateNotifierProvider<
-    SharedBucketListNotifier, Map<String, BucketListModel>>((ref) {
+    SharedBucketListNotifier, Map<String, BucketListModel>?>((ref) {
   String userId = ref.read(myInformationProvider)!.id;
   return SharedBucketListNotifier(userId);
 });
