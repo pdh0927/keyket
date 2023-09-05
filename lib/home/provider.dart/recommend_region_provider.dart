@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:dio/dio.dart';
@@ -35,7 +36,7 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
     final Map<String, dynamic> params = {
       "numOfRows": 100,
       "pageNo": 1,
-      "MobileOS": "IOS",
+      "MobileOS": Platform.isIOS ? "IOS" : "AND",
       "MobileApp": "keyket",
       "_type": "json",
       "keyword": regionKeywordList[index],

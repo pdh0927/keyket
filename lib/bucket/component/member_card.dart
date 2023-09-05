@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/model/user_model.dart';
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
 
 class MemberCard extends ConsumerWidget {
   final String userId;
@@ -41,9 +43,23 @@ class MemberCard extends ConsumerWidget {
                 style: const TextStyle(fontSize: 20),
               ),
             )
-          : CircleAvatar(
-              radius: 15,
-              backgroundImage: NetworkImage(model.image),
+          : ClipOval(
+              child: CachedNetworkImage(
+                imageUrl: model.image,
+                fit: BoxFit.cover,
+                width: 30, // 원의 두 배의 지름
+                height: 30, // 원의 두 배의 지름
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
             ),
       host: host,
       bucketListId: bucketListId,

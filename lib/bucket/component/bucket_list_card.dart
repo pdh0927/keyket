@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/bucket/component/custom_progressbar.dart';
@@ -8,11 +9,12 @@ import 'package:keyket/common/const/colors.dart';
 
 import 'package:keyket/common/provider/my_provider.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
 
 class BucketListCard extends ConsumerWidget {
   final String id;
   final String name;
-  final Image image;
+  final Widget image;
   final String host;
   final DateTime createdAt;
   final DateTime updatedAt;
@@ -47,8 +49,22 @@ class BucketListCard extends ConsumerWidget {
               height: 100,
               "asset/img/default_bucket.png",
               fit: BoxFit.cover)
-          : Image.network(
-              width: 100, height: 100, model.image, fit: BoxFit.cover),
+          : CachedNetworkImage(
+              width: 100,
+              height: 100,
+              imageUrl: model.image,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Shimmer.fromColors(
+                baseColor: Colors.grey[300]!, // 어두운 색
+                highlightColor: Colors.grey[100]!, // 밝은 색
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  color: Colors.grey[300],
+                ),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
       host: model.host,
       isShared: model.isShared,
       createdAt: model.createdAt,
@@ -108,7 +124,7 @@ class BucketListCard extends ConsumerWidget {
         ),
         Positioned(
           top: 5,
-          left: image.width! - 25,
+          left: 100 - 25,
           child: InkWell(
             onTap: () {
               ref.read(myInformationProvider.notifier).setFixedBucket(
