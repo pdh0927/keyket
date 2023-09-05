@@ -194,110 +194,7 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
       );
     }
 
-    return (isGetItemComplete && fixedBucketList != null)
-        ? Container(
-            width: double.infinity,
-            height: 55.h,
-            alignment: Alignment.center,
-            child: (fixedBucketList != null &&
-                    fixedBucketList!.image.isNotEmpty)
-                ? Stack(
-                    children: [
-                      Positioned.fill(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: Opacity(
-                            opacity: 0.5,
-                            child: CachedNetworkImage(
-                              imageUrl: fixedBucketList!.image,
-                              fit: BoxFit.cover,
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(
-                                  color: Colors.grey[300],
-                                ),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const Icon(Icons.error),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Remix.arrow_left_s_line),
-                                Text(
-                                  fixedBucketList!.name,
-                                  style: const TextStyle(
-                                      fontFamily: 'SCDream',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w400),
-                                ),
-                                const Icon(Remix.arrow_right_s_line),
-                              ],
-                            ),
-                            const SizedBox(height: 15),
-                            Expanded(
-                              child: ListView.builder(
-                                itemCount: fixedBucketList!
-                                        .uncompletedCustomItemList.length +
-                                    fixedBucketList!
-                                        .uncompletedRecommendItemList.length +
-                                    fixedBucketList!
-                                        .completedCustomItemList.length +
-                                    fixedBucketList!
-                                        .completedRecommendItemList.length,
-                                itemBuilder: (context, index) {
-                                  return buildListItem(index);
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                : Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: PRIMARY_COLOR.withOpacity(0.5)),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Image.asset(
-                          'asset/img/logo_transparent.png',
-                          height: 200,
-                          width: 200,
-                        ),
-                        const SizedBox(height: 10),
-                        const Text(
-                          '고정된 버킷이 없습니다',
-                          style: TextStyle(
-                              fontFamily: 'SCDream',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500),
-                        ),
-                      ],
-                    ),
-                  ))
-        : Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: double.infinity,
-              height: 55.h,
-              color: Colors.grey[300],
-            ),
-          );
+    return getFixedBucketListWidget();
   }
 
   Future<void> getItems(
@@ -703,6 +600,121 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
       },
       item: item,
     );
+  }
+
+  getFixedBucketListWidget() {
+    if (fixedBucketList == null) {
+      return Container(
+        width: double.infinity,
+        height: 55.h,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: PRIMARY_COLOR.withOpacity(0.5)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image.asset(
+              'asset/img/logo_transparent.png',
+              height: 200,
+              width: 200,
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              '고정된 버킷이 없습니다',
+              style: TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      );
+    } else if (isGetItemComplete) {
+      return Container(
+          width: double.infinity,
+          height: 55.h,
+          alignment: Alignment.center,
+          decoration: fixedBucketList!.image.isNotEmpty
+              ? null
+              : BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: PRIMARY_COLOR.withOpacity(0.5)),
+          child: Stack(
+            children: [
+              fixedBucketList!.image.isNotEmpty
+                  ? Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Opacity(
+                          opacity: 0.5,
+                          child: CachedNetworkImage(
+                            imageUrl: fixedBucketList!.image,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                color: Colors.grey[300],
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Remix.arrow_left_s_line),
+                        Text(
+                          fixedBucketList!.name,
+                          style: const TextStyle(
+                              fontFamily: 'SCDream',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400),
+                        ),
+                        const Icon(Remix.arrow_right_s_line),
+                      ],
+                    ),
+                    const SizedBox(height: 15),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: fixedBucketList!
+                                .uncompletedCustomItemList.length +
+                            fixedBucketList!
+                                .uncompletedRecommendItemList.length +
+                            fixedBucketList!.completedCustomItemList.length +
+                            fixedBucketList!.completedRecommendItemList.length,
+                        itemBuilder: (context, index) {
+                          return buildListItem(index);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          ));
+    } else {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          width: double.infinity,
+          height: 55.h,
+          color: Colors.grey[300],
+        ),
+      );
+    }
   }
 }
 
