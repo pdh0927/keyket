@@ -710,6 +710,9 @@ PODS:
     - Mantle
     - SDWebImage
     - SDWebImageWebPCoder
+  - FMDB (2.7.5):
+    - FMDB/standard (= 2.7.5)
+  - FMDB/standard (2.7.5)
   - Google-Mobile-Ads-SDK (10.4.0):
     - GoogleAppMeasurement (< 11.0, >= 7.0)
     - GoogleUserMessagingPlatform (>= 1.1)
@@ -864,6 +867,9 @@ PODS:
     - FlutterMacOS
   - sign_in_with_apple (0.0.1):
     - Flutter
+  - sqflite (0.0.3):
+    - Flutter
+    - FMDB (>= 2.7.5)
   - url_launcher_ios (0.0.1):
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
@@ -884,6 +890,7 @@ DEPENDENCIES:
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
   - sign_in_with_apple (from `.symlinks/plugins/sign_in_with_apple/ios`)
+  - sqflite (from `.symlinks/plugins/sqflite/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
 
@@ -901,6 +908,7 @@ SPEC REPOS:
     - FirebaseCoreInternal
     - FirebaseFirestore
     - FirebaseStorage
+    - FMDB
     - Google-Mobile-Ads-SDK
     - GoogleAppMeasurement
     - GoogleSignIn
@@ -947,6 +955,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
   sign_in_with_apple:
     :path: ".symlinks/plugins/sign_in_with_apple/ios"
+  sqflite:
+    :path: ".symlinks/plugins/sqflite/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   webview_flutter_wkwebview:
@@ -972,6 +982,7 @@ SPEC CHECKSUMS:
   FirebaseStorage: 1d7ca8c8953fc61ccacaa7c612696b5402968a0d
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_image_compress_common: ec1d45c362c9d30a3f6a0426c297f47c52007e3e
+  FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   Google-Mobile-Ads-SDK: 32fe7836431a06a29f7734ae092b600137c8108d
   google_mobile_ads: 53b1f0d74445963e5810e34ac38dfb27aabe278e
   google_sign_in_ios: 1256ff9d941db546373826966720b0c24804bcdd
@@ -995,6 +1006,7 @@ SPEC CHECKSUMS:
   SDWebImageWebPCoder: af09429398d99d524cae2fe00f6f0f6e491ed102
   shared_preferences_foundation: 5b919d13b803cadd15ed2dc053125c68730e5126
   sign_in_with_apple: f3bf75217ea4c2c8b91823f225d70230119b8440
+  sqflite: 31f7eba61e3074736dff8807a9b41581e4f7f15a
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   webview_flutter_wkwebview: 2e2d318f21a5e036e2c3f26171342e95908bd60a
 

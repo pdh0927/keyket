@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
@@ -28,6 +29,7 @@ import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 import 'package:uuid/uuid.dart';
 
@@ -347,9 +349,21 @@ class _BucketListDetailScreenState
                 fit: BoxFit.fill,
               )
             else if (modifiedBucketListModel.image != '')
-              Image.network(
-                modifiedBucketListModel.image,
+              CachedNetworkImage(
+                imageUrl: modifiedBucketListModel.image,
                 fit: BoxFit.fill,
+                width: 100, // 원의 두 배의 지름
+                height: 100, // 원의 두 배의 지름
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                errorWidget: (context, url, error) => Icon(Icons.error),
               ),
             buildFlexibleSpace(),
           ],
@@ -410,11 +424,25 @@ class _BucketListDetailScreenState
                                     1) *
                                 7.5 +
                             15.0 * index, // 이 부분은 원하는 위치에 따라 조절해야 합니다.
-                        child: CircleAvatar(
-                          radius: 15.0, // 이미지 크기를 30x30으로 조정했습니다.
-                          backgroundImage: NetworkImage(userModel.image),
-                        ),
-                      )
+                        child: ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: userModel.image,
+                            fit: BoxFit.cover,
+                            width: 30, // 원의 두 배의 지름
+                            height: 30, // 원의 두 배의 지름
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 100,
+                                height: 100,
+                                color: Colors.grey[300],
+                              ),
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          ),
+                        ))
                     : Positioned(
                         left: MediaQuery.of(context).size.width * 0.5 -
                             (userModelList.length +

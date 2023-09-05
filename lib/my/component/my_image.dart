@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
 
 import '../../common/provider/my_provider.dart';
 import 'divide_line.dart';
@@ -199,13 +201,27 @@ class _MyImageState extends ConsumerState<MyImage> {
       );
     } else if (_image == null &&
         ref.watch(myInformationProvider)!.image != '') {
-      return CircleAvatar(
-        radius: 50,
-        backgroundImage: NetworkImage(ref.watch(myInformationProvider)!.image),
-        child: GestureDetector(
-          onTap: () {
-            takeImage(context);
-          },
+      return GestureDetector(
+        onTap: () {
+          takeImage(context);
+        },
+        child: ClipOval(
+          child: CachedNetworkImage(
+            imageUrl: ref.watch(myInformationProvider)!.image,
+            fit: BoxFit.cover,
+            width: 100,
+            height: 100,
+            placeholder: (context, url) => Shimmer.fromColors(
+              baseColor: Colors.grey[300]!,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: 100,
+                height: 100,
+                color: Colors.grey[300],
+              ),
+            ),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
         ),
       );
     } else {
