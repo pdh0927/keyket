@@ -5,6 +5,7 @@ import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
@@ -15,6 +16,7 @@ import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
+import 'package:keyket/home/const/style.dart';
 import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
@@ -81,16 +83,17 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // _AdvertisementContainer(
-              //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-              //   adMaxHeight: 60,
-              // ),
-              // const SizedBox(height: 20),
+              _AdvertisementContainer(
+                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+                adMaxHeight: 60,
+              ),
+              const SizedBox(height: 20),
+              const _RegionImageContainer(),
+              const SizedBox(height: 20),
               _FixedBucketList(),
               const SizedBox(
                 height: 20,
               ),
-              const _RegionImageContainer(),
               const SizedBox(height: 10)
             ],
           ),
@@ -726,60 +729,45 @@ class _RegionImageContainer extends ConsumerWidget {
     Map<String, dynamic> recommendRegion = ref.watch(recommmendRegionProvider);
 
     return recommendRegion.isNotEmpty
-        ? Container(
-            padding: const EdgeInsets.symmetric(vertical: 13.0, horizontal: 16),
-            alignment: Alignment.center,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: const Color(0xFFD9D9D9),
+        ? Column(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                _RegionTitle(region: recommendRegion['region']),
+                IconButton(
+                  icon: const Icon(Remix.repeat_2_line, size: 23),
+                  splashRadius: 20,
+                  splashColor: Colors.white,
+                  padding: const EdgeInsets.all(0),
+                  constraints: const BoxConstraints(
+                      minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
+                  onPressed: () async {
+                    ref.read(recommmendRegionProvider.notifier).getRegionData();
+                  },
+                )
+              ],
             ),
-            child: IntrinsicHeight(
-                child: Column(children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    '오늘 ${recommendRegion['region']} 어때요?',
-                    style: const TextStyle(
-                        fontFamily: 'SCDream',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400),
-                  ),
-                  IconButton(
-                    icon: const Icon(Remix.repeat_2_line, size: 20),
-                    splashRadius: 20,
-                    splashColor: Colors.white,
-                    padding: const EdgeInsets.all(0),
-                    constraints: const BoxConstraints(
-                        minHeight: 25,
-                        minWidth: 25,
-                        maxHeight: 25,
-                        maxWidth: 25),
-                    onPressed: () async {
-                      ref
-                          .read(recommmendRegionProvider.notifier)
-                          .getRegionData();
-                    },
-                  )
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
+            const SizedBox(height: 8),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children:
                     List.generate(recommendRegion['images'].length, (index) {
-                  return SizedBox(
-                    width: 90,
+                  return Padding(
+                    padding: EdgeInsets.only(
+                        right: index == recommendRegion['images'].length - 1
+                            ? 0
+                            : 15.0),
                     child: Column(
                       children: [
                         CachedNetworkImage(
                           imageUrl: recommendRegion['images'][index],
                           fit: BoxFit.cover,
-                          width: 90,
-                          height: 90,
+                          width: 230 / 390 * 100.w,
+                          height: 230 / 390 * 100.w,
                           placeholder: (context, url) => Shimmer.fromColors(
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
@@ -792,14 +780,12 @@ class _RegionImageContainer extends ConsumerWidget {
                           errorWidget: (context, url, error) =>
                               const Icon(Icons.error),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: 12),
                         Text(
                           recommendRegion['titles'][index],
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                              fontSize: 10,
-                              color: BLACK_COLOR,
+                              fontSize: 16,
+                              color: PRIMARY_COLOR,
                               fontFamily: 'SCDream',
                               fontWeight: FontWeight.w500),
                         ),
@@ -807,16 +793,61 @@ class _RegionImageContainer extends ConsumerWidget {
                     ),
                   );
                 }),
-              )
-            ])))
-        : Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: double.infinity,
-              height: 170,
-              color: Colors.grey[300],
+              ),
+            )
+          ])
+        : Stack(children: [
+            Shimmer.fromColors(
+              baseColor: PRIMARY_COLOR,
+              highlightColor: Colors.grey[100]!,
+              child: Container(
+                width: double.infinity,
+                height: 250,
+                color: PRIMARY_COLOR,
+              ),
             ),
-          );
+            const Positioned(
+              top: 125 - 8, // 125는 Container 높이의 절반, 8은 글자 크기의 절반(글자 크기에 따라 조절)
+              left: 0,
+              right: 0,
+              child: Text(
+                "키킷이 지역을 추천중입니다!",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: 'SCDream',
+                  fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ]);
+  }
+}
+
+class _RegionTitle extends StatelessWidget {
+  final String region;
+  const _RegionTitle({super.key, required this.region});
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '오늘 ',
+            style: homeSubTitleStyle,
+          ),
+          TextSpan(
+            text: region,
+            style: homeSubTitleStyle.copyWith(color: PRIMARY_COLOR),
+          ),
+          TextSpan(
+            text: ' 어때요?',
+            style: homeSubTitleStyle,
+          ),
+        ],
+      ),
+    );
   }
 }
