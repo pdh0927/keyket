@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:sizer/sizer.dart';
-import 'package:dotted_line/dotted_line.dart';
 
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
@@ -11,7 +10,7 @@ import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
 import 'package:keyket/common/component/list_select_button.dart';
 import 'package:keyket/common/component/select_box.dart';
-import 'package:keyket/common/const/colors.dart';
+
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
@@ -59,9 +58,11 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
   @override
   Widget build(BuildContext context) {
     final recommendedItems = ref.watch(recommendItemListProvider);
+
     List<BucketListModel> bucketList =
         ref.watch(myBucketListListProvider)!.values.toList() +
             ref.watch(sharedBucketListListProvider)!.values.toList();
+
     return DefaultLayout(
         title: '추천',
         // actions: [
@@ -226,23 +227,23 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
         ));
   }
 
-  dynamic getDottedLine(int index, bool isFirst, int totalLength) {
-    if ((index == 0 && isFirst) || (index == totalLength - 1) && !isFirst) {
-      return Column(
-        children: [
-          SizedBox(height: !isFirst ? 24 : 0),
-          const DottedLine(
-            dashLength: 5,
-            dashGapLength: 2,
-            lineThickness: 1,
-            dashColor: PRIMARY_COLOR,
-          ),
-        ],
-      );
-    } else {
-      return const SizedBox(height: 0);
-    }
-  }
+  // dynamic getDottedLine(int index, bool isFirst, int totalLength) {
+  //   if ((index == 0 && isFirst) || (index == totalLength - 1) && !isFirst) {
+  //     return Column(
+  //       children: [
+  //         SizedBox(height: !isFirst ? 24 : 0),
+  //         const DottedLine(
+  //           dashLength: 5,
+  //           dashGapLength: 2,
+  //           lineThickness: 1,
+  //           dashColor: PRIMARY_COLOR,
+  //         ),
+  //       ],
+  //     );
+  //   } else {
+  //     return const SizedBox(height: 0);
+  //   }
+  // }
 
   List<String> getSelectedRecommendIds(
       List<RecommendItemModel> recommendedItems,
