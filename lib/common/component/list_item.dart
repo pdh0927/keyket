@@ -15,16 +15,17 @@ class ListItem extends StatefulWidget {
   final Function? modifyItem;
   final ItemModel item;
 
-  const ListItem(
-      {super.key,
-      required this.isNeedSelectButton,
-      required this.isContain,
-      required this.isHome,
-      required this.isNeedMoreButton,
-      required this.onPressed,
-      this.removeItem,
-      this.modifyItem,
-      required this.item});
+  const ListItem({
+    super.key,
+    required this.isNeedSelectButton,
+    required this.isContain,
+    required this.isHome,
+    required this.isNeedMoreButton,
+    required this.onPressed,
+    this.removeItem,
+    this.modifyItem,
+    required this.item,
+  });
 
   @override
   State<ListItem> createState() => _ListItemState();
@@ -33,36 +34,8 @@ class ListItem extends StatefulWidget {
 class _ListItemState extends State<ListItem> {
   bool modifyFlag = false;
 
-  double calculateTextHeight(String content) {
-    final textPainter = TextPainter(
-      text: TextSpan(text: content, style: const TextStyle(fontSize: 16.0)),
-      maxLines: 3,
-      textDirection: TextDirection.ltr,
-    )..layout(
-        // .layout()를 호출하여 텍스트를 그림. 여기서 최대 너비를 지정하여 줄 바꿈이 일어날 위치를 계산
-        maxWidth: MediaQuery.of(context).size.width -
-            113 -
-            (widget.isNeedSelectButton ? 23 : 0) -
-            (widget.isNeedMoreButton ? 32 : 0) -
-            (widget.isHome ? 20 : 0)); // padding을 고려한 것입니다.
-
-    final int lines = textPainter
-        .computeLineMetrics()
-        .length; // computeLineMetrics().length를 호출하여 실제로 그려진 줄 수를 얻음
-
-    if (lines == 1) {
-      return 50;
-    } else if (lines == 2) {
-      return 70;
-    } else {
-      return 90;
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    double containerHeight = calculateTextHeight(widget.item.content);
-
     return Row(
       children: [
         (widget.isNeedSelectButton && !modifyFlag)
@@ -81,8 +54,9 @@ class _ListItemState extends State<ListItem> {
                     child: !modifyFlag
                         ? Container(
                             alignment: Alignment.centerLeft,
-                            height: containerHeight,
                             padding: EdgeInsets.only(
+                                top: 8,
+                                bottom: 8,
                                 left: widget.isNeedSelectButton ? 0 : 10),
                             child: Text(
                               widget.item.content,
