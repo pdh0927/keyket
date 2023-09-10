@@ -183,13 +183,13 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        getDottedLine(
-                            index, true, recommendedItems.length), // 구분 점선
+                        // getDottedLine(
+                        //     index, true, recommendedItems.length), // 구분 점선
                         ListItem(
                             // 추천 아이템
                             isNeedSelectButton: selectFlag,
                             isContain: isContain,
-                            isHome: false,
+                            isRecommendItem: true,
                             isNeedMoreButton: false,
                             onPressed: () {
                               setState(() {
@@ -201,10 +201,10 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                               });
                             },
                             item: item),
-                        (isLastPage || recommendedItems.length < 10)
-                            ? getDottedLine(
-                                index, false, recommendedItems.length) // 구분 점선
-                            : const SizedBox(height: 0, width: 0)
+                        // (isLastPage || recommendedItems.length < 10)
+                        //     ? getDottedLine(
+                        //         index, false, recommendedItems.length) // 구분 점선
+                        //     : const SizedBox(height: 0, width: 0)
                       ],
                     );
                   } else {

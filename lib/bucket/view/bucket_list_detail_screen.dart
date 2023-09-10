@@ -634,7 +634,7 @@ class _BucketListDetailScreenState
       isNeedSelectButton: true,
       isContain: isCompleted,
       isNeedMoreButton: true,
-      isHome: false,
+      isRecommendItem: false,
       removeItem: removeItem,
       modifyItem: modifyItem,
       onPressed: () {
@@ -1104,7 +1104,8 @@ class _BucketListDetailScreenState
           id: item.id,
           region: item.region,
           theme: item.theme,
-          content: item.content));
+          content: item.content,
+          image: item.image));
     }
     changeFlag();
   }
@@ -1602,9 +1603,9 @@ class _BucketListDetailScreenState
     String uniqueId = Uuid().v4();
     try {
       // 이미지를 Firebase Storage에 업로드하고 다운로드 URL을 가져옵니다.
-      await storage.ref('images/$uniqueId').putFile(file);
+      await storage.ref('images/bucket/$uniqueId').putFile(file);
       String downloadURL =
-          await storage.ref('images/$uniqueId').getDownloadURL();
+          await storage.ref('images/bucket/$uniqueId').getDownloadURL();
       return downloadURL;
     } catch (e) {
       // 이미지 업로드에 실패했습니다.
@@ -1709,7 +1710,7 @@ class _RecommendItemListState extends ConsumerState<_RecommendItemList> {
                       return ListItem(
                         isNeedSelectButton: true,
                         isContain: isContain,
-                        isHome: false,
+                        isRecommendItem: true,
                         isNeedMoreButton: false,
                         onPressed: () {
                           setState(

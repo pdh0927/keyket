@@ -23,12 +23,14 @@ List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트
 class RecommendItemModel extends ItemModel {
   final RecommendRegion region;
   final List<RecommendTheme> theme;
+  final String image;
 
   RecommendItemModel({
     required super.id,
+    required super.content,
     required this.region,
     required this.theme,
-    required super.content,
+    required this.image,
   });
 
   factory RecommendItemModel.fromJson(Map<String, dynamic> json) =>
@@ -42,12 +44,13 @@ class RecommendItemModel extends ItemModel {
       region: region,
       theme: [...theme],
       content: content,
+      image: image,
     );
   }
 
   @override
   String toString() {
-    return 'RecommendItemModel: {id: $id, region: $region, theme: $theme, content: $content}';
+    return 'RecommendItemModel: {id: $id, region: $region, theme: $theme, content: $content,  image: $image}';
   }
 
   // remove method에서 class객체 삭제를 위해 구현
