@@ -35,22 +35,37 @@ class _SelectBoxState extends State<SelectBox> {
 
     overlayEntry = OverlayEntry(
       builder: (context) {
-        return Positioned(
-          width: size.width,
-          height: label == '지역' ? 180 : 130,
-          top: offset.dy + size.height, // 'top' 속성 조정
-          left: offset.dx,
-          child: GestureDetector(
-            onTap: () {
-              hideOverlay();
-              setState(() {
-                isLocationSelected = false;
-              });
-            },
-            child: _OptionGrid(
-              label: label,
+        return Stack(
+          children: [
+            // 바깥 부분을 누를 때 Overlay를 닫도록 하는 GestureDetector
+            Positioned.fill(
+              child: GestureDetector(
+                onTap: () {
+                  hideOverlay();
+                  setState(() {
+                    isLocationSelected = false;
+                  });
+                },
+              ),
             ),
-          ),
+            Positioned(
+              width: size.width,
+              height: label == '지역' ? 180 : 130,
+              top: offset.dy + size.height, // 'top' 속성 조정
+              left: offset.dx,
+              child: GestureDetector(
+                onTap: () {
+                  hideOverlay();
+                  setState(() {
+                    isLocationSelected = false;
+                  });
+                },
+                child: _OptionGrid(
+                  label: label,
+                ),
+              ),
+            ),
+          ],
         );
       },
     );
@@ -250,7 +265,7 @@ class _CustomTextButton extends StatelessWidget {
   final BorderRadiusGeometry borderRadius;
   final bool isSelected;
 
-  _CustomTextButton(
+  const _CustomTextButton(
       {required this.label,
       required this.onPressed,
       required this.borderRadius,
@@ -261,7 +276,7 @@ class _CustomTextButton extends StatelessWidget {
     return Expanded(
       child: TextButton(
         style: TextButton.styleFrom(
-          backgroundColor: GREY_COLOR.withOpacity(0.2),
+          backgroundColor: PRIMARY_COLOR,
           padding: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
             borderRadius: borderRadius,
@@ -274,13 +289,13 @@ class _CustomTextButton extends StatelessWidget {
             Text(
               label,
               style: isSelected
-                  ? dropdownTextStyle.copyWith(color: PRIMARY_COLOR)
-                  : dropdownTextStyle,
+                  ? dropdownTextStyle
+                  : dropdownTextStyle.copyWith(color: Colors.white),
             ),
             const SizedBox(width: 15),
             Icon(
               Remix.arrow_down_s_line,
-              color: GREY_COLOR.withOpacity(0.6),
+              color: isSelected ? Colors.black : Colors.white,
               size: 25,
             )
           ],
