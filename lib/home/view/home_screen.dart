@@ -52,8 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => authStatus = '$status');
     }
 
-    final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
-    print("UUID: $uuid");
+    // final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
+    // print(uuid);
   }
 
   @override

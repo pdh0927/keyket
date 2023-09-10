@@ -56,7 +56,7 @@ class _BucketListListScreenScreenState
                       .addNewBucket(newBucketData);
                 }
               },
-              icon: Icon(Remix.add_line)),
+              icon: const Icon(Remix.add_line)),
         ],
         child: Padding(
           padding:
