@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:keyket/common/component/compress_image.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -21,14 +22,14 @@ class _MyImageState extends ConsumerState<MyImage> {
   XFile? _image;
   final ImagePicker picker = ImagePicker();
 
-  Future<String?> pickImage(ImageSource imageSource) async {
+  Future<XFile?> pickImage(ImageSource imageSource) async {
     try {
       final XFile? pickedFile = await picker.pickImage(source: imageSource);
       if (pickedFile != null) {
         setState(() {
           _image = XFile(pickedFile.path);
         });
-        return pickedFile.path;
+        return pickedFile;
       }
     } catch (e) {
       print('Error picking image: $e');
@@ -79,16 +80,19 @@ class _MyImageState extends ConsumerState<MyImage> {
                           textAlign: TextAlign.center,
                         ),
                         onPressed: () async {
-                          String? imagePath =
+                          XFile? pickedFile =
                               await pickImage(ImageSource.gallery);
-                          if (imagePath == null) {
+
+                          if (pickedFile == null) {
                             ref
                                 .read(myInformationProvider.notifier)
                                 .changeImage('');
                           } else {
+                            File? tmpFile = File(pickedFile.path);
+                            tmpFile = await compressImage(imageFile: tmpFile);
                             ref
                                 .read(myInformationProvider.notifier)
-                                .changeImage(imagePath);
+                                .changeImage(tmpFile!.path);
                           }
 
                           Navigator.pop(context);
@@ -132,17 +136,21 @@ class _MyImageState extends ConsumerState<MyImage> {
                           ),
                         ),
                         onPressed: () async {
-                          String? imagePath =
+                          XFile? pickedFile =
                               await pickImage(ImageSource.gallery);
-                          if (imagePath == null) {
+
+                          if (pickedFile == null) {
                             ref
                                 .read(myInformationProvider.notifier)
                                 .changeImage('');
                           } else {
+                            File? tmpFile = File(pickedFile.path);
+                            tmpFile = await compressImage(imageFile: tmpFile);
                             ref
                                 .read(myInformationProvider.notifier)
-                                .changeImage(imagePath);
+                                .changeImage(tmpFile!.path);
                           }
+
                           Navigator.pop(context);
                         },
                       ),
