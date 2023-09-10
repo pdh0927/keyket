@@ -52,8 +52,8 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => authStatus = '$status');
     }
 
-    final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
-    print("UUID: $uuid");
+    // final uuid = await AppTrackingTransparency.getAdvertisingIdentifier();
+    // print(uuid);
   }
 
   @override
@@ -83,13 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 adWidth: MediaQuery.of(context).size.width.toInt() - 32,
                 adMaxHeight: 60,
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 25),
               const _RegionImageContainer(),
-              const SizedBox(height: 20),
-              _FixedBucketList(),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 25),
+              const _FixedBucketList(),
               const SizedBox(height: 10)
             ],
           ),
@@ -183,46 +180,184 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
     }
 
     if (fixedBucketList == null) {
+      if (info != null && info.fixedBucket == '') {
+        return Column(
+          children: [
+            Row(
+              children: [
+                Text('고정된 버킷', style: homeSubTitleStyle),
+                const SizedBox(
+                  width: 5,
+                ),
+                const Icon(
+                  Remix.pushpin_fill,
+                  color: PRIMARY_COLOR,
+                )
+              ],
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: double.infinity,
+              height: 95,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: PRIMARY_COLOR),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Image.asset(
+                      'asset/img/mascot.png',
+                      width: 55,
+                    ),
+                  ),
+                  const VerticalDivider(
+                    thickness: 1,
+                    width: 0,
+                    color: PRIMARY_COLOR,
+                  ),
+                  const Expanded(
+                      child: Text(
+                    '고정된 버킷이 없습니다',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: PRIMARY_COLOR,
+                      fontFamily: 'SCDream',
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  )),
+                ],
+              ),
+            ),
+          ],
+        );
+      }
+
       return Shimmer.fromColors(
-        baseColor: PRIMARY_COLOR,
+        baseColor: Colors.grey[300]!,
         highlightColor: Colors.grey[100]!,
         child: Container(
           width: double.infinity,
-          height: 40,
-          color: PRIMARY_COLOR,
-        ),
-      );
-    } else {
-      return Container(
-        width: double.infinity,
-        height: 40,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => BucketListDetailScreen(
-                      bucketListId: fixedBucketList!.id,
-                      isShared: fixedBucketList!.isShared,
-                    )));
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                fixedBucketList!.name,
-                style: const TextStyle(
-                  color: Colors.white, // 텍스트 색상
-                  fontSize: 16, // 텍스트 크기
-                  fontWeight: FontWeight.bold, // 텍스트 두께
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward, // 화살표 아이콘
-                color: Colors.white, // 아이콘 색상
-              ),
-            ],
+          height: 95,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            color: Colors.grey[300]!,
           ),
         ),
       );
+    } else {
+      return Column(children: [
+        Row(
+          children: [
+            Text('고정된 버킷', style: homeSubTitleStyle),
+            const SizedBox(
+              width: 5,
+            ),
+            const Icon(
+              Remix.pushpin_fill,
+              color: PRIMARY_COLOR,
+            )
+          ],
+        ),
+        const SizedBox(height: 10),
+        Container(
+          width: double.infinity,
+          height: 95,
+          decoration: BoxDecoration(
+            border: Border.all(width: 1, color: PRIMARY_COLOR),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: fixedBucketList!.image == '' ? 20 : 0),
+                child: fixedBucketList!.image == ''
+                    ? Image.asset(
+                        'asset/img/mascot.png',
+                        width: 55,
+                      )
+                    : ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(10),
+                          bottomLeft: Radius.circular(10),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: fixedBucketList!.image,
+                          fit: BoxFit.fill,
+                          width: 90,
+                          height: 95,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              color: Colors.grey[300],
+                            ),
+                          ),
+                          errorWidget: (context, url, error) =>
+                              const Icon(Icons.error),
+                        ),
+                      ),
+              ),
+              const VerticalDivider(
+                thickness: 1,
+                width: 0,
+                color: PRIMARY_COLOR,
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      fixedBucketList!.isShared ? '공유 버킷' : '내 버킷',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'SCDream',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      '<${fixedBucketList!.name}>',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontFamily: 'SCDream',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => BucketListDetailScreen(
+                            bucketListId: fixedBucketList!.id,
+                            isShared: fixedBucketList!.isShared,
+                          )));
+                },
+                child: Container(
+                  width: 60,
+                  height: 95,
+                  color: Colors.transparent,
+                  alignment: Alignment.center,
+                  child: const Icon(
+                    Remix.arrow_right_circle_fill,
+                    color: PRIMARY_COLOR,
+                    size: 30,
+                  ),
+                ),
+              )
+            ],
+          ),
+        )
+      ]);
     }
   }
 }
@@ -843,29 +978,32 @@ class _RegionImageContainer extends ConsumerWidget {
                             : 15.0),
                     child: Column(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: recommendRegion['images'][index],
-                          fit: BoxFit.cover,
-                          width: 230 / 390 * 100.w,
-                          height: 230 / 390 * 100.w,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 90,
-                              height: 90,
-                              color: Colors.grey[300],
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: CachedNetworkImage(
+                            imageUrl: recommendRegion['images'][index],
+                            fit: BoxFit.cover,
+                            width: 230 / 390 * 100.w,
+                            height: 230 / 390 * 100.w,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 90,
+                                height: 90,
+                                color: Colors.grey[300],
+                              ),
                             ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           recommendRegion['titles'][index],
                           style: const TextStyle(
                               fontSize: 16,
-                              color: PRIMARY_COLOR,
+                              color: Colors.black,
                               fontFamily: 'SCDream',
                               fontWeight: FontWeight.w500),
                         ),
@@ -878,12 +1016,15 @@ class _RegionImageContainer extends ConsumerWidget {
           ])
         : Stack(children: [
             Shimmer.fromColors(
-              baseColor: PRIMARY_COLOR,
-              highlightColor: Colors.grey[100]!,
+              baseColor: Colors.grey[300]!, // 어두운 색
+              highlightColor: Colors.grey[100]!, // 밝은 색
               child: Container(
                 width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: PRIMARY_COLOR,
+                ),
                 height: 250,
-                color: PRIMARY_COLOR,
               ),
             ),
             const Positioned(
@@ -895,9 +1036,9 @@ class _RegionImageContainer extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'SCDream',
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white,
+                  color: PRIMARY_COLOR,
                 ),
               ),
             ),

@@ -47,8 +47,8 @@ class BucketListCard extends ConsumerWidget {
           ? Image.asset(
               width: 100,
               height: 100,
-              "asset/img/default_bucket.png",
-              fit: BoxFit.cover)
+              "asset/img/logo.png",
+            )
           : CachedNetworkImage(
               width: 100,
               height: 100,
@@ -132,7 +132,7 @@ class BucketListCard extends ConsumerWidget {
                       ? ''
                       : id);
             },
-            child: Icon(Icons.push_pin,
+            child: Icon(Remix.pushpin_fill,
                 size: 25,
                 color: ref.watch(myInformationProvider)!.fixedBucket == id
                     ? PRIMARY_COLOR

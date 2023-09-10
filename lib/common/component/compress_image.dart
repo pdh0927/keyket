@@ -11,11 +11,13 @@ Future<File?> compressImage({required File? imageFile}) async {
   final fileNameWithoutExtension = filePathParts.last.split('.').first;
   final fileExtension = filePathParts.last.split('.').last;
 
-  // 확장자가 png인 경우 출력 파일도 png로 유지
   final targetExtension =
       (fileExtension.toLowerCase() == 'png') ? 'png' : 'jpg';
+
+  // 임시 파일 이름에 타임스탬프를 추가하여 고유한 이름을 생성합니다.
+  final timestamp = DateTime.now().millisecondsSinceEpoch;
   final targetPath =
-      '${tempDir.path}${Platform.pathSeparator}$fileNameWithoutExtension.$targetExtension';
+      '${tempDir.path}${Platform.pathSeparator}$fileNameWithoutExtension-$timestamp.$targetExtension';
 
   var format = (fileExtension.toLowerCase() == 'png')
       ? CompressFormat.png
@@ -28,5 +30,9 @@ Future<File?> compressImage({required File? imageFile}) async {
     format: format,
   );
 
-  return File(result!.path);
+  if (result != null) {
+    return File(result.path);
+  } else {
+    return null;
+  }
 }

@@ -24,14 +24,20 @@ class HashTagItemList extends ConsumerWidget {
     if (selectedRegionFilter != null) {
       childs.add(Container(
         margin: const EdgeInsets.only(right: 8),
-        child: HashTagItem(region: selectedRegionFilter),
+        child: HashTagItem(
+          region: selectedRegionFilter,
+          canSelect: true,
+        ),
       ));
     }
 
     for (var theme in selectedThemeFilterList) {
       childs.add(Container(
         margin: const EdgeInsets.only(right: 8),
-        child: HashTagItem(theme: theme),
+        child: HashTagItem(
+          theme: theme,
+          canSelect: true,
+        ),
       ));
     }
     return childs;

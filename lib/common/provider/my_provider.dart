@@ -99,8 +99,9 @@ Future<String> _uploadImageToFirebase(
   String uniqueId = Uuid().v4();
   try {
     // 이미지를 Firebase Storage에 업로드하고 다운로드 URL을 가져옵니다.
-    await storage.ref('images/$uniqueId').putFile(imageFile!);
-    String downloadURL = await storage.ref('images/$uniqueId').getDownloadURL();
+    await storage.ref('images/user/$uniqueId').putFile(imageFile!);
+    String downloadURL =
+        await storage.ref('images/user/$uniqueId').getDownloadURL();
     return downloadURL;
   } catch (e) {
     // 이미지 업로드에 실패했습니다.
