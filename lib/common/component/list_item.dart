@@ -68,7 +68,7 @@ class _ListItemState extends State<ListItem> {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: CachedNetworkImage(
-                          width: 210 / 390 * 100.w,
+                          width: 200 / 390 * 100.w,
                           height: 140 / 390 * 100.w,
                           imageUrl: (widget.item as RecommendItemModel).image,
                           fit: BoxFit.cover,
@@ -76,7 +76,7 @@ class _ListItemState extends State<ListItem> {
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
                             child: Container(
-                              width: 210 / 390 * 100.w,
+                              width: 200 / 390 * 100.w,
                               height: 140 / 390 * 100.w,
                               color: Colors.grey[300],
                             ),
@@ -114,14 +114,9 @@ class _ListItemState extends State<ListItem> {
                           textAlign: TextAlign.start,
                           style: TextStyle(
                               fontFamily: 'SCDream',
-                              decoration:
-                                  (widget.isContain && widget.isRecommendItem)
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                              backgroundColor:
-                                  (widget.isContain && !widget.isRecommendItem)
-                                      ? const Color(0xFFC4E4FA)
-                                      : null,
+                              backgroundColor: widget.isContain
+                                  ? const Color(0xFFC4E4FA)
+                                  : null,
                               fontSize: 16,
                               color: BLACK_COLOR),
                         ),
@@ -158,11 +153,9 @@ class _ListItemState extends State<ListItem> {
                                     widget.item.content,
                                     style: TextStyle(
                                         fontFamily: 'SCDream',
+                                        height: 1.6,
                                         decoration: widget.isContain
                                             ? TextDecoration.lineThrough
-                                            : null,
-                                        backgroundColor: widget.isContain
-                                            ? const Color(0xFFC4E4FA)
                                             : null,
                                         fontSize: 16,
                                         color: BLACK_COLOR),
