@@ -492,7 +492,7 @@ class _BucketListDetailScreenState
   // 본문을 구성
   Padding buildBody() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 8, right: 16),
       child: Column(
         children: [
           const SizedBox(height: 10), // 빈공간

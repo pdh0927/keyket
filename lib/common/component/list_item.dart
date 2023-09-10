@@ -44,9 +44,11 @@ class _ListItemState extends State<ListItem> {
     return widget.isRecommendItem
         ? Container(
             margin: const EdgeInsets.only(bottom: 20),
-            padding: const EdgeInsets.symmetric(
-              vertical: 15,
-              horizontal: 20,
+            padding: EdgeInsets.only(
+              top: 20,
+              bottom: 15,
+              left: widget.isNeedSelectButton ? 8 : 16,
+              right: 16,
             ),
             alignment: Alignment.center,
             decoration: BoxDecoration(
@@ -65,10 +67,13 @@ class _ListItemState extends State<ListItem> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
+                      SizedBox(
+                        width: widget.isNeedSelectButton ? 8 : 0,
+                      ),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: CachedNetworkImage(
-                          width: 200 / 390 * 100.w,
+                          width: 210 / 390 * 100.w,
                           height: 140 / 390 * 100.w,
                           imageUrl: (widget.item as RecommendItemModel).image,
                           fit: BoxFit.cover,
@@ -76,7 +81,7 @@ class _ListItemState extends State<ListItem> {
                             baseColor: Colors.grey[300]!,
                             highlightColor: Colors.grey[100]!,
                             child: Container(
-                              width: 200 / 390 * 100.w,
+                              width: 210 / 390 * 100.w,
                               height: 140 / 390 * 100.w,
                               color: Colors.grey[300],
                             ),
@@ -239,7 +244,7 @@ class _SelectButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(right: 16.0),
+      padding: const EdgeInsets.all(12.0),
       child: IconButton(
           onPressed: onPressed,
           padding: EdgeInsets.zero,

@@ -358,36 +358,6 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
           ),
         )
       ]);
-      return SizedBox(
-        width: double.infinity,
-        height: 95,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(MaterialPageRoute(
-                builder: (_) => BucketListDetailScreen(
-                      bucketListId: fixedBucketList!.id,
-                      isShared: fixedBucketList!.isShared,
-                    )));
-          },
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                fixedBucketList!.name,
-                style: const TextStyle(
-                  color: Colors.white, // 텍스트 색상
-                  fontSize: 16, // 텍스트 크기
-                  fontWeight: FontWeight.bold, // 텍스트 두께
-                ),
-              ),
-              const Icon(
-                Icons.arrow_forward, // 화살표 아이콘
-                color: Colors.white, // 아이콘 색상
-              ),
-            ],
-          ),
-        ),
-      );
     }
   }
 }
