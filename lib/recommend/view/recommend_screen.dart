@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:remixicon/remixicon.dart';
+import 'package:sizer/sizer.dart';
+import 'package:dotted_line/dotted_line.dart';
+
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
-
 import 'package:keyket/common/component/custom_input_dialog.dart';
 import 'package:keyket/common/component/custom_underline_button.dart';
 import 'package:keyket/common/component/list_item.dart';
@@ -12,15 +15,10 @@ import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/const/text_style.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
-
 import 'package:keyket/recommend/component/hash_tag_item_list.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
-
 import 'package:keyket/recommend/provider/recommend_provider.dart';
 import 'package:keyket/recommend/provider/selected_filter_provider.dart';
-import 'package:remixicon/remixicon.dart';
-import 'package:sizer/sizer.dart';
-import 'package:dotted_line/dotted_line.dart';
 
 class RecommendScreen extends ConsumerStatefulWidget {
   const RecommendScreen({super.key});
@@ -203,21 +201,23 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
                               });
                             },
                             item: item),
-                        isLastPage
+                        (isLastPage || recommendedItems.length < 10)
                             ? getDottedLine(
                                 index, false, recommendedItems.length) // 구분 점선
                             : const SizedBox(height: 0, width: 0)
                       ],
                     );
                   } else {
-                    return Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 10),
-                        width: 25.0,
-                        height: 45.0,
-                        child: const CircularProgressIndicator(),
-                      ),
-                    );
+                    return (isLastPage || recommendedItems.length < 10)
+                        ? const SizedBox(height: 0)
+                        : Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              width: 25.0,
+                              height: 45.0,
+                              child: const CircularProgressIndicator(),
+                            ),
+                          );
                   }
                 },
               ),
