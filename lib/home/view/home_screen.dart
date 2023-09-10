@@ -86,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 20),
               const _RegionImageContainer(),
               const SizedBox(height: 20),
-              _FixedBucketList(),
+              const _FixedBucketList(),
               const SizedBox(
                 height: 20,
               ),
@@ -843,29 +843,32 @@ class _RegionImageContainer extends ConsumerWidget {
                             : 15.0),
                     child: Column(
                       children: [
-                        CachedNetworkImage(
-                          imageUrl: recommendRegion['images'][index],
-                          fit: BoxFit.cover,
-                          width: 230 / 390 * 100.w,
-                          height: 230 / 390 * 100.w,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(
-                              width: 90,
-                              height: 90,
-                              color: Colors.grey[300],
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: CachedNetworkImage(
+                            imageUrl: recommendRegion['images'][index],
+                            fit: BoxFit.cover,
+                            width: 230 / 390 * 100.w,
+                            height: 230 / 390 * 100.w,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                width: 90,
+                                height: 90,
+                                color: Colors.grey[300],
+                              ),
                             ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
                           ),
-                          errorWidget: (context, url, error) =>
-                              const Icon(Icons.error),
                         ),
                         const SizedBox(height: 12),
                         Text(
                           recommendRegion['titles'][index],
                           style: const TextStyle(
                               fontSize: 16,
-                              color: PRIMARY_COLOR,
+                              color: Colors.black,
                               fontFamily: 'SCDream',
                               fontWeight: FontWeight.w500),
                         ),
@@ -878,12 +881,15 @@ class _RegionImageContainer extends ConsumerWidget {
           ])
         : Stack(children: [
             Shimmer.fromColors(
-              baseColor: PRIMARY_COLOR,
-              highlightColor: Colors.grey[100]!,
+              baseColor: Colors.grey[300]!, // 어두운 색
+              highlightColor: Colors.grey[100]!, // 밝은 색
               child: Container(
                 width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(10),
+                  color: PRIMARY_COLOR,
+                ),
                 height: 250,
-                color: PRIMARY_COLOR,
               ),
             ),
             const Positioned(
@@ -895,9 +901,9 @@ class _RegionImageContainer extends ConsumerWidget {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'SCDream',
-                  fontSize: 16,
+                  fontSize: 20,
                   fontWeight: FontWeight.w400,
-                  color: Colors.white,
+                  color: PRIMARY_COLOR,
                 ),
               ),
             ),
