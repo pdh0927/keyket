@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -24,14 +25,24 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
 
     if (user != null) {
       try {
-        final DocumentSnapshot userDoc =
-            await _firestore.collection('user').doc(user.uid).get();
+        StreamSubscription<DocumentSnapshot>? subscription;
 
-        if (userDoc.exists) {
-          final data = userDoc.data() as Map<String, dynamic>;
-          data['id'] = userDoc.id;
-          state = UserModel.fromJson(data);
-        }
+        subscription = _firestore
+            .collection('user')
+            .doc(user.uid)
+            .snapshots()
+            .listen((snapshot) {
+          if (snapshot.exists) {
+            // 문서가 존재하면, 구독 취소 후 상태 업데이트
+            final data = snapshot.data() as Map<String, dynamic>;
+            data['id'] = snapshot.id;
+            state = UserModel.fromJson(data);
+
+            if (subscription != null) {
+              subscription!.cancel(); // 스트림 구독 취소
+            }
+          }
+        });
       } catch (e) {
         print(e);
       }
