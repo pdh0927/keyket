@@ -39,7 +39,7 @@ class MyInformationNotifer extends StateNotifier<UserModel?> {
             state = UserModel.fromJson(data);
 
             if (subscription != null) {
-              subscription!.cancel(); // 스트림 구독 취소
+              subscription.cancel(); // 스트림 구독 취소
             }
           }
         });
