@@ -417,8 +417,7 @@ class _OrdinaryBucketItem extends StatelessWidget {
                               height: 60,
                               fit: BoxFit.fill,
                             )
-                          : Image.asset('asset/img/default_bucket.png',
-                              width: 60)),
+                          : Image.asset('asset/img/logo.png', width: 60)),
                   const SizedBox(width: 24),
                   Container(
                     alignment: Alignment.centerLeft,
