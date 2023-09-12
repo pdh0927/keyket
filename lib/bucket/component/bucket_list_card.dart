@@ -44,26 +44,36 @@ class BucketListCard extends ConsumerWidget {
       id: model.id,
       name: model.name,
       image: model.image == ''
-          ? Image.asset(
+          ? Container(
               width: 100,
               height: 100,
-              "asset/img/logo.png",
-            )
-          : CachedNetworkImage(
-              width: 100,
-              height: 100,
-              imageUrl: model.image,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => Shimmer.fromColors(
-                baseColor: Colors.grey[300]!, // 어두운 색
-                highlightColor: Colors.grey[100]!, // 밝은 색
-                child: Container(
-                  width: 100,
-                  height: 100,
-                  color: Colors.grey[300],
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5.0),
+                border: Border.all(color: PRIMARY_COLOR),
+                image: const DecorationImage(
+                  image: AssetImage("asset/img/logo.png"),
+                  fit: BoxFit.cover,
                 ),
               ),
-              errorWidget: (context, url, error) => const Icon(Icons.error),
+            )
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(5.0),
+              child: CachedNetworkImage(
+                width: 100,
+                height: 100,
+                imageUrl: model.image,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!, // 어두운 색
+                  highlightColor: Colors.grey[100]!, // 밝은 색
+                  child: Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey[300],
+                  ),
+                ),
+                errorWidget: (context, url, error) => const Icon(Icons.error),
+              ),
             ),
       host: model.host,
       isShared: model.isShared,
@@ -90,7 +100,7 @@ class BucketListCard extends ConsumerWidget {
           },
           child: IntrinsicHeight(
             child: Row(children: [
-              ClipRRect(borderRadius: BorderRadius.circular(5.0), child: image),
+              image,
               const SizedBox(width: 25),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +134,7 @@ class BucketListCard extends ConsumerWidget {
         ),
         Positioned(
           top: 5,
-          left: 100 - 25,
+          left: 100 - 27,
           child: InkWell(
             onTap: () {
               ref.read(myInformationProvider.notifier).setFixedBucket(
@@ -132,11 +142,15 @@ class BucketListCard extends ConsumerWidget {
                       ? ''
                       : id);
             },
-            child: Icon(Remix.pushpin_fill,
-                size: 25,
-                color: ref.watch(myInformationProvider)!.fixedBucket == id
-                    ? PRIMARY_COLOR
-                    : Colors.white), // 여기에 원하는 아이콘을 설정하세요.
+            child: Icon(
+              ref.watch(myInformationProvider)!.fixedBucket == id
+                  ? Remix.pushpin_fill
+                  : Remix.pushpin_line,
+              size: 25,
+              color: ref.watch(myInformationProvider)!.fixedBucket == id
+                  ? PRIMARY_COLOR
+                  : Colors.black,
+            ),
           ),
         ),
       ],
