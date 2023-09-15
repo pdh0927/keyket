@@ -45,9 +45,19 @@ Future<void> uploadToFirebase(Map<String, dynamic> data) async {
 }
 
 Future<void> uploadDatas(List<Map<String, dynamic>> list) async {
-  for (var item in list) {
-    await uploadToFirebase(item);
+  print('total : ${list.length}');
+  print('start');
+
+  try {
+    for (int i = 0; i < list.length; i++) {
+      await uploadToFirebase(list[i]);
+      print(i);
+    }
+  } catch (e) {
+    print(e);
   }
+
+  print('end');
 }
 
 List<Map<String, dynamic>> list = [
@@ -60,7 +70,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "김광석 다시 그리기 길에서 인형사격해서 인형 따기",
     "region": "daegu",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/84/2556884.jpg"
   },
   {
@@ -78,49 +88,49 @@ List<Map<String, dynamic>> list = [
   {
     "content": "서문시장에서 대구의 명물 납작만두 먹기",
     "region": "daegu",
-    "theme": ["food", "date"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/18/2588718.jpg"
   },
   {
     "content": "앞산전망대 올라가서 토끼랑 사진 찍기 ",
     "region": "daegu",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/44/2633144.jpg"
   },
   {
     "content": "앞산전망대 올라가서 사투리퀴즈 100점 받기",
     "region": "daegu",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/44/2633144.jpg"
   },
   {
     "content": "앞산전망대 올라가서 대구의 야경 구경하기",
     "region": "daegu",
-    "theme": ["activity", "healing"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/44/2633144.jpg"
   },
   {
     "content": "두류공원 야외음악당에서 피크닉 하기",
     "region": "daegu",
-    "theme": ["healing", "date"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/10/1018010.jpg"
   },
   {
     "content": "동성로 스파크랜드 관람차타면서 대구 시내 한 눈에 내려다보기",
     "region": "daegu",
-    "theme": ["healing", "date"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/73/2951473.jpg"
   },
   {
     "content": "강정보에서 노을보며 전동바이크 타기",
     "region": "daegu",
-    "theme": ["healing", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/26/2029226.jpg"
   },
   {
     "content": "서문시장 야시장에서 맛있는 길거리음식 먹기",
     "region": "daegu",
-    "theme": ["food", "date"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/18/2588718.jpg"
   },
   {
@@ -132,7 +142,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "달성공원에서 귀여운 동물친구들 보면서 산책하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/83/2442983.jpg"
   },
   {
@@ -144,19 +154,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "수성못에서 버스킹 들으면서 따라 부르기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/04/2951604.jpg"
   },
   {
     "content": "수성못에서 오리배 타기",
     "region": "daegu",
-    "theme": ["date", "healing", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/04/2951604.jpg"
   },
   {
     "content": "수목원에서 맑은 공기 마시며 산책하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/30/2951930.jpg"
   },
   {
@@ -174,13 +184,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "치맥 페스티벌에서 맥주 마시며 콘서트 보기",
     "region": "daegu",
-    "theme": ["festival", "food"],
+    "theme": ["healing", "food", "festival", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/73/2028573.jpg"
   },
   {
     "content": "치맥 페스티벌에서 돗자리 펴고 치맥 먹기",
     "region": "daegu",
-    "theme": ["festival", "food"],
+    "theme": ["healing", "food", "festival", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/73/2028573.jpg"
   },
   {
@@ -198,7 +208,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "팔공산 동화사에서 템플스테이 해보기",
     "region": "daegu",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/92/1948892.jpg"
   },
   {
@@ -216,7 +226,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "비슬산 자연휴양림에서 숲속 캠핑 즐기기",
     "region": "daegu",
-    "theme": ["healing", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/70/2637870.jpg"
   },
   {
@@ -228,13 +238,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "해넘이 전망대에서 커피 마시면서 야경 구경하기",
     "region": "daegu",
-    "theme": ["food", "healing"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/99/2951599.jpg"
   },
   {
     "content": "불로동 고분군에서 시내전망을 바라보며 산책하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/55/2907655.JPG"
   },
   {
@@ -246,25 +256,25 @@ List<Map<String, dynamic>> list = [
   {
     "content": "남평문씨본리세거지에서 예쁜 능소화와 함께 인생 사진 남기기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/88/2557888.jpg"
   },
   {
     "content": "서문야시장에 있는 모든 음식 하루 만에 다 먹어보기",
     "region": "daegu",
-    "theme": ["date", "food"],
+    "theme": ["food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/18/2588718.jpg"
   },
   {
     "content": "동촌유원지에서 벚꽃이랑 같이 사진 찍기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/41/2637841.jpg"
   },
   {
     "content": "반야월 연꽃단지에서 연꽃을 바라보며 산책하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/77/1058177.jpg"
   },
   {
@@ -276,7 +286,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "스파밸리에서 물놀이 하루 종일 즐기기",
     "region": "daegu",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/38/2951938.jpg"
   },
   {
@@ -300,7 +310,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "오페라하우스에서 공연 관람하기",
     "region": "daegu",
-    "theme": ["date", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/74/1017974.jpg"
   },
   {
@@ -312,7 +322,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "옥연지 송해공원 돌며 튤립 구경하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/35/2951935.jpg"
   },
   {
@@ -324,25 +334,25 @@ List<Map<String, dynamic>> list = [
   {
     "content": "사문진 나루터에서 유람선 타보기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/41/2951941.jpg"
   },
   {
     "content": "강정보에서 캠프닉 해보기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/29/2951829.jpg"
   },
   {
     "content": "강정보 디아크에서 오리배 타보기",
     "region": "daegu",
-    "theme": ["date", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/29/2951829.jpg"
   },
   {
     "content": "이월드에 벚꽃놀이 가기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/71/2951671.jpg"
   },
   {
@@ -372,13 +382,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "마비정벽화마을에서 쉽게 찾을 수 없는 옛날 물건 만나보기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/71/2951871.jpg"
   },
   {
     "content": "남평 문씨 본리 세거지에서 고즈넉한 분위기의 돌담길을 따라서 산책여행하기",
     "region": "daegu",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/88/2557888.jpg"
   },
   {
@@ -390,25 +400,25 @@ List<Map<String, dynamic>> list = [
   {
     "content": "경상감영공원에서 도심 한복판 숲과 정원을 거닐며 역사 공부하기",
     "region": "daegu",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/87/1732287.jpg"
   },
   {
     "content": "이국적인 계산성당을 거닐며 고딕 양식의 외관에 매료돼보기",
     "region": "daegu",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/26/2951426.jpg"
   },
   {
     "content": "아름드리 은행나무와 아름다운 토담을 품은 도동서원에서 힐링하기",
     "region": "daegu",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/28/1948328.jpg"
   },
   {
     "content": "화산산성에서 고랭지 채소로 비빔밥 먹기",
     "region": "daegu",
-    "theme": ["food", "hist"],
+    "theme": ["food", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/47/2819847.jpg"
   },
   {
@@ -426,7 +436,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "비슬산참꽃문화재에서 한폭의 수채화같은 참꽃들을 구경하기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/70/2637870.jpg"
   },
   {
@@ -438,7 +448,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "달구벌관등놀이축제에서 아름다운 관등을 날려보기",
     "region": "daegu",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/11/2555311.jpg"
   },
   {
@@ -468,7 +478,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "영도 흰 여울 문화마을 해녀 노상에서 바다 바라보며 회 먹기",
     "region": "busan",
-    "theme": ["healing", "food"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/60/2960960.jpg"
   },
   {
@@ -522,7 +532,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "기장 해동용궁사에서 바다 보며 소원 빌기",
     "region": "busan",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/78/2499978.jpg"
   },
   {
@@ -558,13 +568,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "감천 문화마을 이장님이 됐다는 느낌으로 한 바퀴 걸어보기",
     "region": "busan",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/42/2927842.jpg"
   },
   {
     "content": "석불사 석불암 앞에서 스님의 목탁소리를 들으며 잠시 일상의 걱정거리를 잊어보기",
     "region": "busan",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/99/2928799.jpg"
   },
   {
@@ -600,7 +610,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "고요하고 정취 있는 범어사에서 내면을 돌아보고 참된 나를 찾아보기",
     "region": "busan",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/77/2927877.jpg"
   },
   {
@@ -612,7 +622,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "보수동 헌책방 골목에서 마음에 드는 책 한권 구입하기",
     "region": "busan",
-    "theme": ["date", "hist"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/53/1075153.jpg"
   },
   {
@@ -624,7 +634,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "동백섬에서 일주 걷기 성공하기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/34/2988734.jpg"
   },
   {
@@ -654,7 +664,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "부산국제영화제에서 다양한 세계영화 구경하기",
     "region": "busan",
-    "theme": ["date", "festival"],
+    "theme": ["healing", "festival", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/67/2540667.jpg"
   },
   {
@@ -666,7 +676,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "광안리에서 요트타고 불꽃놀이하기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/12/2802912.jpg"
   },
   {
@@ -702,7 +712,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "부산전통문화체험관에서 다도체험하면서 차 마시는 예절 배우기",
     "region": "busan",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/70/2928570.jpg"
   },
   {
@@ -726,7 +736,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "해양자연사자연박물관에서 닥터피쉬로 각질 제거하기",
     "region": "busan",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/30/2928430.jpg"
   },
   {
@@ -780,13 +790,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "씨라이프 아쿠아리움에서 투명보트 타고 상어 먹이주기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/29/1075829.jpg"
   },
   {
     "content": "영화의 전당에서 무대인사 보기",
     "region": "busan",
-    "theme": ["date", "hist"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/58/2953358.jpg"
   },
   {
@@ -798,19 +808,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "다대포 해수욕장에서 조개와 꽃게 잡아보기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/42/2927642.jpg"
   },
   {
     "content": "다대포 해수욕장에서 두꺼비집 짓기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/42/2927642.jpg"
   },
   {
     "content": "부산과학체험관에서 다양한 체험 해보기 ",
     "region": "busan",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/90/2928390.jpg"
   },
   {
@@ -828,7 +838,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "우암동 도시숲 전망대에서 영도 바다와 부산항대교 한눈에 담아보기",
     "region": "busan",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/28/2927728.jpg"
   },
   {
@@ -858,13 +868,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "황령산 봉수대에서 야경 보기",
     "region": "busan",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/07/2803007.jpg"
   },
   {
     "content": "대변항에서 낚시로 물고기 잡아보기",
     "region": "busan",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/66/2928466.jpg"
   },
   {
@@ -876,7 +886,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "부산현대미술관에서 다양한 전시 구경하기",
     "region": "busan",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/47/2927647.jpg"
   },
   {
@@ -888,7 +898,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "부산커피박물관에서 다양한 원두 구경하고 원하는 원두로 커피 마시기",
     "region": "busan",
-    "theme": ["food", "healing"],
+    "theme": ["food", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/09/2044409.jpg"
   },
   {
@@ -918,7 +928,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "남산타워에서 케이블카 타보기",
     "region": "seoul",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/22/1401622.jpg"
   },
   {
@@ -936,7 +946,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "안국에서 고궁 투어 해보기",
     "region": "seoul",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/07/2029207.jpg"
   },
   {
@@ -954,7 +964,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "통인시장에서 엽전으로 먹거리 사먹기",
     "region": "seoul",
-    "theme": ["date", "food"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/89/2589089.jpg"
   },
   {
@@ -972,13 +982,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "덕수궁 돌담길을 거닐며 사진 찍기",
     "region": "seoul",
-    "theme": ["date", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/20/2504320.jpg"
   },
   {
     "content": "회기역 파전골목에서 비올때 막거리에 파전먹기",
     "region": "seoul",
-    "theme": ["date", "food"],
+    "theme": ["healing", "food", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/05/2609605.jpg"
   },
   {
@@ -996,19 +1006,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "장충동에서 왕족발 먹기",
     "region": "seoul",
-    "theme": ["food", "date"],
+    "theme": ["food", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/95/2609595.jpg"
   },
   {
     "content": "신당동에서 즉석떡볶이 먹기",
     "region": "seoul",
-    "theme": ["food", "date"],
+    "theme": ["food", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/84/2609484.jpg"
   },
   {
     "content": "마장동 축산시장에서 소고기 먹기",
     "region": "seoul",
-    "theme": ["food", "date"],
+    "theme": ["food", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/88/2609288.jpg"
   },
   {
@@ -1044,7 +1054,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "서울 불꽃놀이 명당자리에 앉아 불꽃놀이 구경하기",
     "region": "seoul",
-    "theme": ["festival", "date"],
+    "theme": ["festival", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/70/2620370.jpg"
   },
   {
@@ -1056,19 +1066,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "롯데월드 아이스 링크장에서 스피드 스케이팅 자세하며 달려보기",
     "region": "seoul",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/42/1039042.jpg"
   },
   {
     "content": "하늘공원에서 노을질때 그림같은 사진 찍기",
     "region": "seoul",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/57/1983157.jpg"
   },
   {
     "content": "바쁜 도심 생활은 잠시 잊고 마음 편히 청계천 산책하기",
     "region": "seoul",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/48/2506048.jpg"
   },
   {
@@ -1080,19 +1090,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "인사동에서 전통찻집, 전통공예품 매장 등에 가서 한국의 전통을 느껴보기",
     "region": "seoul",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/38/1143238.jpg"
   },
   {
     "content": "조선시대의 왕이 되었다는 느낌으로 창덕궁 정원 산책하기",
     "region": "seoul",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/99/990399.jpg"
   },
   {
     "content": "창덕궁에서 우리나라 전통 문화 체험 해보기",
     "region": "seoul",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/12/990412.jpg"
   },
   {
@@ -1104,7 +1114,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "전쟁기념관에서 한국전쟁과 관련된 역사 알아보기",
     "region": "seoul",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/58/2553158.jpg"
   },
   {
@@ -1122,19 +1132,19 @@ List<Map<String, dynamic>> list = [
   {
     "content": "여의도 공원 한바퀴 산책하기",
     "region": "seoul",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/36/1432436.jpg"
   },
   {
     "content": "남산골 한옥마을에서 돌쇠 흉내 내보기",
     "region": "seoul",
-    "theme": ["date", "hist"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/01/1004301.jpg"
   },
   {
     "content": "조계사에서 수령이 500년인 백송과 회화나무를 바라보면서 겸손한 마음가짐 갖기",
     "region": "seoul",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/35/1854535.jpg"
   },
   {
@@ -1152,7 +1162,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "창경궁 대온실에서 온실 속 화초들 구경하기",
     "region": "seoul",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/11/2973711.JPG"
   },
   {
@@ -1206,7 +1216,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "성산일출봉에서 제주도에서 가장 먼저 뜨는 해 보기",
     "region": "jeju",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/97/2990997.jpg"
   },
   {
@@ -1218,7 +1228,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "테디베어 뮤지엄 가서 동심으로 돌아가기",
     "region": "jeju",
-    "theme": ["date", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/92/2583692.jpg"
   },
   {
@@ -1248,25 +1258,25 @@ List<Map<String, dynamic>> list = [
   {
     "content": "오설록 티 뮤지엄에서 녹차밭 구경하기",
     "region": "jeju",
-    "theme": ["date", "hist"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/26/2027526.jpg"
   },
   {
     "content": "오설록 티 뮤지엄에서 녹차 디저트 먹어보기",
     "region": "jeju",
-    "theme": ["food", "hist"],
+    "theme": ["food", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/58/1945158.jpg"
   },
   {
     "content": "섭지코지 그랜드 스윙 포토존에서 사진 찍기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/88/2728188.jpg"
   },
   {
     "content": "자전거 해안 도로에서 전동 바이크 타기",
     "region": "jeju",
-    "theme": ["healing", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/67/2390967.jpg"
   },
   {
@@ -1278,37 +1288,37 @@ List<Map<String, dynamic>> list = [
   {
     "content": "한라산 등반하기",
     "region": "jeju",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/00/2504300.jpg"
   },
   {
     "content": "한라산 정상에서 한라산 술들고 기념사진 찍기",
     "region": "jeju",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/00/2504300.jpg"
   },
   {
     "content": "눈 쌓인 곳에서 썰매 타보기",
     "region": "jeju",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/33/2762133.jpg"
   },
   {
     "content": "일몰시간에 이호테우해변에서 사진 찍기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/21/2785421.jpg"
   },
   {
     "content": "애월 한담 해안 산책로에서 곽지리 해변까지 산책로를 따라 산책하기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/62/2728262.jpg"
   },
   {
     "content": "제주 양떼 목장에서 귀여운 양들에게 먹이주기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/40/2575940.jpg"
   },
   {
@@ -1326,7 +1336,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "구엄리 돌염전에서 인근 바위에 앉아 일몰 구경하기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/52/2909352.jpg"
   },
   {
@@ -1338,13 +1348,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "금오름에 올라가서 제주 시내와  바다까지 한눈에 구경하기",
     "region": "jeju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/43/2703943.jpg"
   },
   {
     "content": "비 온 다음 날 금오름에 올라가 분화구에 물이 고인 모습 보기",
     "region": "jeju",
-    "theme": ["date", "hist"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/43/2703943.jpg"
   },
   {
@@ -1356,7 +1366,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "제주민속촌 무더위를 날릴 공포체험 해보기",
     "region": "jeju",
-    "theme": ["hist", "activity"],
+    "theme": ["date", "activity", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/27/1321627.jpg"
   },
   {
@@ -1404,7 +1414,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "감귤체험 농장에서 감귤따서 맛있게 먹기",
     "region": "jeju",
-    "theme": ["food", "activity"],
+    "theme": ["food", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/12/2704212.jpg\n"
   },
   {
@@ -1428,13 +1438,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "올레시장에서 유명한 오메기떡 사먹기",
     "region": "jeju",
-    "theme": ["food", "date"],
+    "theme": ["food", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/26/1940426.jpg"
   },
   {
     "content": "배낚시하면서 잡은 해산물로 해물라면 만들어먹기",
     "region": "jeju",
-    "theme": ["food", "healing"],
+    "theme": ["food", "healing", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/62/1841262.jpg"
   },
   {
@@ -1506,13 +1516,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "이가리닻전망대에서 바다 구경하기",
     "region": "pohang",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/84/2950184.jpg"
   },
   {
     "content": "이가리닻전망대 동굴 포토존에서 사진찍기",
     "region": "pohang",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/84/2950184.jpg"
   },
   {
@@ -1524,13 +1534,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "사방기념공원 드라마 '갯마을차차차'에 나온 배 위에서 사진 찍기",
     "region": "pohang",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/49/2989349.jpg"
   },
   {
     "content": "포항운하에서 유람선타면서 갈매기에게 새우깡주기",
     "region": "pohang",
-    "theme": ["healing", "date"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/71/2909171.jpg"
   },
   {
@@ -1566,7 +1576,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "호미곶해맞이광장 해바라기밭에서  인생샷 찍기",
     "region": "pohang",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/60/2950160.jpg"
   },
   {
@@ -1608,25 +1618,25 @@ List<Map<String, dynamic>> list = [
   {
     "content": "경주월드가서 제일 무서운 드라켄 타보기",
     "region": "gyeongju",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/99/2585699.jpg"
   },
   {
     "content": "캘리포니아비치가서 튜브에 몸을 맡기고 유수풀 즐기기",
     "region": "gyeongju",
-    "theme": ["activity", "date"],
+    "theme": ["date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/99/2585699.jpg"
   },
   {
     "content": "월정교에서 아름다운 야경 즐기기",
     "region": "gyeongju",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/58/2563758.jpg"
   },
   {
     "content": "실내 식물원 동궁원에서 신기한 식물들 구경하",
     "region": "gyeongju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/08/1908308.jpg"
   },
   {
@@ -1644,7 +1654,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "보문관광단지에서 백조보트 타기",
     "region": "gyeongju",
-    "theme": ["hist", "activity"],
+    "theme": ["healing", "date", "activity"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/68/2989268.jpg"
   },
   {
@@ -1662,7 +1672,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "황룡사 역사문화관에서 황룡사9층 목탑 모형보며 신라시대의 위대함 느끼기",
     "region": "gyeongju",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/49/2907749.jpg"
   },
   {
@@ -1674,7 +1684,7 @@ List<Map<String, dynamic>> list = [
   {
     "content": "교촌마을에서 한옥들과 돌담길들을 보며 산책하기",
     "region": "gyeongju",
-    "theme": ["hist", "healing"],
+    "theme": ["hist", "healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/70/2595970.jpg"
   },
   {
@@ -1686,13 +1696,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "불국사에서 템플스테이하며 마음을 다스리기",
     "region": "gyeongju",
-    "theme": ["hist", "healing"],
+    "theme": ["healing", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/78/2620378.jpg"
   },
   {
     "content": "황리단길에서 한복입고 돌아다니기",
     "region": "gyeongju",
-    "theme": ["hist", "date"],
+    "theme": ["date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/68/2989268.jpg"
   },
   {
@@ -1704,13 +1714,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "황성공원 꽃밭에서 꽃받침하고 사진찍기",
     "region": "gyeongju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/93/2760993.jpg"
   },
   {
     "content": "황성공원에서 푸릇푸릇한 식물들 보면서 산책하기",
     "region": "gyeongju",
-    "theme": ["date", "healing"],
+    "theme": ["healing", "date"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/93/2760993.jpg"
   },
   {
@@ -1728,13 +1738,13 @@ List<Map<String, dynamic>> list = [
   {
     "content": "경주엑스포대공원 경주타워 전망대에서 경주를 한눈에 내려다 보기",
     "region": "gyeongju",
-    "theme": ["healing", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/85/2585685.jpg"
   },
   {
     "content": "보문정에서 연못을 가득채운 연꽃들을 배경으로 인생샷 찍기",
     "region": "gyeongju",
-    "theme": ["date", "hist"],
+    "theme": ["healing", "date", "food"],
     "image": "http://tong.visitkorea.or.kr/cms2/website/29/2761529.jpg"
   },
   {
