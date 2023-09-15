@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:keyket/recommend/model/recommend_item_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,6 +20,7 @@ class RecommendItemListNotifier
     extends StateNotifier<List<RecommendItemModel>> {
   RecommendItemListNotifier(this.selectedRegion, this.selectedThemes)
       : super([]) {
+    randomOrder = Random().nextBool();
     getRecommendData(selectedRegion, selectedThemes);
   }
   RecommendRegion? selectedRegion;
@@ -25,6 +28,7 @@ class RecommendItemListNotifier
 
   DocumentSnapshot? lastVisibleDocument;
   bool isLastPage = false;
+  bool? randomOrder;
 
   void getRecommendData(RecommendRegion? selectedRegion,
       List<RecommendTheme> selectedThemes) async {
@@ -53,6 +57,9 @@ class RecommendItemListNotifier
         query = query.where('theme', arrayContainsAny: themeStringList);
       }
 
+      // randomOrder를 기반으로 content 필드를 기준으로 정렬
+      query = query.orderBy('content', descending: randomOrder!);
+
       if (lastVisibleDocument != null) {
         query = query.startAfterDocument(lastVisibleDocument!);
       }
@@ -75,6 +82,8 @@ class RecommendItemListNotifier
       } else {
         isLastPage = true;
       }
+
+      recommendItemList.shuffle();
 
       state = [...state, ...recommendItemList]; // 기존의 아이템들에 새로운 아이템들을 추가합니다.
     } catch (e) {

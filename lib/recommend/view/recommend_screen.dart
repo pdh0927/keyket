@@ -1,6 +1,8 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 import 'package:keyket/bucket/model/bucket_list_model.dart';
@@ -411,11 +413,22 @@ class _OrdinaryBucketItem extends StatelessWidget {
                   ClipRRect(
                       borderRadius: BorderRadius.circular(12.0),
                       child: bucketImage != ''
-                          ? Image.network(
-                              bucketImage!,
+                          ? CachedNetworkImage(
                               width: 60,
                               height: 60,
-                              fit: BoxFit.fill,
+                              imageUrl: bucketImage!,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!, // 어두운 색
+                                highlightColor: Colors.grey[100]!, // 밝은 색
+                                child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  color: Colors.grey[300],
+                                ),
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
                             )
                           : Image.asset('asset/img/logo.png', width: 60)),
                   const SizedBox(width: 24),

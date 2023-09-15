@@ -346,12 +346,12 @@ class _BucketListDetailScreenState
             if (tmpImage != null)
               Image.file(
                 tmpImage!,
-                fit: BoxFit.fill,
+                fit: BoxFit.fitWidth,
               )
             else if (modifiedBucketListModel.image != '')
               CachedNetworkImage(
                 imageUrl: modifiedBucketListModel.image,
-                fit: BoxFit.fill,
+                fit: BoxFit.fitWidth,
                 width: 100, // 원의 두 배의 지름
                 height: 100, // 원의 두 배의 지름
                 placeholder: (context, url) => Shimmer.fromColors(

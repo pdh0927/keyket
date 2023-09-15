@@ -119,6 +119,8 @@ class _ListItemState extends State<ListItem> {
                           textAlign: TextAlign.start,
                           style: TextStyle(
                               fontFamily: 'SCDream',
+                              height: 1.5,
+                              letterSpacing: 1.1,
                               backgroundColor: widget.isContain
                                   ? const Color(0xFFC4E4FA)
                                   : null,
@@ -158,7 +160,8 @@ class _ListItemState extends State<ListItem> {
                                     widget.item.content,
                                     style: TextStyle(
                                         fontFamily: 'SCDream',
-                                        height: 1.6,
+                                        height: 1.5,
+                                        letterSpacing: 1.1,
                                         decoration: widget.isContain
                                             ? TextDecoration.lineThrough
                                             : null,

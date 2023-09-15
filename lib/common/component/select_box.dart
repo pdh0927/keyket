@@ -44,6 +44,7 @@ class _SelectBoxState extends State<SelectBox> {
                   hideOverlay();
                   setState(() {
                     isLocationSelected = false;
+                    isThemeSelected = false;
                   });
                 },
               ),
@@ -58,6 +59,7 @@ class _SelectBoxState extends State<SelectBox> {
                   hideOverlay();
                   setState(() {
                     isLocationSelected = false;
+                    isThemeSelected = false;
                   });
                 },
                 child: _OptionGrid(
@@ -265,11 +267,12 @@ class _CustomTextButton extends StatelessWidget {
   final BorderRadiusGeometry borderRadius;
   final bool isSelected;
 
-  const _CustomTextButton(
-      {required this.label,
-      required this.onPressed,
-      required this.borderRadius,
-      required this.isSelected});
+  const _CustomTextButton({
+    required this.label,
+    required this.onPressed,
+    required this.borderRadius,
+    required this.isSelected,
+  });
 
   @override
   Widget build(BuildContext context) {

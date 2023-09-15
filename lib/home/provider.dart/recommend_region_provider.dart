@@ -56,12 +56,14 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
         // 길이 안에서 무작위로 3개의 고유한 인덱스 선택
         Random random = Random();
         Set<int> randomIndex = {};
-        while (randomIndex.length < 3 && randomIndex.length < items.length) {
+
+        while (randomIndex.length < 10 && randomIndex.length < items.length) {
           randomIndex.add(random.nextInt(items.length));
         }
 
         List<String> images = [];
         List<String> titles = [];
+
         for (int index in randomIndex) {
           var item = items[index];
           images.add(item['galWebImageUrl']);
