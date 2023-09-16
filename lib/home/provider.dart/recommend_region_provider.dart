@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -33,6 +34,7 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
     int index = Random().nextInt(regionKeywordList.length);
     Map<String, dynamic> result = {'region': regionKeywordList[index]};
     final Dio dio = Dio();
+
     final Map<String, dynamic> params = {
       "numOfRows": 100,
       "pageNo": 1,
@@ -44,20 +46,21 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
     };
 
     try {
-      Response response = await dio.get(
-        'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
-        queryParameters: params,
-      );
+      Response response = await dio
+          .get(
+            'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
+            queryParameters: params,
+          )
+          .timeout(const Duration(milliseconds: 100000));
 
       if (response.statusCode == 200) {
         List<dynamic> items =
             response.data['response']['body']['items']['item'];
 
-        // 길이 안에서 무작위로 3개의 고유한 인덱스 선택
         Random random = Random();
         Set<int> randomIndex = {};
 
-        while (randomIndex.length < 10 && randomIndex.length < items.length) {
+        while (randomIndex.length < 9 && randomIndex.length < items.length) {
           randomIndex.add(random.nextInt(items.length));
         }
 
@@ -77,8 +80,38 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
         throw Exception('Failed to load data from the API');
       }
     } catch (e) {
-      print(e.toString());
-      throw e;
+      if (e is TimeoutException) {
+        print("Connection Timeout Occurred!");
+        loadDefaultImagesAndTitles();
+      } else {
+        print(e);
+        loadDefaultImagesAndTitles();
+      }
     }
+  }
+
+  void loadDefaultImagesAndTitles() {
+    List<String> defaultTitles = [
+      "낙동강유채축제",
+      "늦가을의 우포늪",
+      "만년교의 봄",
+      "만년교의 쥐불놀이",
+      "아침을 여는 우포",
+      "우포 지킴이",
+      "우포늪 일출",
+      "우포의 아침",
+      "우포의 어부",
+    ];
+
+    defaultTitles.shuffle();
+
+    List<String> defaultImages =
+        defaultTitles.map((title) => 'asset/img/region/$title.jpg').toList();
+
+    state = {
+      'region': '창녕',
+      'images': defaultImages,
+      'titles': defaultTitles,
+    };
   }
 }
