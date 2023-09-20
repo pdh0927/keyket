@@ -17,6 +17,7 @@ import 'package:keyket/home/const/style.dart';
 import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
+import 'package:keyket/tmp/api_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -79,15 +80,20 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _AdvertisementContainer(
-                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-                adMaxHeight: 60,
-              ),
+              // _AdvertisementContainer(
+              //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+              //   adMaxHeight: 60,
+              // ),
               const SizedBox(height: 25),
               const _RegionImageContainer(),
               const SizedBox(height: 25),
               const _FixedBucketList(),
-              const SizedBox(height: 10)
+              const SizedBox(height: 10),
+              ElevatedButton(
+                  onPressed: () {
+                    apiTest();
+                  },
+                  child: const Text('hi'))
             ],
           ),
         ),
@@ -125,10 +131,10 @@ class _AdvertisementContainerState
   Widget build(BuildContext context) {
     final bannerAdvertisement = ref.watch(bannerAdvertisementProvider);
     if (bannerAdvertisement == null) {
-      return Container(
-          height: 50,
-          padding: const EdgeInsets.symmetric(vertical: 5),
-          child: const CircularProgressIndicator());
+      return const SizedBox(
+        height: 0,
+        width: 0,
+      );
     } else {
       return Container(
         alignment: Alignment.center,
