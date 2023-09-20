@@ -51,7 +51,7 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
             'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
             queryParameters: params,
           )
-          .timeout(const Duration(milliseconds: 100000));
+          .timeout(const Duration(milliseconds: 1500));
 
       if (response.statusCode == 200) {
         List<dynamic> items =
@@ -82,11 +82,10 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
     } catch (e) {
       if (e is TimeoutException) {
         print("Connection Timeout Occurred!");
-        loadDefaultImagesAndTitles();
       } else {
         print(e);
-        loadDefaultImagesAndTitles();
       }
+      loadDefaultImagesAndTitles();
     }
   }
 
