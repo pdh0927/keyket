@@ -17,7 +17,6 @@ import 'package:keyket/home/const/style.dart';
 import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
-import 'package:keyket/tmp/api_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -75,8 +74,8 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         )
       ],
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+      child: const Padding(
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
@@ -84,16 +83,12 @@ class _HomeScreenState extends State<HomeScreen> {
               //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
               //   adMaxHeight: 60,
               // ),
-              const SizedBox(height: 25),
-              const _RegionImageContainer(),
-              const SizedBox(height: 25),
-              const _FixedBucketList(),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                  onPressed: () {
-                    apiTest();
-                  },
-                  child: const Text('hi'))
+              SizedBox(height: 25),
+              _RegionImageContainer(),
+              SizedBox(height: 25),
+              _FixedBucketList(),
+              SizedBox(height: 25),
+              BucketListRecommend(), SizedBox(height: 10),
             ],
           ),
         ),
@@ -365,6 +360,390 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
         )
       ]);
     }
+  }
+}
+
+class _RegionImageContainer extends ConsumerWidget {
+  const _RegionImageContainer({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    Map<String, dynamic> recommendRegion = ref.watch(recommmendRegionProvider);
+
+    if (recommendRegion.isEmpty) {
+      return _loadingWidget();
+    }
+
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            _RegionTitle(region: recommendRegion['region']),
+            IconButton(
+              icon: const Icon(Remix.repeat_2_line, size: 23),
+              splashRadius: 20,
+              splashColor: Colors.white,
+              padding: const EdgeInsets.all(0),
+              constraints: const BoxConstraints(
+                  minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
+              onPressed: () async {
+                ref.read(recommmendRegionProvider.notifier).getRegionData();
+              },
+            )
+          ],
+        ),
+        const SizedBox(height: 8),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: _buildRegionImages(ref, recommendRegion),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _loadingWidget() {
+    return Stack(
+      children: [
+        Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: PRIMARY_COLOR,
+            ),
+            height: 270 / 390 * 100.w,
+          ),
+        ),
+        const Positioned(
+          top: 117, // adjusted based on Container's height
+          left: 0,
+          right: 0,
+          child: Text(
+            "키킷이 지역을 추천중입니다!",
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'SCDream',
+              fontSize: 20,
+              fontWeight: FontWeight.w400,
+              color: PRIMARY_COLOR,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildRegionImages(
+      WidgetRef ref, Map<String, dynamic> recommendRegion) {
+    return List.generate(recommendRegion['images'].length, (index) {
+      bool flag = false;
+      return Padding(
+        padding: EdgeInsets.only(
+            right: index == recommendRegion['images'].length - 1 ? 0 : 15.0),
+        child: Column(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: (recommendRegion['region'] == '창녕' || flag)
+                  ? AssetImageWidget(
+                      imagePath: recommendRegion['images'][index],
+                      width: 230 / 390 * 100.w,
+                      height: 230 / 390 * 100.w,
+                    )
+                  : CachedNetworkImageWidget(
+                      imageUrl: recommendRegion['images'][index],
+                      width: 230 / 390 * 100.w,
+                      height: 230 / 390 * 100.w,
+                      changeFlag: () {
+                        flag = true;
+                        if (recommendRegion['region'] != '창녕') {
+                          ref
+                              .read(recommmendRegionProvider.notifier)
+                              .loadDefaultImagesAndTitles();
+                        }
+                      }),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              recommendRegion['titles'][index],
+              style: const TextStyle(
+                  fontSize: 16,
+                  color: Colors.black,
+                  fontFamily: 'SCDream',
+                  fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      );
+    });
+  }
+}
+
+class BucketListItem extends StatelessWidget {
+  final String image;
+  final String title;
+
+  final VoidCallback onTap;
+
+  const BucketListItem({
+    super.key,
+    required this.image,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      height: 95,
+      decoration: BoxDecoration(
+        border: Border.all(width: 1, color: PRIMARY_COLOR),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(10),
+                bottomLeft: Radius.circular(10),
+              ),
+              child: Image.asset(
+                image,
+                width: 95,
+                height: 95,
+                fit: BoxFit.fill,
+              )),
+          const VerticalDivider(
+            thickness: 1,
+            width: 0,
+            color: PRIMARY_COLOR,
+          ),
+          Expanded(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: Colors.black,
+                height: 1.6,
+                fontFamily: 'SCDream',
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 5),
+          GestureDetector(
+            onTap: onTap,
+            child: Container(
+              width: 60,
+              height: 95,
+              color: Colors.transparent,
+              alignment: Alignment.center,
+              child: const Icon(
+                Remix.arrow_right_circle_fill,
+                color: PRIMARY_COLOR,
+                size: 30,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class AssetImageWidget extends StatelessWidget {
+  final String imagePath;
+  final double width;
+  final double height;
+
+  const AssetImageWidget({
+    super.key,
+    required this.imagePath,
+    this.width = double.infinity,
+    this.height = double.infinity,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      imagePath,
+      fit: BoxFit.cover,
+      width: width,
+      height: height,
+    );
+  }
+}
+
+class CachedNetworkImageWidget extends ConsumerStatefulWidget {
+  final String imageUrl;
+  final double width;
+  final double height;
+  final Function() changeFlag;
+
+  const CachedNetworkImageWidget({
+    super.key,
+    required this.imageUrl,
+    required this.changeFlag,
+    this.width = double.infinity,
+    this.height = double.infinity,
+  });
+
+  @override
+  ConsumerState createState() => _CachedNetworkImageWidgetState();
+}
+
+class _CachedNetworkImageWidgetState
+    extends ConsumerState<CachedNetworkImageWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return CachedNetworkImage(
+      imageUrl: widget.imageUrl,
+      fit: BoxFit.cover,
+      width: widget.width,
+      height: widget.height,
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(
+          width: 90,
+          height: 90,
+          color: Colors.grey[300],
+        ),
+      ),
+      errorWidget: (context, url, error) {
+        return const Icon(Icons.error);
+      },
+    );
+  }
+}
+
+class _RegionTitle extends StatelessWidget {
+  final String region;
+  const _RegionTitle({super.key, required this.region});
+
+  @override
+  Widget build(BuildContext context) {
+    return RichText(
+      text: TextSpan(
+        children: [
+          TextSpan(
+            text: '오늘 ',
+            style: homeSubTitleStyle,
+          ),
+          TextSpan(
+            text: region,
+            style: homeSubTitleStyle.copyWith(color: PRIMARY_COLOR),
+          ),
+          TextSpan(
+            text: ' 어때요?',
+            style: homeSubTitleStyle,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class BucketListRecommend extends StatefulWidget {
+  const BucketListRecommend({super.key});
+
+  @override
+  State<BucketListRecommend> createState() => _BucketListRecommendState();
+}
+
+class _BucketListRecommendState extends State<BucketListRecommend> {
+  List<Map> recommendList = [
+    {
+      'title': '여자친구와 함께하는\n부산 여행',
+      'thumbImage': 'asset/img/bucketlist/girlfriend_thumb_image.png',
+      'resultImage': 'asset/img/bucketlist/girlfriend_result_image.png'
+    },
+    {
+      'title': '부모님을 모시고 가는\n창녕 힐링 여행',
+      'thumbImage': 'asset/img/bucketlist/parents_thumb_image.png',
+      'resultImage': 'asset/img/bucketlist/parents_result_image.png'
+    },
+    {
+      'title': '친구들과 함께 떠나는\n액티비티 여행',
+      'thumbImage': 'asset/img/bucketlist/friends_thumb_image.png',
+      'resultImage': 'asset/img/bucketlist/friends_result_image.png'
+    },
+    {
+      'title': '아이와 함께하는\n역사 기행 탐방기',
+      'thumbImage': 'asset/img/bucketlist/kids_thumb_image.png',
+      'resultImage': 'asset/img/bucketlist/kids_result_image.png'
+    }
+  ];
+  int selectedBucketIndex = -1;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('이런 버킷리스트는 어때요?', style: homeSubTitleStyle),
+        const SizedBox(height: 10),
+        selectedBucketIndex == -1
+            ? Column(
+                children: getChilds(),
+              )
+            : Stack(
+                children: [
+                  Image.asset(
+                      recommendList[selectedBucketIndex]['resultImage']),
+                  Positioned(
+                    top: 15,
+                    left: 15,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          selectedBucketIndex = -1;
+                        });
+                      },
+                      child: Container(
+                        color: Colors.transparent,
+                        width: 40, // 원하는 너비
+                        height: 40, // 원하는 높이
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+      ],
+    );
+  }
+
+  getChilds() {
+    List<Widget> childs = [];
+    for (int i = 0; i < 4; i++) {
+      childs.add(Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: BucketListItem(
+          image: recommendList[i]['thumbImage'],
+          title: recommendList[i]['title'],
+          onTap: () {
+            selectBucket(i);
+          },
+        ),
+      ));
+    }
+    return childs;
+  }
+
+  selectBucket(int index) {
+    setState(() {
+      selectedBucketIndex = index;
+    });
   }
 }
 
@@ -941,218 +1320,3 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
 //     }
 //   }
 // }
-class _RegionImageContainer extends ConsumerWidget {
-  const _RegionImageContainer({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    Map<String, dynamic> recommendRegion = ref.watch(recommmendRegionProvider);
-
-    if (recommendRegion.isEmpty) {
-      return _loadingWidget();
-    }
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            _RegionTitle(region: recommendRegion['region']),
-            IconButton(
-              icon: const Icon(Remix.repeat_2_line, size: 23),
-              splashRadius: 20,
-              splashColor: Colors.white,
-              padding: const EdgeInsets.all(0),
-              constraints: const BoxConstraints(
-                  minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
-              onPressed: () async {
-                ref.read(recommmendRegionProvider.notifier).getRegionData();
-              },
-            )
-          ],
-        ),
-        const SizedBox(height: 8),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: _buildRegionImages(ref, recommendRegion),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _loadingWidget() {
-    return Stack(
-      children: [
-        Shimmer.fromColors(
-          baseColor: Colors.grey[300]!,
-          highlightColor: Colors.grey[100]!,
-          child: Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: PRIMARY_COLOR,
-            ),
-            height: 270 / 390 * 100.w,
-          ),
-        ),
-        const Positioned(
-          top: 117, // adjusted based on Container's height
-          left: 0,
-          right: 0,
-          child: Text(
-            "키킷이 지역을 추천중입니다!",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontFamily: 'SCDream',
-              fontSize: 20,
-              fontWeight: FontWeight.w400,
-              color: PRIMARY_COLOR,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<Widget> _buildRegionImages(
-      WidgetRef ref, Map<String, dynamic> recommendRegion) {
-    return List.generate(recommendRegion['images'].length, (index) {
-      bool flag = false;
-      return Padding(
-        padding: EdgeInsets.only(
-            right: index == recommendRegion['images'].length - 1 ? 0 : 15.0),
-        child: Column(
-          children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: (recommendRegion['region'] == '창녕' || flag)
-                  ? AssetImageWidget(
-                      imagePath: recommendRegion['images'][index],
-                      width: 230 / 390 * 100.w,
-                      height: 230 / 390 * 100.w,
-                    )
-                  : CachedNetworkImageWidget(
-                      imageUrl: recommendRegion['images'][index],
-                      width: 230 / 390 * 100.w,
-                      height: 230 / 390 * 100.w,
-                      changeFlag: () {
-                        flag = true;
-                        if (recommendRegion['region'] != '창녕') {
-                          ref
-                              .read(recommmendRegionProvider.notifier)
-                              .loadDefaultImagesAndTitles();
-                        }
-                      }),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              recommendRegion['titles'][index],
-              style: const TextStyle(
-                  fontSize: 16,
-                  color: Colors.black,
-                  fontFamily: 'SCDream',
-                  fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-      );
-    });
-  }
-}
-
-class AssetImageWidget extends StatelessWidget {
-  final String imagePath;
-  final double width;
-  final double height;
-
-  AssetImageWidget({
-    required this.imagePath,
-    this.width = double.infinity,
-    this.height = double.infinity,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Image.asset(
-      imagePath,
-      fit: BoxFit.cover,
-      width: width,
-      height: height,
-    );
-  }
-}
-
-// 네트워크 이미지 위젯
-class CachedNetworkImageWidget extends ConsumerStatefulWidget {
-  final String imageUrl;
-  final double width;
-  final double height;
-  final Function() changeFlag;
-
-  CachedNetworkImageWidget({
-    required this.imageUrl,
-    required this.changeFlag,
-    this.width = double.infinity,
-    this.height = double.infinity,
-  });
-
-  @override
-  ConsumerState createState() => _CachedNetworkImageWidgetState();
-}
-
-class _CachedNetworkImageWidgetState
-    extends ConsumerState<CachedNetworkImageWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return CachedNetworkImage(
-      imageUrl: widget.imageUrl,
-      fit: BoxFit.cover,
-      width: widget.width,
-      height: widget.height,
-      placeholder: (context, url) => Shimmer.fromColors(
-        baseColor: Colors.grey[300]!,
-        highlightColor: Colors.grey[100]!,
-        child: Container(
-          width: 90,
-          height: 90,
-          color: Colors.grey[300],
-        ),
-      ),
-      errorWidget: (context, url, error) {
-        return const Icon(Icons.error);
-      },
-    );
-  }
-}
-
-class _RegionTitle extends StatelessWidget {
-  final String region;
-  const _RegionTitle({super.key, required this.region});
-
-  @override
-  Widget build(BuildContext context) {
-    return RichText(
-      text: TextSpan(
-        children: [
-          TextSpan(
-            text: '오늘 ',
-            style: homeSubTitleStyle,
-          ),
-          TextSpan(
-            text: region,
-            style: homeSubTitleStyle.copyWith(color: PRIMARY_COLOR),
-          ),
-          TextSpan(
-            text: ' 어때요?',
-            style: homeSubTitleStyle,
-          ),
-        ],
-      ),
-    );
-  }
-}
