@@ -25,7 +25,8 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
     '제주도',
     '대구광역시',
     '경주',
-    '포항'
+    '포항',
+    '창녕'
   ];
 
   Future<void> getRegionData() async {
@@ -51,7 +52,7 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
             'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
             queryParameters: params,
           )
-          .timeout(const Duration(milliseconds: 1500));
+          .timeout(const Duration(milliseconds: 2000));
 
       if (response.statusCode == 200) {
         List<dynamic> items =
