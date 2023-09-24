@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/common/component/show_help_image_dialog.dart';
+import 'package:keyket/common/const/colors.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -67,16 +69,19 @@ class _RecommendScreenState extends ConsumerState<RecommendScreen> {
 
     return DefaultLayout(
         title: '추천',
-        // actions: [
-        //   InkWell(
-        //     onTap: () {},
-        //     child: const SizedBox(
-        //       height: 10,
-        //       child: Icon(Remix.search_line, color: BLACK_COLOR, size: 25),
-        //     ),
-        //   ),
-        //   const SizedBox(width: 25)
-        // ],
+        actions: [
+          InkWell(
+            onTap: () {
+              showHelpImageDialog(context, 'recommend_help');
+            },
+            child: const SizedBox(
+              height: 10,
+              child: Icon(Remix.error_warning_line,
+                  color: PRIMARY_COLOR, size: 25),
+            ),
+          ),
+          const SizedBox(width: 25)
+        ],
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Column(children: [

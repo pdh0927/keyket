@@ -5,6 +5,7 @@ import 'package:keyket/bucket/const/text_style.dart';
 import 'package:keyket/bucket/model/bucket_list_model.dart';
 import 'package:keyket/bucket/provider/bucket_list_provider.dart';
 import 'package:keyket/common/component/custom_input_dialog.dart';
+import 'package:keyket/common/component/show_help_image_dialog.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
@@ -30,6 +31,16 @@ class _BucketListListScreenScreenState
     return DefaultLayout(
         title: '버킷',
         actions: [
+          InkWell(
+            onTap: () {
+              showHelpImageDialog(context, 'bucketlist_help');
+            },
+            child: const SizedBox(
+              height: 10,
+              child: Icon(Remix.error_warning_line,
+                  color: PRIMARY_COLOR, size: 25),
+            ),
+          ),
           IconButton(
               onPressed: () async {
                 String? name = await showCustomInputDialog(
