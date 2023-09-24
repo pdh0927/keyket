@@ -9,13 +9,14 @@ class DefaultLayout extends StatelessWidget {
   final BottomNavigationBar? bottomNavigationBar;
   final List<Widget>? actions;
 
-  const DefaultLayout(
-      {required this.child,
-      this.backgroundColor,
-      this.actions,
-      this.bottomNavigationBar,
-      this.title,
-      super.key});
+  const DefaultLayout({
+    required this.child,
+    this.backgroundColor,
+    this.actions,
+    this.bottomNavigationBar,
+    this.title,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,17 +35,18 @@ class DefaultLayout extends StatelessWidget {
       return null;
     } else {
       return AppBar(
-          backgroundColor: Colors.white,
-          elevation: 0,
-          title: Text(title!,
-              style: const TextStyle(
-                  fontFamily: 'SCDream',
-                  fontSize: 24.0,
-                  fontWeight: FontWeight.w500)),
-          centerTitle: false,
-          titleSpacing: 25,
-          actions: actions ?? [],
-          foregroundColor: Colors.black);
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(title!,
+            style: const TextStyle(
+                fontFamily: 'SCDream',
+                fontSize: 24.0,
+                fontWeight: FontWeight.w500)),
+        centerTitle: false,
+        titleSpacing: 25,
+        actions: actions ?? [],
+        foregroundColor: Colors.black,
+      );
     }
   }
 }

@@ -997,7 +997,7 @@ class _RegionImageContainer extends ConsumerWidget {
               borderRadius: BorderRadius.circular(10),
               color: PRIMARY_COLOR,
             ),
-            height: 250,
+            height: 270 / 390 * 100.w,
           ),
         ),
         const Positioned(
