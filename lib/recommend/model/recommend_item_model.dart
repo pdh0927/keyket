@@ -11,11 +11,12 @@ enum RecommendRegion {
   pohang,
   gyeongju,
   jeju,
+  changnyeong
 }
 
 enum RecommendTheme { healing, activity, festival, date, hist, food }
 
-List<String> recommendRegionKor = ['서울', '부산', '대구', '포항', '경주', '제주'];
+List<String> recommendRegionKor = ['서울', '부산', '대구', '포항', '경주', '제주', '창녕'];
 
 List<String> recommendThemeKor = ['힐링', '엑티비티', '축제', '데이트', '역사/문화', '먹거리'];
 
