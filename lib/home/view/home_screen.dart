@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -17,6 +17,7 @@ import 'package:keyket/home/const/style.dart';
 import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
+import 'package:keyket/tmp/api_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -74,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         )
       ],
-      child: const Padding(
+      child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
         child: SingleChildScrollView(
           child: Column(
@@ -83,12 +84,17 @@ class _HomeScreenState extends State<HomeScreen> {
               //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
               //   adMaxHeight: 60,
               // ),
-              SizedBox(height: 25),
+              SizedBox(height: 30),
               _RegionImageContainer(),
-              SizedBox(height: 25),
+              SizedBox(height: 30),
               _FixedBucketList(),
-              SizedBox(height: 25),
+              SizedBox(height: 30),
               BucketListRecommend(), SizedBox(height: 10),
+              ElevatedButton(
+                  onPressed: () {
+                    apiTest();
+                  },
+                  child: Text('test'))
             ],
           ),
         ),

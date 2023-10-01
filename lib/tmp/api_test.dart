@@ -4,25 +4,27 @@ import 'dart:convert';
 
 void apiTest() async {
   final Map<String, dynamic> params = {
-    "numOfRows": 100,
-    "pageNo": 1,
-    "resultType": "json",
-    "ServiceKey": dotenv.env['PUBLIC_DATA_API_KEY']
+    'serviceKey':
+        'xBDpjEAn5RzvzNhwBgo/BTjxXFd07srl7FzKbHOXh0liVSTWzSEF/8fFK9in+oJNI26MkaHvUyhPQ067LYXuKQ==',
+    'pageNo': '1',
+    'numOfRows': '10',
+    'SIDO_NM': '제주',
+    'resultType': 'json'
   };
 
   final Dio dio = Dio();
 
   try {
     Response response = await dio.get(
-      "http://apis.data.go.kr/6260000/FestivalService/getFestivalKr",
+      'http://apis.data.go.kr/1192000/service/OceansBeachInfoService1/getOceansBeachInfo1',
       queryParameters: params,
     );
     Map<String, dynamic> decodedJson = json.decode(response.data);
 
-    for (int i = 0; i < decodedJson['getFestivalKr']['item'].length; i++) {
-      print(decodedJson['getFestivalKr']['item'][i]);
+    for (int i = 0; i < decodedJson['getOceansBeachInfo']['item'].length; i++) {
+      print(decodedJson['getOceansBeachInfo']['item'][i]);
     }
-    print(decodedJson['getFestivalKr']['item'].length);
+    print(decodedJson['getOceansBeachInfo']['item'].length);
   } catch (e) {
     print(e);
   }
