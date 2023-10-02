@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:app_tracking_transparency/app_tracking_transparency.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -13,10 +13,14 @@ import 'package:keyket/bucket/view/bucket_list_detail_screen.dart';
 import 'package:keyket/common/const/colors.dart';
 import 'package:keyket/common/layout/default_layout.dart';
 import 'package:keyket/common/provider/my_provider.dart';
+import 'package:keyket/home/const/data.dart';
 import 'package:keyket/home/const/style.dart';
 import 'package:keyket/home/provider.dart/banner_advertisement_provider.dart';
+import 'package:keyket/home/provider.dart/index_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
+import 'package:keyket/home/provider.dart/weather_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
+import 'package:keyket/tmp/api_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -83,11 +87,12 @@ class _HomeScreenState extends State<HomeScreen> {
               //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
               //   adMaxHeight: 60,
               // ),
-              SizedBox(height: 25),
+              WeatehrContainer(),
+              SizedBox(height: 20),
               _RegionImageContainer(),
-              SizedBox(height: 25),
+              SizedBox(height: 30),
               _FixedBucketList(),
-              SizedBox(height: 25),
+              SizedBox(height: 30),
               BucketListRecommend(), SizedBox(height: 10),
             ],
           ),
@@ -360,6 +365,50 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
         )
       ]);
     }
+  }
+}
+
+class WeatehrContainer extends ConsumerWidget {
+  const WeatehrContainer({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final weather = ref.watch(weatherProvider);
+
+    return Container(
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        border: Border(
+          top: BorderSide(
+            width: 4.0,
+            color: PRIMARY_COLOR,
+          ),
+          bottom: BorderSide(
+            width: 4.0,
+            color: PRIMARY_COLOR,
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(
+            horizontal: 8, vertical: 8.0), // 테두리와 내용 사이의 간격을 조정 (선택 사항)
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(regionList[ref.watch(indexProvider)],
+                textAlign: TextAlign.center, style: homeSubTitleStyle),
+            const SizedBox(width: 2),
+            const Icon(
+              Remix.map_pin_user_fill,
+              color: PRIMARY_COLOR,
+            ),
+            const SizedBox(width: 10),
+            Text('기온 : ${weather['th3']}°C, 강수량 : ${weather['pop']}%',
+                style: homeSubTitleStyle.copyWith(fontSize: 17)),
+          ],
+        ),
+      ),
+    );
   }
 }
 
