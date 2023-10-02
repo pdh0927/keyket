@@ -5,16 +5,21 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:keyket/home/const/data.dart';
+import 'package:keyket/home/provider.dart/index_provider.dart';
 
 final recommmendRegionProvider =
     StateNotifierProvider<RecommendRegionNotifier, Map<String, dynamic>>((ref) {
-  return RecommendRegionNotifier();
+  final index = ref.watch(indexProvider); // index 값을 읽어옴
+  return RecommendRegionNotifier(index);
 });
 
 class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
-  RecommendRegionNotifier() : super({}) {
+  RecommendRegionNotifier(this.index) : super({}) {
     getRegionData();
   }
+
+  final int index;
 
   final List<String> regionKeywordList = [
     '서울',
@@ -30,62 +35,65 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
   ];
 
   Future<void> getRegionData() async {
-    state = {};
+    if (index != 9) {
+      state = {};
 
-    int index = Random().nextInt(regionKeywordList.length);
-    Map<String, dynamic> result = {'region': regionKeywordList[index]};
-    final Dio dio = Dio();
+      Map<String, dynamic> result = {'region': regionList[index]};
+      final Dio dio = Dio();
 
-    final Map<String, dynamic> params = {
-      "numOfRows": 100,
-      "pageNo": 1,
-      "MobileOS": Platform.isIOS ? "IOS" : "AND",
-      "MobileApp": "keyket",
-      "_type": "json",
-      "keyword": regionKeywordList[index],
-      "serviceKey": dotenv.env['PUBLIC_DATA_API_KEY']
-    };
+      final Map<String, dynamic> params = {
+        "numOfRows": 100,
+        "pageNo": 1,
+        "MobileOS": Platform.isIOS ? "IOS" : "AND",
+        "MobileApp": "keyket",
+        "_type": "json",
+        "keyword": regionKeywordList[index],
+        "serviceKey": dotenv.env['PUBLIC_DATA_API_KEY']
+      };
 
-    try {
-      Response response = await dio
-          .get(
-            'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
-            queryParameters: params,
-          )
-          .timeout(const Duration(milliseconds: 2000));
+      try {
+        Response response = await dio
+            .get(
+              'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
+              queryParameters: params,
+            )
+            .timeout(const Duration(milliseconds: 2000));
 
-      if (response.statusCode == 200) {
-        List<dynamic> items =
-            response.data['response']['body']['items']['item'];
+        if (response.statusCode == 200) {
+          List<dynamic> items =
+              response.data['response']['body']['items']['item'];
 
-        Random random = Random();
-        Set<int> randomIndex = {};
+          Random random = Random();
+          Set<int> randomIndex = {};
 
-        while (randomIndex.length < 9 && randomIndex.length < items.length) {
-          randomIndex.add(random.nextInt(items.length));
+          while (randomIndex.length < 9 && randomIndex.length < items.length) {
+            randomIndex.add(random.nextInt(items.length));
+          }
+
+          List<String> images = [];
+          List<String> titles = [];
+
+          for (int index in randomIndex) {
+            var item = items[index];
+            images.add(item['galWebImageUrl']);
+            titles.add(item['galTitle']);
+          }
+          result['images'] = images;
+          result['titles'] = titles;
+
+          state = result;
+        } else {
+          throw Exception('Failed to load data from the API');
         }
-
-        List<String> images = [];
-        List<String> titles = [];
-
-        for (int index in randomIndex) {
-          var item = items[index];
-          images.add(item['galWebImageUrl']);
-          titles.add(item['galTitle']);
+      } catch (e) {
+        if (e is TimeoutException) {
+          print("Connection Timeout Occurred!");
+        } else {
+          print(e);
         }
-        result['images'] = images;
-        result['titles'] = titles;
-
-        state = result;
-      } else {
-        throw Exception('Failed to load data from the API');
+        loadDefaultImagesAndTitles();
       }
-    } catch (e) {
-      if (e is TimeoutException) {
-        print("Connection Timeout Occurred!");
-      } else {
-        print(e);
-      }
+    } else {
       loadDefaultImagesAndTitles();
     }
   }
