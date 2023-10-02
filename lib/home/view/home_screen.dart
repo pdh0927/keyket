@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:app_tracking_transparency/app_tracking_transparency.dart';
@@ -20,7 +21,6 @@ import 'package:keyket/home/provider.dart/index_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/home/provider.dart/weather_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
-import 'package:keyket/tmp/api_test.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -87,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
               //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
               //   adMaxHeight: 60,
               // ),
-              WeatehrContainer(),
+              WeatherContainer(),
               SizedBox(height: 20),
               _RegionImageContainer(),
               SizedBox(height: 30),
@@ -368,8 +368,8 @@ class _FixedBucketListState extends ConsumerState<_FixedBucketList> {
   }
 }
 
-class WeatehrContainer extends ConsumerWidget {
-  const WeatehrContainer({super.key});
+class WeatherContainer extends ConsumerWidget {
+  const WeatherContainer({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -403,7 +403,7 @@ class WeatehrContainer extends ConsumerWidget {
               color: PRIMARY_COLOR,
             ),
             const SizedBox(width: 10),
-            Text('기온 : ${weather['th3']}°C, 강수량 : ${weather['pop']}%',
+            Text('기온 : ${weather['th3'] ?? 0}°C, 강수량 : ${weather['pop'] ?? 0}%',
                 style: homeSubTitleStyle.copyWith(fontSize: 17)),
           ],
         ),
@@ -437,8 +437,10 @@ class _RegionImageContainer extends ConsumerWidget {
               padding: const EdgeInsets.all(0),
               constraints: const BoxConstraints(
                   minHeight: 25, minWidth: 25, maxHeight: 25, maxWidth: 25),
-              onPressed: () async {
-                ref.read(recommmendRegionProvider.notifier).getRegionData();
+              onPressed: () {
+                ref
+                    .read(indexProvider.notifier)
+                    .update((state) => Random().nextInt(10));
               },
             )
           ],
