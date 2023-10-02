@@ -1,7 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:remixicon/remixicon.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:sizer/sizer.dart';
 
 class MyNotification extends StatelessWidget {
   const MyNotification({super.key});
@@ -109,13 +112,39 @@ class MyNotification extends StatelessWidget {
                               ),
                               child: Padding(
                                 padding: const EdgeInsets.all(20),
-                                child: Text(
-                                  docs[index - 1]['content'],
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Color(0XFF000000),
-                                    fontFamily: 'SCDream',
-                                  ),
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      docs[index - 1]['content'],
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: Color(0XFF000000),
+                                        fontFamily: 'SCDream',
+                                      ),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    docs[index - 1]['image'] != ''
+                                        ? CachedNetworkImage(
+                                            imageUrl: docs[index - 1]['image'],
+                                            fit: BoxFit.cover,
+                                            width: 80.w, // 원의 두 배의 지름
+                                            height: 60.w, // 원의 두 배의 지름
+                                            placeholder: (context, url) =>
+                                                Shimmer.fromColors(
+                                              baseColor: Colors.grey[300]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              child: Container(
+                                                width: 80.w,
+                                                height: 60.w,
+                                                color: Colors.grey[300],
+                                              ),
+                                            ),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
+                                          )
+                                        : SizedBox(height: 0)
+                                  ],
                                 ),
                               ),
                             ),
