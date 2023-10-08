@@ -11,15 +11,16 @@ import 'package:keyket/home/provider.dart/index_provider.dart';
 final recommmendRegionProvider =
     StateNotifierProvider<RecommendRegionNotifier, Map<String, dynamic>>((ref) {
   final index = ref.watch(indexProvider); // index 값을 읽어옴
-  return RecommendRegionNotifier(index);
+  return RecommendRegionNotifier(index, ref);
 });
 
 class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
-  RecommendRegionNotifier(this.index) : super({}) {
+  RecommendRegionNotifier(this.index, this.ref) : super({}) {
     getRegionData();
   }
 
   final int index;
+  final ref;
 
   final List<String> regionKeywordList = [
     '서울',
@@ -92,9 +93,11 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
           print(e);
         }
         loadDefaultImagesAndTitles();
+        ref.read(indexProvider.notifier).update((state) => 9);
       }
     } else {
       loadDefaultImagesAndTitles();
+      ref.read(indexProvider.notifier).update((state) => 9);
     }
   }
 
