@@ -21,7 +21,6 @@ import 'package:keyket/home/provider.dart/index_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/home/provider.dart/weather_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
-import 'package:keyket/tmp/saveToFirestore.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
