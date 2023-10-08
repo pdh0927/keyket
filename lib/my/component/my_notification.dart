@@ -117,7 +117,8 @@ class MyNotification extends StatelessWidget {
                                     Text(
                                       docs[index - 1]['content'],
                                       style: const TextStyle(
-                                        fontSize: 13,
+                                        height: 1.4,
+                                        fontSize: 15,
                                         color: Color(0XFF000000),
                                         fontFamily: 'SCDream',
                                       ),
@@ -141,9 +142,9 @@ class MyNotification extends StatelessWidget {
                                             ),
                                             errorWidget:
                                                 (context, url, error) =>
-                                                    Icon(Icons.error),
+                                                    const Icon(Icons.error),
                                           )
-                                        : SizedBox(height: 0)
+                                        : const SizedBox(height: 0)
                                   ],
                                 ),
                               ),
