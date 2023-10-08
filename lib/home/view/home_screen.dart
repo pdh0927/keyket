@@ -21,6 +21,7 @@ import 'package:keyket/home/provider.dart/index_provider.dart';
 import 'package:keyket/home/provider.dart/recommend_region_provider.dart';
 import 'package:keyket/home/provider.dart/weather_provider.dart';
 import 'package:keyket/my/component/my_notification.dart';
+import 'package:keyket/tmp/saveToFirestore.dart';
 import 'package:remixicon/remixicon.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
@@ -403,7 +404,8 @@ class WeatherContainer extends ConsumerWidget {
               color: PRIMARY_COLOR,
             ),
             const SizedBox(width: 10),
-            Text('기온 : ${weather['th3'] ?? 0}°C, 강수량 : ${weather['pop'] ?? 0}%',
+            Text(
+                '기온 : ${weather['th3'] ?? 0}°C, 강수 확률 : ${weather['pop'] ?? 0}%',
                 style: homeSubTitleStyle.copyWith(fontSize: 17)),
           ],
         ),
