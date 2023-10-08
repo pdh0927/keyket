@@ -57,7 +57,7 @@ class RecommendRegionNotifier extends StateNotifier<Map<String, dynamic>> {
               'https://apis.data.go.kr/B551011/PhotoGalleryService1/gallerySearchList1',
               queryParameters: params,
             )
-            .timeout(const Duration(milliseconds: 2000));
+            .timeout(const Duration(milliseconds: 5000));
 
         if (response.statusCode == 200) {
           List<dynamic> items =
