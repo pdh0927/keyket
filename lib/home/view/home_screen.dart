@@ -403,7 +403,8 @@ class WeatherContainer extends ConsumerWidget {
               color: PRIMARY_COLOR,
             ),
             const SizedBox(width: 10),
-            Text('기온 : ${weather['th3'] ?? 0}°C, 강수량 : ${weather['pop'] ?? 0}%',
+            Text(
+                '기온 : ${weather['th3'] ?? 0}°C, 강수 확률 : ${weather['pop'] ?? 0}%',
                 style: homeSubTitleStyle.copyWith(fontSize: 17)),
           ],
         ),
