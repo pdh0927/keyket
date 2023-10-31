@@ -78,22 +78,23 @@ class _HomeScreenState extends State<HomeScreen> {
           },
         )
       ],
-      child: const Padding(
+      child: Padding(
         padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // _AdvertisementContainer(
-              //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-              //   adMaxHeight: 60,
-              // ),
+              _AdvertisementContainer(
+                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+                adMaxHeight: 60,
+              ),
               WeatherContainer(),
               SizedBox(height: 20),
               _RegionImageContainer(),
               SizedBox(height: 30),
               _FixedBucketList(),
               SizedBox(height: 30),
-              BucketListRecommend(), SizedBox(height: 10),
+              BucketListRecommend(),
+              SizedBox(height: 10),
             ],
           ),
         ),
