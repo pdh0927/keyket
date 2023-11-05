@@ -18,7 +18,7 @@
 
 ### Back-end
 
-- Firebase
+- Firebase
 
 
 ### Design
