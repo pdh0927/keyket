@@ -29,7 +29,7 @@
 
 
 ## 실행 화면
-<img alt="오프닝1" src="https://github.com/pdh0927/keyket/assets/67888951/2e6f45ff-7648-4651-8ea7-ce1a45694851" width = "250" height = "300"><img alt="오프닝2" src="https://github.com/pdh0927/keyket/assets/67888951/7989267c-877c-44a2-851f-7bcb20f17889" width = "250" height = "300">
+<img alt="오프닝1" src="https://github.com/pdh0927/keyket/assets/67888951/2e6f45ff-7648-4651-8ea7-ce1a45694851" width = "160" height = "260"><img alt="오프닝2" src="https://github.com/pdh0927/keyket/assets/67888951/7989267c-877c-44a2-851f-7bcb20f17889" width = "160" height = "260">
 
 
 ### 버킷리스트 항목 추천
