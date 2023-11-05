@@ -7,7 +7,7 @@
 
 🎢 지역, 테마별로 특색 있는 버킷리스트 항목 추천까지
 
-
+<br/>
 
 
 ## 기술스택
@@ -24,7 +24,7 @@
 ### Design
 
 - Figma
-
+<br/>
 
 ## 배포 링크
 
@@ -34,7 +34,7 @@ https://apps.apple.com/kr/app/%ED%82%A4%ED%82%B7/id6463154564
 ### AOS
 https://play.google.com/store/apps/details?id=com.dhapp.keyket
 
-
+<br/>
 ## 실행 화면
 <img alt="오프닝1" src="https://github.com/pdh0927/keyket/assets/67888951/2e6f45ff-7648-4651-8ea7-ce1a45694851" width = "160" height = "260"><img alt="오프닝2" src="https://github.com/pdh0927/keyket/assets/67888951/7989267c-877c-44a2-851f-7bcb20f17889" width = "160" height = "260">
 
