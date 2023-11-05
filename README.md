@@ -26,12 +26,12 @@
 - Figma
 
 
-## 배포 링크
+## 배포 링크
 
-### IOS
+### IOS
 https://apps.apple.com/kr/app/%ED%82%A4%ED%82%B7/id6463154564
 
-### AOS
+### AOS
 https://play.google.com/store/apps/details?id=com.dhapp.keyket
 
 
