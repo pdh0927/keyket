@@ -83,10 +83,10 @@ class _HomeScreenState extends State<HomeScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              _AdvertisementContainer(
-                adWidth: MediaQuery.of(context).size.width.toInt() - 32,
-                adMaxHeight: 60,
-              ),
+              // _AdvertisementContainer(
+              //   adWidth: MediaQuery.of(context).size.width.toInt() - 32,
+              //   adMaxHeight: 60,
+              // ),
               WeatherContainer(),
               SizedBox(height: 20),
               _RegionImageContainer(),

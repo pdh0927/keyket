@@ -14,8 +14,11 @@ class BannerAdvertisementNotifier extends StateNotifier<AdManagerBannerAd?> {
   BannerAdvertisementNotifier() : super(null);
 
   final adUnitId = Platform.isAndroid
-      ? dotenv.env['ANDROID_BANNER_UNIT_KEY']
-      : dotenv.env['IOS_BANNER_UNIT_KEY'];
+      ? 'ca-app-pub-3940256099942544/6300978111'
+      : 'ca-app-pub-3940256099942544/2934735716';
+  // final adUnitId = Platform.isAndroid
+  //     ? dotenv.env['ANDROID_BANNER_UNIT_KEY']
+  //     : dotenv.env['IOS_BANNER_UNIT_KEY'];
 
   void loadAd(int width, int maxHeight) {
     final bannerAd = AdManagerBannerAd(

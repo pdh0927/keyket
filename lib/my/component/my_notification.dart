@@ -53,6 +53,9 @@ class MyNotification extends StatelessWidget {
       adUnitId: Platform.isAndroid
           ? dotenv.env['ANDROID_REWARD_UNIT_KEY']!
           : dotenv.env['IOS_REWARD_UNIT_KEY']!,
+      // adUnitId: Platform.isAndroid
+      //     ? 'ca-app-pub-3940256099942544/5224354917'
+      //     : 'ca-app-pub-3940256099942544/1712485313',
       request: AdRequest(),
       rewardedAdLoadCallback: RewardedAdLoadCallback(
         // 보상 광고 로드 완료
